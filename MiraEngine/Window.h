@@ -3,6 +3,16 @@
 struct GLFWwindow;
 
 namespace Wave {
+
+	enum class Key {
+		W,
+		A,
+		S,
+		D,
+		Q,
+		E
+	};
+
 	class Window
 	{
 	public:
@@ -16,6 +26,7 @@ namespace Wave {
 		void ProcessEvents();
 		void SwapBuffers();
 		float GetAspectRatio() const;
+		bool IsKeyPressed(Key key) const;
 
 	private:
 		GLFWwindow* m_window = nullptr;

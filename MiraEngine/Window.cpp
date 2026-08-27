@@ -20,7 +20,7 @@ namespace Wave {
 		m_window = glfwCreateWindow(
 			1280,
 			720,
-			"Wave Engine",
+			"Mira Engine",
 			nullptr,
 			nullptr
 		);
@@ -89,6 +89,7 @@ namespace Wave {
 	{
 		glfwSwapBuffers(m_window);
 	}
+
 	float Window::GetAspectRatio() const
 	{
 		int width;
@@ -102,5 +103,18 @@ namespace Wave {
 		}
 
 		return static_cast<float>(width) / static_cast<float>(height);
+	}
+
+	bool Window::IsKeyPressed(Key key) const
+	{
+		int glfwKey = GLFW_KEY_UNKNOWN;
+
+		switch (key) {
+		case Key::W:
+			glfwKey = GLFW_KEY_W;
+			break;
+		}
+
+		return false;
 	}
 }
