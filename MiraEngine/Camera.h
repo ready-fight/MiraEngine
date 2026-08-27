@@ -10,7 +10,10 @@ namespace Wave {
 		Camera(const glm::vec3& position, const glm::vec3& target);
 
 		glm::mat4 GetViewMatrix() const;
-		glm::mat4 GetProjectMatrix(float aspectRatio) const;
+		glm::mat4 GetProjectionMatrix(float aspectRatio) const;
+		void Move(const glm::vec3& offset);
+		void MoveRelative(float forward, float right, float vertical);
+		void Rotate(float yawOffset, float pitchOffset);
 
 	private:
 		glm::vec3 m_position;
@@ -20,6 +23,8 @@ namespace Wave {
 		float m_fov = 45.0f;
 		float m_nearPlane = 0.1f;
 		float m_farPlane = 100.0f;
+		float m_yaw = 0.0f;
+		float m_pitch = 0.0f;
 	};
 }
 

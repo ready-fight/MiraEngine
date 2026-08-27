@@ -18,9 +18,9 @@ namespace Wave {
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 		m_window = glfwCreateWindow(
-			1280,
-			720,
-			"Mira Engine",
+			width,
+			height,
+			title,
 			nullptr,
 			nullptr
 		);
@@ -113,8 +113,61 @@ namespace Wave {
 		case Key::W:
 			glfwKey = GLFW_KEY_W;
 			break;
+		case Key::A:
+			glfwKey = GLFW_KEY_A;
+			break;
+
+		case Key::S:
+			glfwKey = GLFW_KEY_S;
+			break;
+
+		case Key::D:
+			glfwKey = GLFW_KEY_D;
+			break;
+
+		case Key::Q:
+			glfwKey = GLFW_KEY_Q;
+			break;
+
+		case Key::E:
+			glfwKey = GLFW_KEY_E;
+			break;
 		}
 
-		return false;
+		return glfwGetKey(m_window, glfwKey) == GLFW_PRESS;
+	}
+	void Window::CaptureCursor()
+	{
+		glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+		m_firstMouseMovement = true;
+	}
+
+	MouseMovement Window::GetMouseMovement()
+	{
+		double currentX;
+		double currentY;
+
+		glfwGetCursorPos(m_window, &currentX, &currentY);
+
+		if (m_firstMouseMovement)
+		{
+			m_lastMouseX = currentX;
+			m_lastMouseY = currentY;
+			m_firstMouseMovement = false;
+
+			return {};
+		}
+
+		MouseMovement movement;
+		
+		movement.x = currentX - m_lastMouseX;
+		movement.y = currentY - m_lastMouseY;
+
+		m_lastMouseX = currentX;
+		m_lastMouseY = currentY;
+
+		return movement;
+
 	}
 }

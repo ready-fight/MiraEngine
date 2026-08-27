@@ -53,7 +53,7 @@ namespace
 
         float lighting = 0.2 + diffuseAmount * 0.8;
 
-        vec3 baseColor = vec3(0.9, 0.4, 0.2);
+        vec3 baseColor = vec3(0.35, 0.35, 0.35);
 
         fragmentColor = vec4(
             baseColor * lighting,
@@ -89,7 +89,7 @@ namespace Wave {
 		const glm::mat4 view = camera.GetViewMatrix();
 		m_shader.SetMatrix4("view", view);
 
-		const glm::mat4 projection = camera.GetProjectMatrix(aspectRatio);
+		const glm::mat4 projection = camera.GetProjectionMatrix(aspectRatio);
 		m_shader.SetMatrix4("projection", projection);
 
 		m_model.Draw();

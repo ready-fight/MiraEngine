@@ -4,6 +4,11 @@ struct GLFWwindow;
 
 namespace Wave {
 
+	struct MouseMovement {
+		double x = 0.0f;
+		double y = 0.0f;
+	};
+
 	enum class Key {
 		W,
 		A,
@@ -27,9 +32,14 @@ namespace Wave {
 		void SwapBuffers();
 		float GetAspectRatio() const;
 		bool IsKeyPressed(Key key) const;
+		void CaptureCursor();
+		MouseMovement GetMouseMovement();
 
 	private:
 		GLFWwindow* m_window = nullptr;
+		double m_lastMouseX = 0.0;
+		double m_lastMouseY = 0.0;
+		bool m_firstMouseMovement = true;
 	};
 }
 
