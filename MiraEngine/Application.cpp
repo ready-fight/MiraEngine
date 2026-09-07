@@ -14,12 +14,12 @@ namespace Mira
 		)
 	{
 
-		std::shared_ptr<Model> model = std::make_shared<Model>(
+		std::shared_ptr<Model> playerModel = std::make_shared<Model>(
 			"Assets/Models/FinalBaseMesh.obj"
 		);
 
-		GameObject object(
-			model,
+		GameObject player(
+			playerModel,
 			Transform(
 				glm::vec3(0.0f),
 				glm::vec3(0.0f, -20.0f, 0.0f),
@@ -27,7 +27,23 @@ namespace Mira
 			)
 		);
 
-		m_scene.AddObject(object);
+
+		m_scene.AddObject(player);
+
+		auto platformModel = std::make_shared<Model>(
+			"Assets/Models/Cube.obj"
+		);
+
+		GameObject platform(
+			platformModel,
+			Transform(
+				glm::vec3(0.0f, -0.1f, 0.0f), // Position
+				glm::vec3(0.0f),              // Rotation
+				glm::vec3(5.0f, 0.2f, 5.0f)   // Width, height, depth
+			)
+		);
+
+		m_scene.AddObject(platform);
 
 		m_window.CaptureCursor();
 	}
