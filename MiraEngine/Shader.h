@@ -23,6 +23,9 @@ namespace Mira
 				const char* name,
 				const glm::mat4& matrix
 			) const;
+			unsigned int& GetProgram() {
+				return m_program;
+			}
 
 		private:
 			unsigned int Compile(unsigned int type, const char* source);

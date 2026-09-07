@@ -24,7 +24,8 @@ namespace Mira
 				glm::vec3(0.0f),
 				glm::vec3(0.0f, -20.0f, 0.0f),
 				glm::vec3(0.05f)
-			)
+			),
+			glm::vec3(1.0f) // Color
 		);
 
 
@@ -40,7 +41,8 @@ namespace Mira
 				glm::vec3(0.0f, -0.1f, 0.0f), // Position
 				glm::vec3(0.0f),              // Rotation
 				glm::vec3(5.0f, 0.2f, 5.0f)   // Width, height, depth
-			)
+			),
+			glm::vec3(0.25f) // Color
 		);
 
 		m_scene.AddObject(platform);

@@ -34,8 +34,9 @@ namespace
 	const char* FragmentShaderSource = R"(
     #version 460 core
 
-    in vec3 worldNormal;
+	uniform vec3 baseColor;
 
+    in vec3 worldNormal;
     out vec4 fragmentColor;
 
     void main()
@@ -51,9 +52,7 @@ namespace
             0.0
         );
 
-        float lighting = 0.2 + diffuseAmount * 0.8;
-
-        vec3 baseColor = vec3(0.35, 0.35, 0.35);
+        float lighting = 0.2 + diffuseAmount * 0.8;;
 
         fragmentColor = vec4(
             baseColor * lighting,
@@ -90,6 +89,10 @@ namespace Mira {
 		for (const GameObject& object : scene.GetObjects())
 		{
 			m_shader.SetMatrix4("model", object.GetTransform().GetMatrix());
+
+			const int location = glGetUniformLocation(m_shader.GetProgram(), "baseColor");
+			const glm::vec3 color = object.GetColor();
+			glUniform3f(location, color.x, color.y, color.z);
 
 			object.GetModel().Draw();
 		}

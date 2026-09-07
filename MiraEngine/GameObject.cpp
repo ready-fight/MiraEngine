@@ -16,5 +16,15 @@ namespace Mira {
 	{
 		return m_transform;
 	}
+
+	const glm::vec3& GameObject::GetColor() const
+	{
+		return m_color;
+	}
+
+	void GameObject::SetColor(glm::vec3& color)
+	{
+		m_color = color;
+	}
 }
 
