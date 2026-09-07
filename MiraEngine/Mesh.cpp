@@ -4,7 +4,7 @@
 
 #include <cstddef>
 
-namespace Wave {
+namespace Mira {
 	Mesh::Mesh(
 		const std::vector<Vertex>& vertices, 
 		const std::vector<std::uint32_t>& indices

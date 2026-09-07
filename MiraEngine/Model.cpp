@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace Wave {
+namespace Mira {
 
 	Model::Model(const std::string& filePath)
 	{

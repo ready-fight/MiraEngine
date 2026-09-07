@@ -1,17 +1,34 @@
 #include "Application.h"
+#include "GameObject.h"
 
 #include <glm/vec3.hpp>
 
 #include <chrono>
 
 
-namespace Wave 
+namespace Mira 
 {
 	Application::Application() : m_window(1280, 720, "Mira Engine"), m_camera(
 			glm::vec3(1.5f, 1.2f, 3.0f), 
 			glm::vec3(0.0f, 0.0f, 0.0f)
 		)
 	{
+
+		std::shared_ptr<Model> model = std::make_shared<Model>(
+			"Assets/Models/FinalBaseMesh.obj"
+		);
+
+		GameObject object(
+			model,
+			Transform(
+				glm::vec3(0.0f),
+				glm::vec3(0.0f, -20.0f, 0.0f),
+				glm::vec3(0.05f)
+			)
+		);
+
+		m_scene.AddObject(object);
+
 		m_window.CaptureCursor();
 	}
 
@@ -87,7 +104,7 @@ namespace Wave
 				m_camera.MoveRelative(movement.z * distance, movement.x * distance, movement.y * distance);
 			}
 
-			m_renderer.Render(m_window.GetAspectRatio(), m_camera);
+			m_renderer.Render(m_window.GetAspectRatio(), m_camera, m_scene);
 
 			m_window.SwapBuffers();
 		}

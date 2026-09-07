@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Model.h"
 #include "Shader.h"
 
-namespace Wave {
+namespace Mira {
 
 	class Camera;
+	class Scene;
 
 	class Renderer
 	{
@@ -16,10 +16,9 @@ namespace Wave {
 		Renderer(const Renderer&) = delete;
 		Renderer& operator=(const Renderer&) = delete;
 
-		void Render(float aspectRatio, Camera& camera);
+		void Render(float aspectRatio, Camera& camera, Scene& scene);
 
 	private:
-		Model m_model;
 		Shader m_shader;
 	};
 }

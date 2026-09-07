@@ -10,22 +10,22 @@ struct aiMesh;
 struct aiNode;
 struct aiScene;
 
-namespace Wave {
+namespace Mira {
 	class Model
 	{
-	public:
-		explicit Model(const std::string& filePath);
+		public:
+			explicit Model(const std::string& filePath);
 
-		void Draw() const;
+			void Draw() const;
 
-	private:
-		void Load(const std::string& filePath);
+		private:
+			void Load(const std::string& filePath);
 
-		void ProcessNode(aiNode* node, const aiScene* scene);
+			void ProcessNode(aiNode* node, const aiScene* scene);
 
-		std::unique_ptr<Mesh> ProcessMesh(aiMesh* mesh);
+			std::unique_ptr<Mesh> ProcessMesh(aiMesh* mesh);
 
-		std::vector<std::unique_ptr<Mesh>> m_meshes;
+			std::vector<std::unique_ptr<Mesh>> m_meshes;
 	};
 }
 

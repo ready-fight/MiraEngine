@@ -7,7 +7,7 @@
 
 #include <cmath>
 
-namespace Wave {
+namespace Mira {
 	Camera::Camera(const glm::vec3& position, const glm::vec3& target) : m_position(position), m_target(target)
 	{
 		const glm::vec3 direction = glm::normalize(m_target - m_position);

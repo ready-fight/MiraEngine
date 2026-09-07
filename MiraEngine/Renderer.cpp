@@ -1,9 +1,9 @@
 #include "Renderer.h"
 #include "Camera.h"
+#include "Scene.h"
+#include "GameObject.h"
 
 #include <GL/glew.h>
-
-#include <glm/gtc/matrix_transform.hpp>
 
 #include <cstdint>
 #include <vector>
@@ -63,8 +63,8 @@ namespace
 )";
 }
 
-namespace Wave {
-	Renderer::Renderer() : m_shader(VertexShaderSource, FragmentShaderSource), m_model("Assets/Models/FinalBaseMesh.obj")
+namespace Mira {
+	Renderer::Renderer() : m_shader(VertexShaderSource, FragmentShaderSource)
 	{
 		glEnable(GL_DEPTH_TEST);
 	}
@@ -74,17 +74,12 @@ namespace Wave {
 		
 	}
 
-	void Renderer::Render(float aspectRatio, Camera& camera)
+	void Renderer::Render(float aspectRatio, Camera& camera, Scene& scene)
 	{
 		glClearColor(0.1f, 0.15f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		m_shader.Bind();
-
-		glm::mat4 model(1.0);
-		model = glm::rotate(model, glm::radians(-20.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.05f));
-		m_shader.SetMatrix4("model", model);
 
 		const glm::mat4 view = camera.GetViewMatrix();
 		m_shader.SetMatrix4("view", view);
@@ -92,8 +87,16 @@ namespace Wave {
 		const glm::mat4 projection = camera.GetProjectionMatrix(aspectRatio);
 		m_shader.SetMatrix4("projection", projection);
 
-		m_model.Draw();
+		for (const GameObject& object : scene.GetObjects())
+		{
+			m_shader.SetMatrix4("model", object.GetTransform().GetMatrix());
+
+			object.GetModel().Draw();
+		}
+
 		m_shader.Unbind();
+		
+		
 	}
 }
 

@@ -5,7 +5,7 @@
 
 int main()
 {
-	Wave::Application application;
+	Mira::Application application;
 	application.Run();
 
 	return 0;
