@@ -64,6 +64,14 @@ namespace Mira {
 			const aiVector3D& position = mesh->mVertices[i];
 			const aiVector3D& normal = mesh->mNormals[i];
 
+			glm::vec2 texCoord(0.0f);
+
+			if (mesh->HasTextureCoords(0))
+			{
+				texCoord.x = mesh->mTextureCoords[0][i].x;
+				texCoord.y = mesh->mTextureCoords[0][i].y;
+			}
+
 			vertices.push_back(
 				{
 					{
@@ -75,7 +83,8 @@ namespace Mira {
 						normal.x,
 						normal.y,
 						normal.z
-					}
+					},
+					texCoord
 				}
 			);
 		}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 
 #include <cstdint>
 #include <vector>
@@ -11,6 +12,7 @@ namespace Mira {
 	{
 		glm::vec3 position;
 		glm::vec3 normal;
+		glm::vec2 texCoord{ 0.0f };
 	};
 
 	class Mesh

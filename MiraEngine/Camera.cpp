@@ -31,6 +31,9 @@ namespace Mira {
 	{
 		m_position += offset;
 		m_target += offset;
+
+		printf("Camera Position: (%.2f, %.2f, %.2f)\n", m_position.x, m_position.y, m_position.z);
+
 	}
 
 	void Camera::MoveRelative(float forward, float right, float vertical)

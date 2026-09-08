@@ -56,6 +56,17 @@ namespace Mira {
 
 		glEnableVertexAttribArray(1);
 
+		glVertexAttribPointer(
+			2,
+			2,
+			GL_FLOAT,
+			GL_FALSE,
+			sizeof(Vertex),
+			reinterpret_cast<void*>(offsetof(Vertex, texCoord))
+		);
+
+		glEnableVertexAttribArray(2);
+
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}

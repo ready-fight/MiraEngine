@@ -9,27 +9,39 @@
 namespace Mira 
 {
 	Application::Application() : m_window(1280, 720, "Mira Engine"), m_camera(
-			glm::vec3(1.5f, 1.2f, 3.0f), 
+			glm::vec3(-0.00f, 1.23f, -4.41f),
 			glm::vec3(0.0f, 0.0f, 0.0f)
 		)
 	{
 
-		std::shared_ptr<Model> playerModel = std::make_shared<Model>(
+		auto characterModel = std::make_shared<Model>(
 			"Assets/Models/FinalBaseMesh.obj"
 		);
 
 		GameObject player(
-			playerModel,
+			characterModel,
 			Transform(
-				glm::vec3(0.0f),
-				glm::vec3(0.0f, -20.0f, 0.0f),
+				glm::vec3(0.0f, 0.0f, -2.0f),
+				glm::vec3(0.0f, 0.0f, 0.0f),
 				glm::vec3(0.05f)
-			),
-			glm::vec3(1.0f) // Color
+			)
 		);
 
 
 		m_scene.AddObject(player);
+
+		GameObject enemy(
+			characterModel,
+			Transform(
+				glm::vec3(0.0f, 0.0f, 1.0f),
+				glm::vec3(0.0f, -180.0f, 0.0f),
+				glm::vec3(0.05f)
+			),
+			glm::vec3(1.0f, 0.0f, 0.0f)
+		);
+
+
+		m_scene.AddObject(enemy);
 
 		auto platformModel = std::make_shared<Model>(
 			"Assets/Models/Cube.obj"
@@ -41,8 +53,7 @@ namespace Mira
 				glm::vec3(0.0f, -0.1f, 0.0f), // Position
 				glm::vec3(0.0f),              // Rotation
 				glm::vec3(5.0f, 0.2f, 5.0f)   // Width, height, depth
-			),
-			glm::vec3(0.25f) // Color
+			)
 		);
 
 		m_scene.AddObject(platform);
@@ -115,7 +126,6 @@ namespace Mira
 
 			if (glm::length(movement) > 0.0f) {
 				movement = glm::normalize(movement);
-
 
 				const float distance = movementSpeed * deltaTime;
 
