@@ -2,6 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace Mira {
+
 	void Transform::SetPosition(const glm::vec3& position)
 	{
 		m_position = position;

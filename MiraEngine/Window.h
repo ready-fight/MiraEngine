@@ -34,6 +34,8 @@ namespace Mira {
 			bool IsKeyPressed(Key key) const;
 			void CaptureCursor();
 			MouseMovement GetMouseMovement();
+			GLFWwindow* GetNativeWindow() const;
+			void ReleaseCursor();
 
 		private:
 			GLFWwindow* m_window = nullptr;

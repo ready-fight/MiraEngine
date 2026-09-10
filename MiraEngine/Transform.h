@@ -20,6 +20,9 @@ namespace Mira {
 			{
 			}
 
+			const glm::vec3& GetPosition() const { return m_position; }
+			const glm::vec3& GetRotation() const { return m_rotation; }
+			const glm::vec3& GetScale() const { return m_scale; }
 			void SetPosition(const glm::vec3& position);
 			void SetRotation(const glm::vec3& rotation);
 			void SetScale(const glm::vec3& scale);

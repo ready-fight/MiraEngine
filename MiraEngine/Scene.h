@@ -8,6 +8,7 @@ namespace Mira {
 	{
 		public:
 			void AddObject(GameObject object);
+			std::vector<GameObject>& GetObjects();
 			const std::vector<GameObject>& GetObjects() const;
 
 		private:

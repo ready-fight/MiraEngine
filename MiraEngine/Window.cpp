@@ -170,4 +170,14 @@ namespace Mira {
 		return movement;
 
 	}
+	GLFWwindow* Window::GetNativeWindow() const
+	{
+		return m_window;
+	}
+
+	void Window::ReleaseCursor()
+	{
+		glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		m_firstMouseMovement = true;
+	}
 }

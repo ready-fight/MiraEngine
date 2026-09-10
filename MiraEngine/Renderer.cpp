@@ -88,7 +88,9 @@ namespace Mira {
 
 		for (const GameObject& object : scene.GetObjects())
 		{
-			m_shader.SetMatrix4("model", object.GetTransform().GetMatrix());
+			glm::mat4 theMatrix = object.GetTransform().GetMatrix();
+
+			m_shader.SetMatrix4("model", theMatrix);
 
 			const int location = glGetUniformLocation(m_shader.GetProgram(), "baseColor");
 			const glm::vec3 color = object.GetColor();

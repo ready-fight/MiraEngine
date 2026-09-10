@@ -8,6 +8,11 @@ namespace Mira {
 	}
 
 
+	std::vector<GameObject>& Scene::GetObjects()
+	{
+		return m_objects;
+	}
+
 	const std::vector<GameObject>& Scene::GetObjects() const
 	{
 		return m_objects;
