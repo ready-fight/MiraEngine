@@ -2,14 +2,25 @@
 #include "Model.h"
 #include "Transform.h"
 
+#include <glm/vec3.hpp>
+
+#include <memory>
+#include <string>
+
+
 namespace Mira {
 	class GameObject
 	{
 		public:
-			GameObject(const std::shared_ptr<Model>& model, const Transform& transform, glm::vec3 color, const char* name) : m_model(model), m_transform(transform), m_color(color), m_name(name)
+			GameObject(const std::shared_ptr<Model>& model, const Transform& transform, glm::vec3 color, const char* name)
+				: m_model(model), m_transform(transform), m_color(color), m_name(name)
 			{
 			}
+
+			virtual ~GameObject() = default;
+
 	
+			void Move(const glm::vec3& direction, float deltaTime);
 			const Model& GetModel() const { return *m_model; }
 			Transform& GetTransform() { return m_transform; }
 			const Transform& GetTransform() const { return m_transform; }
@@ -18,12 +29,16 @@ namespace Mira {
 
 			void SetName(const std::string& name) { m_name = name; }
 			void SetColor(const glm::vec3& color) { m_color = color; }
+			void SetCollisionRadius(float radius) { m_collisionRadius = radius; }
+			float GetCollisionRadius() const { return m_collisionRadius; }
 
 		private:
 			std::shared_ptr<Model> m_model;
 			Transform m_transform;
 			glm::vec3 m_color{1.0f};
 			std::string m_name;
+			float m_movementSpeed{3.0f};
+			float m_collisionRadius{ 0.3f };
 	};
 }
 

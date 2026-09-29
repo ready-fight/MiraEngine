@@ -27,6 +27,7 @@ namespace Mira {
 			void SetRotation(const glm::vec3& rotation);
 			void SetScale(const glm::vec3& scale);
 			glm::mat4 GetMatrix() const;
+			void Translate(const glm::vec3& offset);
 	};
 }
 

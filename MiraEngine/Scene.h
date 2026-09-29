@@ -7,12 +7,13 @@ namespace Mira {
 	class Scene
 	{
 		public:
-			void AddObject(GameObject object);
-			std::vector<GameObject>& GetObjects();
-			const std::vector<GameObject>& GetObjects() const;
+			void AddObject(std::unique_ptr<GameObject> object);
+			std::vector<std::unique_ptr<GameObject>>& GetObjects();
+			const std::vector<std::unique_ptr<GameObject>>& GetObjects() const;
+			bool IsColliding(const GameObject& object) const;
 
 		private:
-			std::vector<GameObject> m_objects;
+			std::vector<std::unique_ptr<GameObject>> m_objects;
 
 	};
 }

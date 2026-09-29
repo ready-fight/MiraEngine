@@ -14,6 +14,11 @@ namespace Mira {
 			void Move(const glm::vec3& offset);
 			void MoveRelative(float forward, float right, float vertical);
 			void Rotate(float yawOffset, float pitchOffset);
+			float GetYaw() { return m_yaw; }
+			float GetPitch() { return m_pitch; }
+			void SetPitch(float pitch);
+			void SetYaw(float yaw);
+			void UpdateTarget();
 
 		private:
 			glm::vec3 m_position;

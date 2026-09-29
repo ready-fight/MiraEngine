@@ -31,5 +31,10 @@ namespace Mira {
 
 		return matrix;
 	}
+
+	void Transform::Translate(const glm::vec3& offset)
+	{
+		m_position += offset;
+	}
 }
 

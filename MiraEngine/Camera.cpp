@@ -55,6 +55,23 @@ namespace Mira {
 			89.0f
 		);
 
+		UpdateTarget();
+	}
+
+	void Camera::SetYaw(float yaw)
+	{
+		m_yaw = yaw;
+		UpdateTarget();
+	}
+
+	void Camera::SetPitch(float pitch)
+	{
+		m_pitch = pitch;
+		UpdateTarget();
+	}
+
+	void Camera::UpdateTarget()
+	{
 		const float yaw = glm::radians(m_yaw);
 		const float pitch = glm::radians(m_pitch);
 

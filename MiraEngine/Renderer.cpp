@@ -86,17 +86,17 @@ namespace Mira {
 		const glm::mat4 projection = camera.GetProjectionMatrix(aspectRatio);
 		m_shader.SetMatrix4("projection", projection);
 
-		for (const GameObject& object : scene.GetObjects())
+		for (const auto& object : scene.GetObjects())
 		{
-			glm::mat4 theMatrix = object.GetTransform().GetMatrix();
+			glm::mat4 theMatrix = object->GetTransform().GetMatrix();
 
 			m_shader.SetMatrix4("model", theMatrix);
 
 			const int location = glGetUniformLocation(m_shader.GetProgram(), "baseColor");
-			const glm::vec3 color = object.GetColor();
+			const glm::vec3 color = object->GetColor();
 			glUniform3f(location, color.x, color.y, color.z);
 
-			object.GetModel().Draw();
+			object->GetModel().Draw();
 		}
 
 		m_shader.Unbind();

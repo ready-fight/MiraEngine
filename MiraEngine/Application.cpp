@@ -1,4 +1,6 @@
 #include "Application.h"
+#include "Player.h"
+#include "Enemy.h"
 
 #include "GameObject.h"
 
@@ -22,59 +24,10 @@
 namespace Mira 
 {
 	Application::Application() : m_window(1280, 720, "Mira Engine"), m_camera(
-			glm::vec3(-0.00f, 1.23f, -4.41f),
+			glm::vec3(-0.0f, 2.0f, -5.0f),
 			glm::vec3(0.0f, 0.0f, 0.0f)
 		)
 	{
-
-		auto characterModel = std::make_shared<Model>(
-			"Assets/Models/FinalBaseMesh.obj"
-		);
-
-		GameObject player(
-			characterModel,
-			Transform(
-				glm::vec3(0.0f, 0.0f, -2.0f),
-				glm::vec3(0.0f, 0.0f, 0.0f),
-				glm::vec3(0.05f)
-			),
-			glm::vec3(1.0f),
-			"Player"
-		);
-
-		m_scene.AddObject(player);
-
-		GameObject enemy(
-			characterModel,
-			Transform(
-				glm::vec3(0.0f, 0.0f, 1.0f),
-				glm::vec3(0.0f, -180.0f, 0.0f),
-				glm::vec3(0.05f)
-			),
-			glm::vec3(1.0f, 0.0f, 0.0f),
-			"Enemy"
-		);
-
-
-		m_scene.AddObject(enemy);
-
-		auto platformModel = std::make_shared<Model>(
-			"Assets/Models/Cube.obj"
-		);
-
-		GameObject platform(
-			platformModel,
-			Transform(
-				glm::vec3(0.0f, -0.1f, 0.0f), // Position
-				glm::vec3(0.0f),              // Rotation
-				glm::vec3(5.0f, 0.2f, 5.0f)   // Width, height, depth
-			),
-			glm::vec3(1.0f), // Color
-			"Platform"
-		);
-
-		m_scene.AddObject(platform);
-
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGui::StyleColorsDark();
@@ -104,13 +57,40 @@ namespace Mira
 
 	void Application::Run()
 	{
+		auto characterModel = std::make_shared<Model>("Assets/Models/FinalBaseMesh.obj");
+
+		auto playerObject = std::make_unique<Player>(characterModel);
+		Player* player = playerObject.get();
+		m_scene.AddObject(std::move(playerObject));
+
+		auto enemyObject = std::make_unique<Enemy>(characterModel);
+		Enemy* enemy = enemyObject.get();
+		m_scene.AddObject(std::move(enemyObject));
+
+		auto platformModel = std::make_shared<Model>(
+			"Assets/Models/Cube.obj"
+		);
+
+		auto platform  = std::make_unique<GameObject>(
+			platformModel,
+			Transform(
+				glm::vec3(0.0f, -0.1f, 0.0f), // Position
+				glm::vec3(0.0f),              // Rotation
+				glm::vec3(5.0f, 0.2f, 5.0f)   // Width, height, depth
+			),
+			glm::vec3(1.0f), // Color
+			"Platform"
+		);
+
+		m_scene.AddObject(std::move(platform));
+
 		auto previousTime = std::chrono::steady_clock::now();
 
 		const float movementSpeed = 2.0f;
 		const float mouseSensitivity = 0.1f;
 
 		int selectedObject = 0;
-		bool cameraMode = true;
+		bool cameraMode = false;
 		bool wasF1Down = false;
 
 		GLFWwindow* window = m_window.GetNativeWindow();
@@ -197,13 +177,13 @@ namespace Mira
 						selectedObject = count - 1;
 					}
 
-					const std::string name = objects[selectedObject].GetName();
+					const std::string name = objects[selectedObject]->GetName();
 
 					if (ImGui::BeginCombo("##GameObjectSelector", name.c_str()))
 					{
 						for (int i = 0; i < count; ++i)
 						{
-							const std::string label = objects[i].GetName();
+							const std::string label = objects[i]->GetName();
 
 							if (ImGui::Selectable(
 								label.c_str(), selectedObject == i))
@@ -216,14 +196,32 @@ namespace Mira
 					}
 
 					Transform& transform =
-						objects[selectedObject].GetTransform();
+						objects[selectedObject]->GetTransform();
 
 					glm::vec3 position = transform.GetPosition();
 					glm::vec3 rotation = transform.GetRotation();
 					glm::vec3 scale = transform.GetScale();
+					float yaw = m_camera.GetYaw();
+					float pitch = m_camera.GetPitch();
 
 					ImGui::Separator();
 					ImGui::TextUnformatted("Components: X / Y / Z");
+
+					if (ImGui::DragFloat(
+						"Pitch",
+						&pitch,
+						0.01f))
+					{
+						m_camera.SetPitch(pitch);
+					}
+
+					if (ImGui::DragFloat(
+						"Yaw",
+						&yaw,
+						0.01f))
+					{
+						m_camera.SetYaw(yaw);
+					}
 
 					if (ImGui::DragFloat3(
 						"Position",
@@ -260,6 +258,8 @@ namespace Mira
 
 			ImGui::End();
 
+			glm::vec3 movement(0.0f);
+
 			// Camera controls
 			if (cameraMode && focused)
 			{
@@ -275,7 +275,6 @@ namespace Mira
 
 				if (!io.WantCaptureKeyboard)
 				{
-					glm::vec3 movement(0.0f);
 
 					if (m_window.IsKeyPressed(Key::W)) movement.z += 1.0f;
 					if (m_window.IsKeyPressed(Key::S)) movement.z -= 1.0f;
@@ -297,6 +296,25 @@ namespace Mira
 						);
 					}
 				}
+			}
+
+			else {
+				// Player stays on the ground.
+				movement.y = 0.0f;
+
+				if (m_window.IsKeyPressed(Key::W))
+					movement.z += 1.0f;
+
+				if (m_window.IsKeyPressed(Key::S))
+					movement.z -= 1.0f;
+
+				if (m_window.IsKeyPressed(Key::A))
+					movement.x += 1.0f;
+
+				if (m_window.IsKeyPressed(Key::D))
+					movement.x -= 1.0f;
+
+				m_scene.GetObjects()[selectedObject]->Move(movement, deltaTime);
 			}
 
 			// Draw the scene, then the GUI over it.
