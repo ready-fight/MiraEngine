@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name": "MiraGame",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/out/build/x64-Debug/Game/Debug/MiraGame.exe",
+            "cwd": "${workspaceFolder}/Game",
+            "stopAtEntry": false
+        }
+    ]
+}
