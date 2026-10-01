@@ -5,6 +5,8 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <unordered_map>
+#include <glm/glm.hpp>
 
 struct aiMesh;
 struct aiNode;
@@ -15,7 +17,6 @@ namespace Mira {
 	{
 		public:
 			explicit Model(const std::string& filePath);
-
 			void Draw() const;
 
 		private:
@@ -26,6 +27,15 @@ namespace Mira {
 			std::unique_ptr<Mesh> ProcessMesh(aiMesh* mesh);
 
 			std::vector<std::unique_ptr<Mesh>> m_meshes;
+
+			struct BoneInfo
+			{
+				int id;
+				glm::mat4 offset;
+			};
+
+			std::unordered_map<std::string, BoneInfo> m_boneInfoMap;
+			int m_boneCounter = 0;
 	};
 }
 

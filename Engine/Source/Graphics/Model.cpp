@@ -9,6 +9,26 @@
 #include <string>
 #include <vector>
 
+namespace
+{
+	void SetVertexBoneData(
+		Mira::Vertex& vertex,
+		int boneID,
+		float weight
+	)
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			if (vertex.weights[i] == 0.0f)
+			{
+				vertex.boneIDs[i] = boneID;
+				vertex.weights[i] = weight;
+				return;
+			}
+		}
+	}
+}
+
 namespace Mira {
 
 	Model::Model(const std::string& filePath)
@@ -28,7 +48,7 @@ namespace Mira {
 	{
 		Assimp::Importer importer;
 
-		const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_PreTransformVertices | aiProcess_GenSmoothNormals);
+		const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs);
 
 		if (scene == nullptr || scene->mRootNode == nullptr || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE))
 		{

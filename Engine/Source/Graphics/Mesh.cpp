@@ -34,6 +34,7 @@ namespace Mira {
 			GL_STATIC_DRAW
 		);
 
+		// Vertex attributes
 		glVertexAttribPointer(
 			0,
 			3,
@@ -42,7 +43,6 @@ namespace Mira {
 			sizeof(Vertex),
 			reinterpret_cast<void*>(offsetof(Vertex, position))
 		);
-
 		glEnableVertexAttribArray(0);
 
 		glVertexAttribPointer(
@@ -53,7 +53,6 @@ namespace Mira {
 			sizeof(Vertex),
 			reinterpret_cast<void*>(offsetof(Vertex, normal))
 		);
-
 		glEnableVertexAttribArray(1);
 
 		glVertexAttribPointer(
@@ -64,8 +63,27 @@ namespace Mira {
 			sizeof(Vertex),
 			reinterpret_cast<void*>(offsetof(Vertex, texCoord))
 		);
-
 		glEnableVertexAttribArray(2);
+
+		glVertexAttribIPointer(
+			3,
+			4,
+			GL_INT,
+			sizeof(Vertex),
+			reinterpret_cast<void*>(offsetof(Vertex, boneIDs))
+		);
+		glEnableVertexAttribArray(3);
+
+		glVertexAttribPointer(
+			4,
+			4,
+			GL_FLOAT,
+			GL_FALSE,
+			sizeof(Vertex),
+			reinterpret_cast<void*>(offsetof(Vertex, weights))
+		);
+		glEnableVertexAttribArray(4);
+		// End of vertex attributes
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);

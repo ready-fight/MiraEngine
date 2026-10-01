@@ -1,7 +1,8 @@
 #pragma once
 
-#include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 #include <cstdint>
 #include <vector>
@@ -13,6 +14,9 @@ namespace Mira {
 		glm::vec3 position;
 		glm::vec3 normal;
 		glm::vec2 texCoord{ 0.0f };
+
+		glm::ivec4 boneIDs = glm::ivec4(0);
+		glm::vec4 weights = glm::vec4(0.0f);
 	};
 
 	class Mesh
