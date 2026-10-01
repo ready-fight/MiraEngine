@@ -20,13 +20,14 @@ namespace Mira {
 			void Draw() const;
 
 		private:
-			void Load(const std::string& filePath);
 
-			void ProcessNode(aiNode* node, const aiScene* scene);
+			struct NodeData
+			{
+				std::string name;
+				glm::mat4 transform;
 
-			std::unique_ptr<Mesh> ProcessMesh(aiMesh* mesh);
-
-			std::vector<std::unique_ptr<Mesh>> m_meshes;
+				std::vector<NodeData> children;
+			};
 
 			struct BoneInfo
 			{
@@ -34,8 +35,25 @@ namespace Mira {
 				glm::mat4 offset;
 			};
 
+			struct AnimationClip
+			{
+				std::string name;
+				double duration = 0.0;
+				double ticksPerSecond = 0.0;
+			};
+
+			void Load(const std::string& filePath);
+			void ProcessNode(aiNode* node, const aiScene* scene);
+			void ReadHierarchyData(NodeData& destination, const aiNode* source);
+
+
+			std::unique_ptr<Mesh> ProcessMesh(aiMesh* mesh);
+			std::vector<std::unique_ptr<Mesh>> m_meshes;
+
 			std::unordered_map<std::string, BoneInfo> m_boneInfoMap;
 			int m_boneCounter = 0;
+			NodeData m_rootNode;
+			std::vector<AnimationClip> m_animations;
 	};
 }
 

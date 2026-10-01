@@ -27,6 +27,33 @@ namespace
 			}
 		}
 	}
+
+	glm::mat4 ConvertMatrix(const aiMatrix4x4& matrix)
+	{
+		glm::mat4 result;
+
+		result[0][0] = matrix.a1;
+		result[1][0] = matrix.a2;
+		result[2][0] = matrix.a3;
+		result[3][0] = matrix.a4;
+
+		result[0][1] = matrix.b1;
+		result[1][1] = matrix.b2;
+		result[2][1] = matrix.b3;
+		result[3][1] = matrix.b4;
+
+		result[0][2] = matrix.c1;
+		result[1][2] = matrix.c2;
+		result[2][2] = matrix.c3;
+		result[3][2] = matrix.c4;
+
+		result[0][3] = matrix.d1;
+		result[1][3] = matrix.d2;
+		result[2][3] = matrix.d3;
+		result[3][3] = matrix.d4;
+
+		return result;
+	}
 }
 
 namespace Mira {
@@ -34,6 +61,7 @@ namespace Mira {
 	Model::Model(const std::string& filePath)
 	{
 		Load(filePath);
+
 	}
 
 	void Model::Draw() const
@@ -56,6 +84,11 @@ namespace Mira {
 		}
 
 		ProcessNode(scene->mRootNode, scene);
+
+		ReadHierarchyData(
+			m_rootNode,
+			scene->mRootNode
+		);
 	}
 
 	void Model::ProcessNode(aiNode* node, const aiScene* scene)
@@ -69,6 +102,30 @@ namespace Mira {
 		for (unsigned int i = 0; i < node->mNumChildren; i++)
 		{
 			ProcessNode(node->mChildren[i], scene);
+		}
+	}
+
+	void Model::ReadHierarchyData(
+		NodeData& destination,
+		const aiNode* source
+	)
+	{
+		destination.name = source->mName.C_Str();
+		destination.transform = ConvertMatrix(source->mTransformation);
+
+		destination.children.clear();
+		destination.children.reserve(source->mNumChildren);
+
+		for (unsigned int i = 0; i < source->mNumChildren; ++i)
+		{
+			NodeData child;
+
+			ReadHierarchyData(
+				child,
+				source->mChildren[i]
+			);
+
+			destination.children.push_back(std::move(child));
 		}
 	}
 
@@ -107,6 +164,52 @@ namespace Mira {
 					texCoord
 				}
 			);
+		}
+
+		for (unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
+		{
+			aiBone* bone = mesh->mBones[boneIndex];
+
+			const std::string boneName = bone->mName.C_Str();
+
+			int boneID = 0;
+
+			auto it = m_boneInfoMap.find(boneName);
+
+			if (it == m_boneInfoMap.end())
+			{
+				BoneInfo info;
+
+				info.id = m_boneCounter;
+
+				info.offset = ConvertMatrix(bone->mOffsetMatrix);
+
+				m_boneInfoMap[boneName] = info;
+
+				boneID = m_boneCounter;
+				++m_boneCounter;
+			}
+			else
+			{
+				boneID = it->second.id;
+			}
+
+			for (unsigned int weightIndex = 0;
+				weightIndex < bone->mNumWeights;
+				++weightIndex)
+			{
+				const aiVertexWeight& weight =
+					bone->mWeights[weightIndex];
+
+				const unsigned int vertexID =
+					weight.mVertexId;
+
+				SetVertexBoneData(
+					vertices[vertexID],
+					boneID,
+					weight.mWeight
+				);
+			}
 		}
 
 		for (unsigned int i = 0; i < mesh->mNumFaces; i++)
