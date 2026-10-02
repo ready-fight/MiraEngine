@@ -97,6 +97,8 @@ namespace Mira
     {
         for (const auto& object : m_objects)
         {
+            object->Update(deltaTime);
+
             Animator* animator = object->GetAnimator();
 
             if (animator)

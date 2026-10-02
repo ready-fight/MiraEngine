@@ -6,6 +6,7 @@ find_package(imgui CONFIG REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 
 find_path(STB_INCLUDE_DIRS "stb_image.h")
+find_path(MINIAUDIO_INCLUDE_DIR miniaudio.h)
 
 add_library(MiraEngine STATIC
     Source/Core/Application.cpp
@@ -24,6 +25,9 @@ add_library(MiraEngine STATIC
     Source/Collision/SphereCollider.cpp
     Source/Animation/Animation.cpp
     Source/Animation/Animator.cpp
+    Source/Audio/AudioEngine.cpp
+    Source/UI/UI.cpp
+    Source/Assets/AssetManager.cpp
 )
 
 target_include_directories(MiraEngine
@@ -31,6 +35,7 @@ target_include_directories(MiraEngine
         ${CMAKE_CURRENT_SOURCE_DIR}/Source
     PRIVATE
         ${STB_INCLUDE_DIRS}
+        ${MINIAUDIO_INCLUDE_DIR}
 )
 
 target_link_libraries(MiraEngine

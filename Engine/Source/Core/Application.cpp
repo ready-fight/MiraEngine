@@ -1,17 +1,14 @@
 #include "Core/Application.h"
-
-#include "Collision/SphereCollider.h"
+#include "Core/Time.h"
 
 #include "Scene/GameObject.h"
 #include "Scene/Transform.h"
 
 #include <glm/vec3.hpp>
 
-#include "Core/Time.h"
 
 #include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
+#include "UI/UI.h"
 
 #include <GLFW/glfw3.h>
 #include <glm/geometric.hpp>
@@ -31,31 +28,14 @@ namespace Mira
 			glm::vec3(0.0f, 0.0f, 0.0f)
 		)
 	{
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGui::StyleColorsDark();
-
-		if(!ImGui_ImplGlfw_InitForOpenGL(m_window.GetNativeWindow(), true))
-		{
-			ImGui::DestroyContext();
-			throw std::runtime_error("Failed to initialize ImGui GLFW");
-		}
-
-		if (!ImGui_ImplOpenGL3_Init("#version 460 core"))
-		{
-			ImGui_ImplGlfw_Shutdown();
-			ImGui::DestroyContext();
-			throw std::runtime_error("Failed to initialize ImGui OpenGL");
-		}
+		UI::Initialize(m_window.GetNativeWindow());
 
 		m_window.ReleaseCursor();
 	}
 
 	Application::~Application()
 	{
-		ImGui_ImplOpenGL3_Shutdown();
-		ImGui_ImplGlfw_Shutdown();
-		ImGui::DestroyContext();
+		UI::Shutdown();
 	}
 
 	void Application::Run()
@@ -84,9 +64,7 @@ namespace Mira
 				break;
 			}
 
-			ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplGlfw_NewFrame();
-			ImGui::NewFrame();
+			UI::BeginFrame();
 
 			ImGuiIO& io = ImGui::GetIO();
 
@@ -268,8 +246,7 @@ namespace Mira
 			// Draw the scene, then the GUI over it.
 			m_renderer.Render(m_window.GetAspectRatio(), m_camera, m_scene);
 
-			ImGui::Render();
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+			UI::EndFrame();
 
 			m_window.SwapBuffers();
 		}

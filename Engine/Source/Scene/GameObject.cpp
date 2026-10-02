@@ -12,6 +12,11 @@ namespace Mira
 
     GameObject::~GameObject() = default;
 
+    void GameObject::Update(float deltaTime)
+    {
+        (void)deltaTime;
+    }
+
     Transform& GameObject::GetTransform()
     {
         return m_transform;
@@ -42,7 +47,7 @@ namespace Mira
         return m_collider.get();
     }
 
-    void GameObject::SetModel(std::unique_ptr<Model> model)
+    void GameObject::SetModel(std::shared_ptr<Model> model)
     {
         m_model = std::move(model);
 

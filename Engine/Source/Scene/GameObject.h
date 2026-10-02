@@ -16,6 +16,7 @@ namespace Mira
     public:
         GameObject(const std::string& name = "GameObject");
         virtual ~GameObject();
+        virtual void Update(float deltaTime);
 
         Transform& GetTransform();
         const Transform& GetTransform() const;
@@ -27,7 +28,7 @@ namespace Mira
         Collider* GetCollider();
         const Collider* GetCollider() const;
 
-        void SetModel(std::unique_ptr<Model> model);
+        void SetModel(std::shared_ptr<Model> model);
 
         Model* GetModel();
         const Model* GetModel() const;
@@ -40,7 +41,7 @@ namespace Mira
         Transform m_transform;
 
         std::unique_ptr<Collider> m_collider;
-        std::unique_ptr<Model> m_model;
+        std::shared_ptr<Model> m_model;
         std::unique_ptr<Animator> m_animator;
 
     };
