@@ -130,12 +130,22 @@ namespace Mira {
                 continue;
             }
 
-			glm::mat4 theMatrix = object->GetTransform().GetMatrix();
+			m_shader.SetMatrix4("model", object->GetTransform().GetMatrix());
 
-			m_shader.SetMatrix4("model", theMatrix);    
+            const Animator* animator = object->GetAnimator();
 
-			const int location = glGetUniformLocation(m_shader.GetProgram(), "baseColor");;
-			glUniform3f(location, 255, 255, 255);
+            if (animator)
+            {
+                m_shader.SetMatrix4Array(
+                    "boneMatrices[0]",
+                    animator->GetFinalBoneMatrices()
+                );
+            }
+
+            const int location = glGetUniformLocation(m_shader.GetProgram(), "baseColor");;
+            glUniform3f(location, 1, 1, 1);
+
+			object->GetModel()->Draw();
 		}
 
 		m_shader.Unbind();
