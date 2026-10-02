@@ -1,12 +1,15 @@
 #pragma once
 
 #include "Mesh.h"
+#include "Animation/Animation.h"
 
 #include <memory>
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+
 
 struct aiMesh;
 struct aiNode;
@@ -16,11 +19,6 @@ namespace Mira {
 	class Model
 	{
 		public:
-			explicit Model(const std::string& filePath);
-			void Draw() const;
-
-		private:
-
 			struct NodeData
 			{
 				std::string name;
@@ -35,25 +33,30 @@ namespace Mira {
 				glm::mat4 offset;
 			};
 
-			struct AnimationClip
-			{
-				std::string name;
-				double duration = 0.0;
-				double ticksPerSecond = 0.0;
-			};
+			explicit Model(const std::string& filePath);
+			void Draw() const;
 
+			const NodeData& GetRootNode() const;
+			const std::vector<AnimationClip>& GetAnimations() const;
+			const std::unordered_map<std::string, BoneInfo>& GetBoneInfoMap() const;
+			int GetBoneCount() const;
+			const glm::mat4& GetGlobalInverseTransform() const;
+
+		private:
 			void Load(const std::string& filePath);
 			void ProcessNode(aiNode* node, const aiScene* scene);
 			void ReadHierarchyData(NodeData& destination, const aiNode* source);
 
-
 			std::unique_ptr<Mesh> ProcessMesh(aiMesh* mesh);
-			std::vector<std::unique_ptr<Mesh>> m_meshes;
+
+			NodeData m_rootNode;
 
 			std::unordered_map<std::string, BoneInfo> m_boneInfoMap;
-			int m_boneCounter = 0;
-			NodeData m_rootNode;
+			std::vector<std::unique_ptr<Mesh>> m_meshes;
 			std::vector<AnimationClip> m_animations;
+			glm::mat4 m_globalInverseTransform{ 1.0f };
+
+			int m_boneCounter = 0;
 	};
 }
 

@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <iostream>
 
 namespace
 {
@@ -80,6 +81,10 @@ namespace Mira {
 
 		if (scene == nullptr || scene->mRootNode == nullptr || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE))
 		{
+			std::cerr << "Assimp error: "
+				<< importer.GetErrorString()
+				<< '\n';
+
 			throw std::runtime_error("Failed to load model: " + std::string(importer.GetErrorString()));
 		}
 
@@ -89,6 +94,89 @@ namespace Mira {
 			m_rootNode,
 			scene->mRootNode
 		);
+
+		m_globalInverseTransform =
+			glm::inverse(ConvertMatrix(scene->mRootNode->mTransformation));
+
+		m_animations.clear();
+		m_animations.reserve(scene->mNumAnimations);
+
+		for (unsigned int i = 0; i < scene->mNumAnimations; ++i)
+		{
+			const aiAnimation* animation = scene->mAnimations[i];
+
+			AnimationClip clip;
+
+			clip.name = animation->mName.C_Str();
+			clip.duration = animation->mDuration;
+			clip.ticksPerSecond = animation->mTicksPerSecond;
+
+			clip.channels.reserve(animation->mNumChannels);
+
+			for (unsigned int channelIndex = 0;
+				channelIndex < animation->mNumChannels;
+				++channelIndex)
+			{
+				const aiNodeAnim* channel =
+					animation->mChannels[channelIndex];
+
+				BoneAnimation boneAnimation;
+				boneAnimation.boneName = channel->mNodeName.C_Str();
+
+				boneAnimation.positions.reserve(channel->mNumPositionKeys);
+
+				for (unsigned int i = 0; i < channel->mNumPositionKeys; ++i)
+				{
+					const aiVectorKey& key = channel->mPositionKeys[i];
+
+					boneAnimation.positions.push_back({
+						glm::vec3(
+							key.mValue.x,
+							key.mValue.y,
+							key.mValue.z
+						),
+						key.mTime
+						});
+				}
+
+				boneAnimation.rotations.reserve(channel->mNumRotationKeys);
+
+				for (unsigned int i = 0; i < channel->mNumRotationKeys; ++i)
+				{
+					const aiQuatKey& key = channel->mRotationKeys[i];
+
+					boneAnimation.rotations.push_back({
+						glm::quat(
+							key.mValue.w,
+							key.mValue.x,
+							key.mValue.y,
+							key.mValue.z
+						),
+						key.mTime
+						});
+				}
+
+				boneAnimation.scales.reserve(channel->mNumScalingKeys);
+
+				for (unsigned int i = 0; i < channel->mNumScalingKeys; ++i)
+				{
+					const aiVectorKey& key = channel->mScalingKeys[i];
+
+					boneAnimation.scales.push_back({
+						glm::vec3(
+							key.mValue.x,
+							key.mValue.y,
+							key.mValue.z
+						),
+						key.mTime
+						});
+				}
+
+				clip.channels.push_back(std::move(boneAnimation));
+			}
+
+			m_animations.push_back(std::move(clip));
+		}
 	}
 
 	void Model::ProcessNode(aiNode* node, const aiScene* scene)
@@ -127,6 +215,26 @@ namespace Mira {
 
 			destination.children.push_back(std::move(child));
 		}
+	}
+
+	const Model::NodeData& Model::GetRootNode() const
+	{
+		return m_rootNode;
+	}
+
+	const std::vector<AnimationClip>& Model::GetAnimations() const
+	{
+		return m_animations;
+	}
+
+	const std::unordered_map<std::string, Model::BoneInfo>& Model::GetBoneInfoMap() const
+	{
+		return m_boneInfoMap;
+	}
+
+	int Model::GetBoneCount() const
+	{
+		return m_boneCounter;
 	}
 
 	std::unique_ptr<Mesh> Model::ProcessMesh(aiMesh* mesh)
@@ -223,5 +331,10 @@ namespace Mira {
 		}
 
 		return std::make_unique<Mesh>(vertices, indices);
+	}
+
+	const glm::mat4& Model::GetGlobalInverseTransform() const
+	{
+		return m_globalInverseTransform;
 	}
 }

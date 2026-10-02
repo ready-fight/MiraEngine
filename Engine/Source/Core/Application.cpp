@@ -3,6 +3,7 @@
 #include "Collision/SphereCollider.h"
 
 #include "Scene/GameObject.h"
+#include "Scene/Transform.h"
 
 #include <glm/vec3.hpp>
 
@@ -21,6 +22,7 @@
 #include <string>
 #include <iostream>
 #include <memory>
+
 
 namespace Mira 
 {

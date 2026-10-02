@@ -23,6 +23,10 @@ namespace Mira
 				const char* name,
 				const glm::mat4& matrix
 			) const;
+			void SetMatrix4Array(
+				const char* name,
+				const std::vector<glm::mat4>& matrices
+			) const;
 			unsigned int& GetProgram() {
 				return m_program;
 			}

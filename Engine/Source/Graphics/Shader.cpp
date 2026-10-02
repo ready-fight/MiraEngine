@@ -73,6 +73,27 @@ namespace Mira {
 		);
 	}
 
+	void Shader::SetMatrix4Array(
+		const char* name,
+		const std::vector<glm::mat4>& matrices
+	) const
+	{
+		if (matrices.empty())
+		{
+			return;
+		}
+
+		const int location =
+			glGetUniformLocation(m_program, name);
+
+		glUniformMatrix4fv(
+			location,
+			static_cast<GLsizei>(matrices.size()),
+			GL_FALSE,
+			glm::value_ptr(matrices[0])
+		);
+	}
+
 	unsigned int Shader::Compile(unsigned int type, const char* source)
 	{
 		const unsigned int shader = glCreateShader(type);

@@ -1,6 +1,7 @@
 #include "Scene/GameObject.h"
-
 #include "Collision/Collider.h"
+#include "Graphics/Model.h"
+#include "Animation/Animator.h"
 
 namespace Mira
 {
@@ -8,6 +9,8 @@ namespace Mira
         : m_name(name)
     {
     }
+
+    GameObject::~GameObject() = default;
 
     Transform& GameObject::GetTransform()
     {
@@ -37,5 +40,39 @@ namespace Mira
     const Collider* GameObject::GetCollider() const
     {
         return m_collider.get();
+    }
+
+    void GameObject::SetModel(std::unique_ptr<Model> model)
+    {
+        m_model = std::move(model);
+
+        if (m_model && !m_model->GetAnimations().empty())
+        {
+            m_animator = std::make_unique<Animator>(*m_model);
+        }
+        else
+        {
+            m_animator.reset();
+        }
+    }
+
+    Model* GameObject::GetModel()
+    {
+        return m_model.get();
+    }
+
+    const Model* GameObject::GetModel() const
+    {
+        return m_model.get();
+    }
+
+    Animator* GameObject::GetAnimator()
+    {
+        return m_animator.get();
+    }
+
+    const Animator* GameObject::GetAnimator() const
+    {
+        return m_animator.get();
     }
 }

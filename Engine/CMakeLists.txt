@@ -22,6 +22,8 @@ add_library(MiraEngine STATIC
     Source/Scene/Transform.cpp
     Source/Core/Time.cpp
     Source/Collision/SphereCollider.cpp
+    Source/Animation/Animation.cpp
+    Source/Animation/Animator.cpp
 )
 
 target_include_directories(MiraEngine

@@ -8,12 +8,14 @@
 namespace Mira
 {
     class Collider;
+    class Model;
+    class Animator;
 
     class GameObject
     {
     public:
         GameObject(const std::string& name = "GameObject");
-        virtual ~GameObject() = default;
+        virtual ~GameObject();
 
         Transform& GetTransform();
         const Transform& GetTransform() const;
@@ -25,10 +27,21 @@ namespace Mira
         Collider* GetCollider();
         const Collider* GetCollider() const;
 
+        void SetModel(std::unique_ptr<Model> model);
+
+        Model* GetModel();
+        const Model* GetModel() const;
+
+        Animator* GetAnimator();
+        const Animator* GetAnimator() const;
+
     private:
         std::string m_name;
         Transform m_transform;
 
         std::unique_ptr<Collider> m_collider;
+        std::unique_ptr<Model> m_model;
+        std::unique_ptr<Animator> m_animator;
+
     };
 }
