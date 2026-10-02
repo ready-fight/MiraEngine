@@ -60,45 +60,6 @@ namespace Mira
 
 	void Application::Run()
 	{
-		auto objectA = std::make_unique<GameObject>("Object A");
-		auto objectB = std::make_unique<GameObject>("Object B");
-
-		objectA->GetTransform().SetPosition(
-			glm::vec3(0.0f, 0.0f, 0.0f)
-		);
-
-		objectB->GetTransform().SetPosition(
-			glm::vec3(1.2f, 0.0f, 0.0f)
-		);
-
-		objectA->SetCollider(
-			std::make_unique<SphereCollider>(0.5f)
-		);
-
-		objectB->SetCollider(
-			std::make_unique<SphereCollider>(0.5f)
-		);
-
-		GameObject* a = objectA.get();
-
-		m_scene.AddObject(std::move(objectA));
-		m_scene.AddObject(std::move(objectB));
-
-		// Try moving A toward B
-		const glm::vec3 oldPosition =
-			a->GetTransform().GetPosition();
-
-		a->GetTransform().SetPosition(
-			oldPosition + glm::vec3(0.3f, 0.0f, 0.0f)
-		);
-
-		if (m_scene.IsColliding(*a))
-		{
-			std::cout << "Collision detected - undoing movement\n";
-
-			a->GetTransform().SetPosition(oldPosition);
-		}
-
 		const float movementSpeed = 2.0f;
 		const float mouseSensitivity = 0.1f;
 
@@ -113,6 +74,8 @@ namespace Mira
 			Time::Tick();
 
 			const float deltaTime = Time::DeltaTime();
+
+			m_scene.Update(deltaTime);
 
 			m_window.ProcessEvents();
 

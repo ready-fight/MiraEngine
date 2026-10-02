@@ -32,6 +32,8 @@ namespace Mira
             const glm::vec3& movement
         );
 
+        void Update(float deltaTime);
+
     private:
         std::vector<std::unique_ptr<GameObject>> m_objects;
     };

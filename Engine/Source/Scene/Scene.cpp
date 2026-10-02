@@ -1,5 +1,6 @@
 #include "Scene/Scene.h"
 #include "Scene/GameObject.h"
+#include "Animation/Animator.h"
 
 #include "Collision/Collider.h"
 #include "Collision/SphereCollider.h"
@@ -90,5 +91,18 @@ namespace Mira
         }
 
         return true;
+    }
+
+    void Scene::Update(float deltaTime)
+    {
+        for (const auto& object : m_objects)
+        {
+            Animator* animator = object->GetAnimator();
+
+            if (animator)
+            {
+                animator->Update(deltaTime);
+            }
+        }
     }
 }

@@ -122,9 +122,17 @@ namespace Mira {
 
 		for (const auto& object : scene.GetObjects())
 		{
+
+            const Model* model = object->GetModel();
+
+            if (!model)
+            {
+                continue;
+            }
+
 			glm::mat4 theMatrix = object->GetTransform().GetMatrix();
 
-			m_shader.SetMatrix4("model", theMatrix);
+			m_shader.SetMatrix4("model", theMatrix);    
 
 			const int location = glGetUniformLocation(m_shader.GetProgram(), "baseColor");;
 			glUniform3f(location, 255, 255, 255);
