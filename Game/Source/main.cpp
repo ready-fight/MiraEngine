@@ -41,7 +41,7 @@ int main()
     );
 
     auto item =
-        std::make_unique<MiraGame::Item>();
+        std::make_unique<MiraGame::Item>("Sword");
 
     item->SetModel(
         MiraEngine::AssetManager::LoadModel(

@@ -1,9 +1,9 @@
+#include "Item.h"
 #include "Item/Item.h"
 
 namespace MiraGame
 {
-    Item::Item()
-        : MiraEngine::GameObject("Item")
+    Item::Item(const std::string& itemName) : MiraEngine::GameObject("Item"), m_itemName(itemName)
     {
     }
 
@@ -23,5 +23,10 @@ namespace MiraGame
     bool Item::IsPickedUp() const
     {
         return m_pickedUp;
+    }
+
+    const std::string& Item::GetItemName() const
+    {
+        return m_itemName;
     }
 }

@@ -2,6 +2,7 @@
 
 #include "Mesh.h"
 #include "Animation/Animation.h"
+#include "Graphics/Texture.h"
 
 #include <memory>
 #include <string>
@@ -14,8 +15,11 @@
 struct aiMesh;
 struct aiNode;
 struct aiScene;
+class aiMaterial;
 
 namespace MiraEngine {
+
+
 	class Model
 	{
 		public:
@@ -45,10 +49,13 @@ namespace MiraEngine {
 
 		private:
 			void Load(const std::string& filePath);
+			std::shared_ptr<Texture> LoadMaterialTexture(
+				aiMaterial* material
+			);
 			void ProcessNode(aiNode* node, const aiScene* scene);
 			void ReadHierarchyData(NodeData& destination, const aiNode* source);
 
-			std::unique_ptr<Mesh> ProcessMesh(aiMesh* mesh);
+			std::unique_ptr<Mesh> ProcessMesh(aiMesh* mesh, const aiScene* scene);
 
 			NodeData m_rootNode;
 
@@ -56,6 +63,7 @@ namespace MiraEngine {
 			std::vector<std::unique_ptr<Mesh>> m_meshes;
 			std::vector<AnimationClip> m_animations;
 			glm::mat4 m_globalInverseTransform{ 1.0f };
+			std::string m_directory;
 
 			int m_boneCounter = 0;
 	};

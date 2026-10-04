@@ -6,8 +6,11 @@
 
 #include <cstdint>
 #include <vector>
+#include <memory>
 
 namespace MiraEngine {
+
+	class Texture;
 
 	struct Vertex
 	{
@@ -22,18 +25,20 @@ namespace MiraEngine {
 	class Mesh
 	{
 		public:
-			explicit Mesh(const std::vector<Vertex>& vertices, const std::vector<std::uint32_t> &indices);
+			explicit Mesh(const std::vector<Vertex>& vertices, const std::vector<std::uint32_t> &indices, std::shared_ptr<Texture> texture = nullptr);
 			~Mesh();
 
 			Mesh(const Mesh&) = delete;
 			Mesh& operator=(const Mesh&) = delete;
 
 			void Draw() const;
+			Texture* GetTexture() const;
 
 		private:
 			unsigned int m_vertexArray = 0;
 			unsigned int m_vertexBuffer = 0;
 			unsigned int m_indexBuffer = 0;
+			std::shared_ptr<Texture> m_texture;
 
 			int m_indexCount = 0;
 	};

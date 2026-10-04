@@ -1,4 +1,5 @@
 #include "Model.h"
+#include "Graphics/Texture.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
@@ -9,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <filesystem>
 
 namespace
 {
@@ -192,6 +194,11 @@ namespace MiraEngine {
 			throw std::runtime_error("Failed to load model: " + std::string(importer.GetErrorString()));
 		}
 
+		m_directory =
+			std::filesystem::path(filePath)
+			.parent_path()
+			.string();
+
 		ProcessNode(scene->mRootNode, scene);
 
 		ReadHierarchyData(
@@ -283,12 +290,48 @@ namespace MiraEngine {
 		}
 	}
 
+	std::shared_ptr<Texture>
+		Model::LoadMaterialTexture(
+			aiMaterial* material
+		)
+	{
+		if (
+			material->GetTextureCount(
+				aiTextureType_DIFFUSE
+			) == 0
+			)
+		{
+			return nullptr;
+		}
+
+		aiString texturePath;
+
+		if (
+			material->GetTexture(
+				aiTextureType_DIFFUSE,
+				0,
+				&texturePath
+			) != AI_SUCCESS
+			)
+		{
+			return nullptr;
+		}
+
+		const std::filesystem::path fullPath =
+			std::filesystem::path(m_directory) /
+			texturePath.C_Str();
+
+		return std::make_shared<Texture>(
+			fullPath.string()
+		);
+	}
+
 	void Model::ProcessNode(aiNode* node, const aiScene* scene)
 	{
 		for (unsigned int i = 0; i < node->mNumMeshes; i++)
 		{
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-			m_meshes.push_back(ProcessMesh(mesh));
+			m_meshes.push_back(ProcessMesh(mesh, scene));
 		}
 
 		for (unsigned int i = 0; i < node->mNumChildren; i++)
@@ -341,7 +384,7 @@ namespace MiraEngine {
 		return m_boneCounter;
 	}
 
-	std::unique_ptr<Mesh> Model::ProcessMesh(aiMesh* mesh)
+	std::unique_ptr<Mesh> Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 	{
 		std::vector<Vertex> vertices;
 		std::vector<std::uint32_t> indices;
@@ -434,7 +477,24 @@ namespace MiraEngine {
 			}
 		}
 
-		return std::make_unique<Mesh>(vertices, indices);
+		std::shared_ptr<Texture> texture;
+
+		if (mesh->mMaterialIndex < scene->mNumMaterials)
+		{
+			aiMaterial* material =
+				scene->mMaterials[
+					mesh->mMaterialIndex
+				];
+
+			texture =
+				LoadMaterialTexture(material);
+		}
+
+		return std::make_unique<Mesh>(
+			vertices,
+			indices,
+			texture
+		);
 	}
 
 	const glm::mat4& Model::GetGlobalInverseTransform() const

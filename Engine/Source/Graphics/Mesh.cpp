@@ -7,9 +7,11 @@
 namespace MiraEngine {
 	Mesh::Mesh(
 		const std::vector<Vertex>& vertices, 
-		const std::vector<std::uint32_t>& indices
+		const std::vector<std::uint32_t>& indices,
+		std::shared_ptr<Texture> texture
 	): 
-		m_indexCount(static_cast<int>(indices.size()))
+		m_indexCount(static_cast<int>(indices.size())),
+		m_texture(std::move(texture))
 	{
 		glGenVertexArrays(1, &m_vertexArray);
 		glGenBuffers(1, &m_vertexBuffer);
@@ -106,5 +108,10 @@ namespace MiraEngine {
 			nullptr);
 
 		glBindVertexArray(0);
+	}
+
+	Texture* Mesh::GetTexture() const
+	{
+		return m_texture.get();
 	}
 }

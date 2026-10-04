@@ -275,10 +275,17 @@ namespace MiraGame
 
 					if (distance <= m_interactRange)
 					{
+
+						m_inventory.AddItem(
+							item->GetItemName()
+						);
+
 						item->Pickup();
 
 						std::cout
-							<< "Picked up item\n";
+							<< "Picked up: "
+							<< item->GetItemName()
+							<< "\n";
 
 						break;
 					}
@@ -306,6 +313,15 @@ namespace MiraGame
 			healthPercent,
 			healthText
 		);
+
+		MiraEngine::UI::DrawText("Inventory:");
+
+		for (const std::string& itemName : m_inventory.GetItems())
+		{
+			MiraEngine::UI::DrawText(
+				"- " + itemName
+			);
+		}
 
 		MiraEngine::UI::EndWindow();
 	}
