@@ -74,6 +74,8 @@ namespace MiraEngine
 
 			UI::BeginFrame();
 
+			m_scene.DrawUI();
+
 			ImGuiIO& io = ImGui::GetIO();
 
 			const bool focused =

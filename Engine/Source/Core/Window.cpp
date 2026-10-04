@@ -132,6 +132,10 @@ namespace MiraEngine {
 		case Key::E:
 			glfwKey = GLFW_KEY_E;
 			break;
+
+		case Key::F:
+			glfwKey = GLFW_KEY_F;
+			break;
 		}
 
 		return glfwGetKey(m_window, glfwKey) == GLFW_PRESS;

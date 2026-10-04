@@ -5,13 +5,16 @@
 
 #include "Scene/Scene.h"
 #include "Enemy/Enemy.h"
+#include "UI/UI.h"
 
 #include "Assets/AssetManager.h"
 #include "Animation/Animator.h"
+#include "Item/Item.h"
 
 #include <glm/geometric.hpp>
 #include <glm/vec3.hpp>
 #include <iostream>
+#include <string>
 
 namespace MiraGame
 {
@@ -240,5 +243,70 @@ namespace MiraGame
 				movement * m_speed * deltaTime
 			);
 		}
+
+		const bool interactDown =
+			MiraEngine::Input::IsKeyPressed(
+				MiraEngine::Key::F
+			);
+
+		if (interactDown && !m_wasInteractDown)
+		{
+			if (m_scene)
+			{
+				for (const auto& object : m_scene->GetObjects())
+				{
+					MiraGame::Item* item =
+						dynamic_cast<MiraGame::Item*>(
+							object.get()
+							);
+
+					if (!item || item->IsPickedUp())
+					{
+						continue;
+					}
+
+					const float distance =
+						glm::distance(
+							GetTransform().GetPosition(),
+							item->GetTransform().GetPosition()
+						);
+
+					std::cout << distance << "\n";
+
+					if (distance <= m_interactRange)
+					{
+						item->Pickup();
+
+						std::cout
+							<< "Picked up item\n";
+
+						break;
+					}
+				}
+			}
+		}
+
+		m_wasInteractDown = interactDown;
+	}
+
+	void Player::DrawUI()
+	{
+		MiraEngine::UI::BeginWindow("Player");
+
+		const float healthPercent =
+			static_cast<float>(GetHealth()) /
+			static_cast<float>(GetMaxHealth());
+
+		const std::string healthText =
+			std::to_string(GetHealth()) +
+			" / " +
+			std::to_string(GetMaxHealth());
+
+		MiraEngine::UI::DrawProgressBar(
+			healthPercent,
+			healthText
+		);
+
+		MiraEngine::UI::EndWindow();
 	}
 }

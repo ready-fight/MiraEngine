@@ -18,7 +18,11 @@ namespace MiraEngine
         static bool BeginWindow(const std::string& title);
         static void EndWindow();
 
-        static void DrawText(const std::string& text);
         static bool DrawButton(const std::string& label);
+        static void DrawText(const std::string& text);
+        static void DrawProgressBar(
+            float value,
+            const std::string& text
+        );
     };
 }

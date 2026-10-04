@@ -17,6 +17,10 @@ namespace MiraEngine
         (void)deltaTime;
     }
 
+    void GameObject::DrawUI()
+    {
+    }
+
     Transform& GameObject::GetTransform()
     {
         return m_transform;

@@ -12,6 +12,14 @@ namespace MiraEngine
         m_objects.push_back(std::move(object));
     }
 
+    void Scene::DrawUI()
+    {
+        for (const auto& object : m_objects)
+        {
+            object->DrawUI();
+        }
+    }
+
     std::vector<std::unique_ptr<GameObject>>& Scene::GetObjects()
     {
         return m_objects;

@@ -14,6 +14,7 @@ namespace MiraEngine
     {
     public:
         void AddObject(std::unique_ptr<GameObject> object);
+        void DrawUI();
 
         std::vector<std::unique_ptr<GameObject>>& GetObjects();
         const std::vector<std::unique_ptr<GameObject>>& GetObjects() const;

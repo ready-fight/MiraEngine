@@ -18,6 +18,7 @@ namespace MiraEngine
         GameObject(const std::string& name = "GameObject");
         virtual ~GameObject();
         virtual void Update(float deltaTime);
+        virtual void DrawUI();
 
         Transform& GetTransform();
         const Transform& GetTransform() const;

@@ -76,4 +76,16 @@ namespace MiraEngine
     {
         return ImGui::Button(label.c_str());
     }
+
+    void UI::DrawProgressBar(
+        float value,
+        const std::string& text
+    )
+    {
+        ImGui::ProgressBar(
+            value,
+            ImVec2(250.0f, 20.0f),
+            text.c_str()
+        );
+    }
 }

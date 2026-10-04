@@ -15,7 +15,8 @@ namespace MiraEngine {
 		S,
 		D,
 		Q,
-		E
+		E,
+		F
 	};
 
 	class Window

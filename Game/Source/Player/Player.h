@@ -16,6 +16,7 @@ namespace MiraGame
         explicit Player(MiraEngine::Scene* scene);
 
         void Update(float deltaTime) override;
+        void DrawUI() override;
 
     private:
         float m_speed = 4.0f;
@@ -33,6 +34,9 @@ namespace MiraGame
         float m_attackTime = 0.0f;
         float m_attackHitTime = 0.55f;
         float m_attackDuration = 0.6f;
+
+        float m_interactRange = 1.5f;
+        bool m_wasInteractDown = false;
 
         MiraEngine::Scene* m_scene = nullptr;
     };
