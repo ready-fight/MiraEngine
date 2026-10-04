@@ -2,7 +2,7 @@
 
 #include "Graphics/Model.h"
 
-namespace Mira
+namespace MiraEngine
 {
     std::unordered_map<std::string, std::shared_ptr<Model>> AssetManager::s_models;
 

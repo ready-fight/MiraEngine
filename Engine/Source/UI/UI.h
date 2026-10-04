@@ -4,7 +4,7 @@
 
 struct GLFWwindow;
 
-namespace Mira
+namespace MiraEngine
 {
     class UI
     {

@@ -6,7 +6,7 @@
 
 #include <stdexcept>
 
-namespace Mira
+namespace MiraEngine
 {
     void UI::Initialize(GLFWwindow* window)
     {

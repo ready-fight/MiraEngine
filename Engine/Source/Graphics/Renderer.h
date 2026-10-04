@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Shader.h"
+#include "Graphics/Light.h"
 
-namespace Mira {
+namespace MiraEngine {
 
 	class Camera;
 	class Scene;
@@ -20,16 +21,14 @@ namespace Mira {
 		Renderer& operator=(const Renderer&) = delete;
 
 		void Render(float aspectRatio, Camera& camera, Scene& scene);
-		void RenderModel(
-			float aspectRatio,
-			Camera& camera,
-			const Transform& transform,
-			const Model& model,
-			const Animator& animator
-		);
+
+		void SetAmbientLight(const AmbientLight& light);
+		void SetDirectionalLight(const DirectionalLight& light);
 
 	private:
 		Shader m_shader;
+		AmbientLight m_ambientLight;
+		DirectionalLight m_directionalLight;
 	};
 }
 

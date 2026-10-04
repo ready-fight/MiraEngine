@@ -4,7 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-namespace Mira
+namespace MiraEngine
 {
     glm::vec3 InterpolatePosition(
         const BoneAnimation& animation,

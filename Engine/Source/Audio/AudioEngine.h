@@ -4,7 +4,7 @@
 
 #include <string>
 
-namespace Mira
+namespace MiraEngine
 {
     class AudioEngine
     {

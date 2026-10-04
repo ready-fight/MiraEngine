@@ -8,7 +8,7 @@
 #include <string>
 
 
-namespace Mira {
+namespace MiraEngine {
 	Shader::Shader(const char* vertexSource, const char* fragmentSource)
 	{
 		const unsigned int vertexShader = Compile(GL_VERTEX_SHADER, vertexSource);
@@ -73,6 +73,7 @@ namespace Mira {
 		);
 	}
 
+
 	void Shader::SetMatrix4Array(
 		const char* name,
 		const std::vector<glm::mat4>& matrices
@@ -91,6 +92,21 @@ namespace Mira {
 			static_cast<GLsizei>(matrices.size()),
 			GL_FALSE,
 			glm::value_ptr(matrices[0])
+		);
+	}
+
+	void Shader::SetVector3(
+		const char* name,
+		const glm::vec3& vector
+	) const
+	{
+		const int location =
+			glGetUniformLocation(m_program, name);
+
+		glUniform3fv(
+			location,
+			1,
+			glm::value_ptr(vector)
 		);
 	}
 

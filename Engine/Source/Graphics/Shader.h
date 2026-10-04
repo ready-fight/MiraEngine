@@ -1,8 +1,9 @@
 #pragma once
 
 #include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 
-namespace Mira
+namespace MiraEngine
 {
 	class Shader
 	{
@@ -26,6 +27,10 @@ namespace Mira
 			void SetMatrix4Array(
 				const char* name,
 				const std::vector<glm::mat4>& matrices
+			) const;
+			void SetVector3(
+				const char* name,
+				const glm::vec3& vector
 			) const;
 			unsigned int& GetProgram() {
 				return m_program;

@@ -1,11 +1,12 @@
 #pragma once
 
+#include "Graphics/Material.h"
 #include "Scene/Transform.h"
 
 #include <memory>
 #include <string>
 
-namespace Mira
+namespace MiraEngine
 {
     class Collider;
     class Model;
@@ -36,6 +37,9 @@ namespace Mira
         Animator* GetAnimator();
         const Animator* GetAnimator() const;
 
+        Material& GetMaterial();
+        const Material& GetMaterial() const;
+
     private:
         std::string m_name;
         Transform m_transform;
@@ -43,6 +47,6 @@ namespace Mira
         std::unique_ptr<Collider> m_collider;
         std::shared_ptr<Model> m_model;
         std::unique_ptr<Animator> m_animator;
-
+        Material m_material;
     };
 }

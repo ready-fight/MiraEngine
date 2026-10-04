@@ -1,7 +1,7 @@
 #include "Transform.h"
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace Mira {
+namespace MiraEngine {
 
 	void Transform::SetPosition(const glm::vec3& position)
 	{

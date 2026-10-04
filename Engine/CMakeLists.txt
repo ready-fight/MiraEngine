@@ -8,26 +8,13 @@ find_package(assimp CONFIG REQUIRED)
 find_path(STB_INCLUDE_DIRS "stb_image.h")
 find_path(MINIAUDIO_INCLUDE_DIR miniaudio.h)
 
+file(GLOB_RECURSE MIRA_ENGINE_SOURCES
+    CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.cpp"
+)
+
 add_library(MiraEngine STATIC
-    Source/Core/Application.cpp
-    Source/Core/Window.cpp
-
-    Source/Graphics/Renderer.cpp
-    Source/Graphics/Shader.cpp
-    Source/Graphics/Camera.cpp
-    Source/Graphics/Mesh.cpp
-    Source/Graphics/Model.cpp
-
-    Source/Scene/Scene.cpp
-    Source/Scene/GameObject.cpp
-    Source/Scene/Transform.cpp
-    Source/Core/Time.cpp
-    Source/Collision/SphereCollider.cpp
-    Source/Animation/Animation.cpp
-    Source/Animation/Animator.cpp
-    Source/Audio/AudioEngine.cpp
-    Source/UI/UI.cpp
-    Source/Assets/AssetManager.cpp
+    ${MIRA_ENGINE_SOURCES}
 )
 
 target_include_directories(MiraEngine
@@ -45,5 +32,5 @@ target_link_libraries(MiraEngine
         GLEW::GLEW
         glm::glm
         imgui::imgui
-	assimp::assimp
+        assimp::assimp
 )

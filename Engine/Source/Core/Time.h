@@ -2,7 +2,7 @@
 
 #include <chrono>
 
-namespace Mira
+namespace MiraEngine
 {
     class Time
     {

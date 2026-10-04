@@ -2,7 +2,7 @@
 
 struct GLFWwindow;
 
-namespace Mira {
+namespace MiraEngine {
 
 	struct MouseMovement {
 		double x = 0.0f;

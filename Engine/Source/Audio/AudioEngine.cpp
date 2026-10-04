@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 
-namespace Mira
+namespace MiraEngine
 {
     AudioEngine::AudioEngine()
     {

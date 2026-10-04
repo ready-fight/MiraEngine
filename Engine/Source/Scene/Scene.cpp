@@ -5,7 +5,7 @@
 #include "Collision/Collider.h"
 #include "Collision/SphereCollider.h"
 
-namespace Mira
+namespace MiraEngine
 {
     void Scene::AddObject(std::unique_ptr<GameObject> object)
     {

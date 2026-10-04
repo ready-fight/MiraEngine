@@ -3,7 +3,7 @@
 #include "Collision/Collider.h"
 #include <glm/vec3.hpp>
 
-namespace Mira
+namespace MiraEngine
 {
     class SphereCollider : public Collider
     {

@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-namespace Mira
+namespace MiraEngine
 {
     std::chrono::steady_clock::time_point Time::s_previousTime =
         std::chrono::steady_clock::now();

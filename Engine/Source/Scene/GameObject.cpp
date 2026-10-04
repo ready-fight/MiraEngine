@@ -3,7 +3,7 @@
 #include "Graphics/Model.h"
 #include "Animation/Animator.h"
 
-namespace Mira
+namespace MiraEngine
 {
     GameObject::GameObject(const std::string& name)
         : m_name(name)
@@ -79,5 +79,15 @@ namespace Mira
     const Animator* GameObject::GetAnimator() const
     {
         return m_animator.get();
+    }
+
+    Material& GameObject::GetMaterial()
+    {
+        return m_material;
+    }
+
+    const Material& GameObject::GetMaterial() const
+    {
+        return m_material;
     }
 }

@@ -65,28 +65,38 @@ namespace
         }
     )";
 
-	const char* FragmentShaderSource = R"(
+    const char* FragmentShaderSource = R"(
         #version 460 core
 
-	    uniform vec3 baseColor;
+        uniform vec3 baseColor;
+
+        uniform vec3 ambientLight;
+        uniform vec3 lightDirection;
+        uniform vec3 lightColor;
 
         in vec3 worldNormal;
+
         out vec4 fragmentColor;
 
         void main()
         {
-            vec3 normalizedNormal = normalize(worldNormal);
+            vec3 normalizedNormal =
+                normalize(worldNormal);
 
-            vec3 directionToLight = normalize(
-                vec3(0.5, 1.0, 0.3)
-            );
+            vec3 directionToLight =
+                normalize(-lightDirection);
 
             float diffuseAmount = max(
-                dot(normalizedNormal, directionToLight),
+                dot(
+                    normalizedNormal,
+                    directionToLight
+                ),
                 0.0
             );
 
-            float lighting = 0.2 + diffuseAmount * 0.8;;
+            vec3 lighting =
+                ambientLight +
+                lightColor * diffuseAmount;
 
             fragmentColor = vec4(
                 baseColor * lighting,
@@ -96,7 +106,7 @@ namespace
     )";
 }
 
-namespace Mira {
+namespace MiraEngine {
 	Renderer::Renderer() : m_shader(VertexShaderSource, FragmentShaderSource)
 	{
 		glEnable(GL_DEPTH_TEST);
@@ -120,6 +130,21 @@ namespace Mira {
 		const glm::mat4 projection = camera.GetProjectionMatrix(aspectRatio);
 		m_shader.SetMatrix4("projection", projection);
 
+        m_shader.SetVector3(
+            "ambientLight",
+            m_ambientLight.color
+        );
+
+        m_shader.SetVector3(
+            "lightDirection",
+            m_directionalLight.direction
+        );
+
+        m_shader.SetVector3(
+            "lightColor",
+            m_directionalLight.color
+        );
+
 		for (const auto& object : scene.GetObjects())
 		{
 
@@ -142,58 +167,32 @@ namespace Mira {
                 );
             }
 
-            const int location = glGetUniformLocation(m_shader.GetProgram(), "baseColor");;
-            glUniform3f(location, 1, 1, 1);
+            const Material& material =
+                object->GetMaterial();
+
+            m_shader.SetVector3(
+                "baseColor",
+                material.color
+            );
 
 			object->GetModel()->Draw();
 		}
 
 		m_shader.Unbind();
-		
-		
 	}
 
-    void Renderer::RenderModel(
-        float aspectRatio,
-        Camera& camera,
-        const Transform& transform,
-        const Model& model,
-        const Animator& animator
+    void Renderer::SetAmbientLight(
+        const AmbientLight& light
     )
     {
-        m_shader.Bind();
+        m_ambientLight = light;
+    }
 
-        m_shader.SetMatrix4(
-            "view",
-            camera.GetViewMatrix()
-        );
-
-        m_shader.SetMatrix4(
-            "projection",
-            camera.GetProjectionMatrix(aspectRatio)
-        );
-
-        m_shader.SetMatrix4(
-            "model",
-            transform.GetMatrix()
-        );
-
-        m_shader.SetMatrix4Array(
-            "boneMatrices[0]",
-            animator.GetFinalBoneMatrices()
-        );
-
-        const int location =
-            glGetUniformLocation(
-                m_shader.GetProgram(),
-                "baseColor"
-            );
-
-        glUniform3f(location, 1.0f, 1.0f, 1.0f);
-
-        model.Draw();
-
-        m_shader.Unbind();
+    void Renderer::SetDirectionalLight(
+        const DirectionalLight& light
+    )
+    {
+        m_directionalLight = light;
     }
 }
 

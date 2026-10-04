@@ -6,7 +6,7 @@
 #include <glm/vec3.hpp>
 
 
-namespace Mira
+namespace MiraEngine
 {
     class GameObject;
 

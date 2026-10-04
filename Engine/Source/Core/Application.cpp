@@ -1,8 +1,10 @@
 #include "Core/Application.h"
 #include "Core/Time.h"
+#include "Core/Input.h"
 
 #include "Scene/GameObject.h"
 #include "Scene/Transform.h"
+#include "Animation/Animator.h"
 
 #include <glm/vec3.hpp>
 
@@ -20,14 +22,19 @@
 #include <iostream>
 #include <memory>
 
+#include "Graphics/Model.h"
 
-namespace Mira 
+
+namespace MiraEngine 
 {
 	Application::Application() : m_window(1280, 720, "Mira Engine"), m_camera(
-			glm::vec3(-0.0f, 2.0f, -5.0f),
-			glm::vec3(0.0f, 0.0f, 0.0f)
+			glm::vec3(0.0f, 3.0f, -5.5f),
+			glm::vec3(0.0f, 1.0f, 0.0f)
 		)
 	{
+
+		Input::Initialize(m_window);
+
 		UI::Initialize(m_window.GetNativeWindow());
 
 		m_window.ReleaseCursor();
@@ -55,14 +62,15 @@ namespace Mira
 
 			const float deltaTime = Time::DeltaTime();
 
-			m_scene.Update(deltaTime);
-
 			m_window.ProcessEvents();
+
 
 			if (m_window.ShouldClose())
 			{
 				break;
 			}
+
+			m_scene.Update(deltaTime);
 
 			UI::BeginFrame();
 
@@ -250,5 +258,15 @@ namespace Mira
 
 			m_window.SwapBuffers();
 		}
+	}
+
+	Scene& Application::GetScene()
+	{
+		return m_scene;
+	}
+
+	const Scene& Application::GetScene() const
+	{
+		return m_scene;
 	}
 }

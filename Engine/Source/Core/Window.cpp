@@ -5,7 +5,7 @@
 
 #include <stdexcept>
 
-namespace Mira {
+namespace MiraEngine {
 	Window::Window(int width, int height, const char* title)
 	{
 		if (!glfwInit())

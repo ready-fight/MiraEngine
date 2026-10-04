@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace Mira
+namespace MiraEngine
 {
     class Model;
 

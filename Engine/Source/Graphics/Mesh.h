@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace Mira {
+namespace MiraEngine {
 
 	struct Vertex
 	{

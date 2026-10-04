@@ -5,7 +5,7 @@
 #include "Core/Window.h"
 #include "Scene/Scene.h"
 
-namespace Mira
+namespace MiraEngine
 {
 	class Application
 	{
@@ -17,6 +17,9 @@ namespace Mira
 			Application& operator=(const Application&) = delete;
 
 			void Run();
+
+			Scene& GetScene();
+			const Scene& GetScene() const;
 
 		private:
 			Window m_window;

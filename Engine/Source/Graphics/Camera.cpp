@@ -7,13 +7,12 @@
 
 #include <cmath>
 
-namespace Mira {
+namespace MiraEngine {
 	Camera::Camera(const glm::vec3& position, const glm::vec3& target) : m_position(position), m_target(target)
 	{
 		const glm::vec3 direction = glm::normalize(m_target - m_position);
 
 		m_pitch = glm::degrees(std::asin(direction.y));
-
 		m_yaw = glm::degrees(std::atan2(direction.z, direction.x));
 	}
 

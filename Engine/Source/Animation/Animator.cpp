@@ -1,6 +1,6 @@
 #include "Animation/Animator.h"
 
-namespace Mira
+namespace MiraEngine
 {
     Animator::Animator(const Model& model)
         : m_model(model)
@@ -11,7 +11,7 @@ namespace Mira
         );
     }
 
-    void Animator::PlayAnimation(size_t animationIndex)
+    void Animator::PlayAnimation(size_t animationIndex, bool looping)
     {
         const auto& animations = m_model.GetAnimations();
 
@@ -22,6 +22,18 @@ namespace Mira
 
         m_currentAnimation = &animations[animationIndex];
         m_currentTime = 0.0;
+        m_looping = looping;
+    }
+
+    void Animator::StopAnimation()
+    {
+        m_currentAnimation = nullptr;
+        m_currentTime = 0.0;
+
+        for (glm::mat4& matrix : m_finalBoneMatrices)
+        {
+            matrix = glm::mat4(1.0f);
+        }
     }
 
     void Animator::Update(float deltaTime)
@@ -39,10 +51,22 @@ namespace Mira
         m_currentTime +=
             static_cast<double>(deltaTime) * ticksPerSecond;
 
-        m_currentTime = std::fmod(
-            m_currentTime,
+        if (m_looping)
+        {
+            m_currentTime = std::fmod(
+                m_currentTime,
+                m_currentAnimation->duration
+            );
+        }
+
+        else if (
+            m_currentTime >
             m_currentAnimation->duration
-        );
+            )
+        {
+            m_currentTime =
+                m_currentAnimation->duration;
+        }
 
         CalculateNodeTransforms(
             m_model.GetRootNode(),
@@ -68,7 +92,7 @@ namespace Mira
             if (channel.boneName == node.name)
             {
                 localTransform =
-                    Mira::CalculateBoneTransform(
+                    MiraEngine::CalculateBoneTransform(
                         channel,
                         m_currentTime
                     );

@@ -2,7 +2,7 @@
 
 #include <glm/geometric.hpp>
 
-namespace Mira
+namespace MiraEngine
 {
     SphereCollider::SphereCollider(float radius)
         : m_radius(radius)

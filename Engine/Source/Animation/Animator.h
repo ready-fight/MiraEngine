@@ -6,14 +6,15 @@
 
 #include <vector>
 
-namespace Mira
+namespace MiraEngine
 {
     class Animator
     {
     public:
         explicit Animator(const Model& model);
 
-        void PlayAnimation(size_t animationIndex);
+        void PlayAnimation(size_t animationIndex, bool looping = true);
+        void StopAnimation();
         void Update(float deltaTime);
 
         const std::vector<glm::mat4>& GetFinalBoneMatrices() const;
@@ -30,6 +31,8 @@ namespace Mira
         const AnimationClip* m_currentAnimation = nullptr;
 
         double m_currentTime = 0.0;
+
+        bool m_looping = true;
 
         std::vector<glm::mat4> m_finalBoneMatrices;
     };

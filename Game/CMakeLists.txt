@@ -1,8 +1,10 @@
+file(GLOB_RECURSE MIRA_GAME_SOURCES
+    CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.cpp"
+)
+
 add_executable(MiraGame
-    Source/main.cpp
-    
-    
-    
+    ${MIRA_GAME_SOURCES}
 )
 
 add_custom_command(

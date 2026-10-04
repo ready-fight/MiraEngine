@@ -15,7 +15,7 @@ struct aiMesh;
 struct aiNode;
 struct aiScene;
 
-namespace Mira {
+namespace MiraEngine {
 	class Model
 	{
 		public:
@@ -35,6 +35,7 @@ namespace Mira {
 
 			explicit Model(const std::string& filePath);
 			void Draw() const;
+			void LoadAnimation(const std::string& filePath);
 
 			const NodeData& GetRootNode() const;
 			const std::vector<AnimationClip>& GetAnimations() const;
