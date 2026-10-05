@@ -67,11 +67,13 @@ namespace MiraEngine {
 
 	}
 
-	void Model::Draw() const
+	void Model::Draw(
+		const Shader& shader
+	) const
 	{
 		for (const auto& mesh : m_meshes)
 		{
-			mesh->Draw();
+			mesh->Draw(shader);
 		}
 	}
 
@@ -295,20 +297,36 @@ namespace MiraEngine {
 			aiMaterial* material
 		)
 	{
+		aiString texturePath;
+
+		aiTextureType textureType;
+
 		if (
 			material->GetTextureCount(
-				aiTextureType_DIFFUSE
-			) == 0
+				aiTextureType_BASE_COLOR
+			) > 0
 			)
+		{
+			textureType =
+				aiTextureType_BASE_COLOR;
+		}
+		else if (
+			material->GetTextureCount(
+				aiTextureType_DIFFUSE
+			) > 0
+			)
+		{
+			textureType =
+				aiTextureType_DIFFUSE;
+		}
+		else
 		{
 			return nullptr;
 		}
 
-		aiString texturePath;
-
 		if (
 			material->GetTexture(
-				aiTextureType_DIFFUSE,
+				textureType,
 				0,
 				&texturePath
 			) != AI_SUCCESS
@@ -320,6 +338,16 @@ namespace MiraEngine {
 		const std::filesystem::path fullPath =
 			std::filesystem::path(m_directory) /
 			texturePath.C_Str();
+
+		if (!std::filesystem::is_regular_file(fullPath))
+		{
+			std::cout
+				<< "Skipping invalid automatic texture: "
+				<< fullPath.string()
+				<< '\n';
+
+			return nullptr;
+		}
 
 		return std::make_shared<Texture>(
 			fullPath.string()
@@ -500,5 +528,20 @@ namespace MiraEngine {
 	const glm::mat4& Model::GetGlobalInverseTransform() const
 	{
 		return m_globalInverseTransform;
+	}
+
+	void Model::SetTexture(
+		const std::string& filePath
+	)
+	{
+		auto texture =
+			std::make_shared<Texture>(
+				filePath
+			);
+
+		for (auto& mesh : m_meshes)
+		{
+			mesh->SetTexture(texture);
+		}
 	}
 }

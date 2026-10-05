@@ -32,6 +32,10 @@ namespace MiraEngine
 				const char* name,
 				const glm::vec3& vector
 			) const;
+			void SetInt(
+				const char* name,
+				int value
+			) const;
 			unsigned int& GetProgram() {
 				return m_program;
 			}

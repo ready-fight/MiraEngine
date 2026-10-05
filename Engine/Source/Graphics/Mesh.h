@@ -11,6 +11,7 @@
 namespace MiraEngine {
 
 	class Texture;
+	class Shader;
 
 	struct Vertex
 	{
@@ -31,8 +32,13 @@ namespace MiraEngine {
 			Mesh(const Mesh&) = delete;
 			Mesh& operator=(const Mesh&) = delete;
 
-			void Draw() const;
+			void Draw(
+				const Shader& shader
+			) const;
 			Texture* GetTexture() const;
+			void SetTexture(
+				std::shared_ptr<Texture> texture
+			);
 
 		private:
 			unsigned int m_vertexArray = 0;

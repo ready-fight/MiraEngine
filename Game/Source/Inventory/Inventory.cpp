@@ -3,13 +3,13 @@
 namespace MiraGame
 {
     void Inventory::AddItem(
-        const std::string& itemName
+        const ItemData& item
     )
     {
-        m_items.push_back(itemName);
+        m_items.push_back(item);
     }
 
-    const std::vector<std::string>&
+    const std::vector<ItemData>&
         Inventory::GetItems() const
     {
         return m_items;

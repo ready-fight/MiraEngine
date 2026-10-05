@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Item/ItemData.h"
+
 #include <string>
 #include <vector>
 
@@ -8,11 +10,11 @@ namespace MiraGame
     class Inventory
     {
     public:
-        void AddItem(const std::string& itemName);
+        void AddItem(const ItemData& item);
 
-        const std::vector<std::string>& GetItems() const;
+        const std::vector<ItemData>& GetItems() const;
 
     private:
-        std::vector<std::string> m_items;
+        std::vector<ItemData> m_items;
     };
 }

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Scene/GameObject.h"
+#include "Item/ItemData.h"
+
 #include <string>
 
 namespace MiraGame
@@ -8,16 +10,16 @@ namespace MiraGame
     class Item : public MiraEngine::GameObject
     {
     public:
-        explicit Item(const std::string& itemName);
+        explicit Item(const ItemData& itemData);
 
         void Pickup();
 
         bool IsPickedUp() const;
 
-        const std::string& GetItemName() const;
+        const ItemData& GetItemData() const;
 
     private:
         bool m_pickedUp = false;
-        std::string m_itemName;
+        ItemData m_itemData;
     };
 }

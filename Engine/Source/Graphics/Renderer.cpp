@@ -19,6 +19,7 @@ namespace
 
         layout(location = 0) in vec3 position;
         layout(location = 1) in vec3 normal;
+        layout(location = 2) in vec2 texCoord;
         layout(location = 3) in ivec4 boneIDs;
         layout(location = 4) in vec4 weights;
 
@@ -30,11 +31,13 @@ namespace
         uniform mat4 boneMatrices[MAX_BONES];
 
         out vec3 worldNormal;
+        out vec2 textureCoordinate;
 
         void main()
         {
             vec4 localPosition = vec4(position, 1.0);
             vec3 localNormal = normal;
+            textureCoordinate = texCoord;
 
             float totalWeight =
                 weights.x +
@@ -74,7 +77,11 @@ namespace
         uniform vec3 lightDirection;
         uniform vec3 lightColor;
 
+        uniform sampler2D diffuseTexture;
+        uniform int hasTexture;
+
         in vec3 worldNormal;
+        in vec2 textureCoordinate;
 
         out vec4 fragmentColor;
 
@@ -98,8 +105,19 @@ namespace
                 ambientLight +
                 lightColor * diffuseAmount;
 
+            vec3 surfaceColor =
+                baseColor;
+
+            if (hasTexture == 1)
+            {
+                surfaceColor *= texture(
+                    diffuseTexture,
+                    textureCoordinate
+                ).rgb;
+            }
+
             fragmentColor = vec4(
-                baseColor * lighting,
+                surfaceColor * lighting,
                 1.0
             );
         }
@@ -175,7 +193,7 @@ namespace MiraEngine {
                 material.color
             );
 
-			object->GetModel()->Draw();
+			model->Draw(m_shader);
 		}
 
 		m_shader.Unbind();

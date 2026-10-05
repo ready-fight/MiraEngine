@@ -1,4 +1,6 @@
 #include "Mesh.h"
+#include "Graphics/Shader.h"
+#include "Graphics/Texture.h"
 
 #include <GL/glew.h>
 
@@ -97,15 +99,41 @@ namespace MiraEngine {
 		glDeleteBuffers(1, &m_vertexBuffer);
 		glDeleteVertexArrays(1, &m_vertexArray);
 	}
-	void Mesh::Draw() const
+
+	void Mesh::Draw(
+		const Shader& shader
+	) const
 	{
+		if (m_texture)
+		{
+			m_texture->Bind(0);
+
+			shader.SetInt(
+				"hasTexture",
+				1
+			);
+
+			shader.SetInt(
+				"diffuseTexture",
+				0
+			);
+		}
+		else
+		{
+			shader.SetInt(
+				"hasTexture",
+				0
+			);
+		}
+
 		glBindVertexArray(m_vertexArray);
 
 		glDrawElements(
-			GL_TRIANGLES, 
-			m_indexCount, 
-			GL_UNSIGNED_INT, 
-			nullptr);
+			GL_TRIANGLES,
+			m_indexCount,
+			GL_UNSIGNED_INT,
+			nullptr
+		);
 
 		glBindVertexArray(0);
 	}
@@ -113,5 +141,12 @@ namespace MiraEngine {
 	Texture* Mesh::GetTexture() const
 	{
 		return m_texture.get();
+	}
+
+	void Mesh::SetTexture(
+		std::shared_ptr<Texture> texture
+	)
+	{
+		m_texture = std::move(texture);
 	}
 }

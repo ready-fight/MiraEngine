@@ -2,6 +2,8 @@
 
 #include "Character/Character.h"
 #include "Inventory/Inventory.h"
+
+#include <optional>
 #include <cmath>
 
 namespace MiraEngine
@@ -25,7 +27,6 @@ namespace MiraGame
 
         float m_attackOffset = 1.0f;
         float m_attackRadius = 0.8f;
-        int m_attackDamage = 20;
         Inventory m_inventory;
 
         bool m_wasAttackDown = false;
@@ -41,5 +42,7 @@ namespace MiraGame
         bool m_wasInteractDown = false;
 
         MiraEngine::Scene* m_scene = nullptr;
+
+        std::optional<ItemData> m_equippedWeapon;
     };
 }

@@ -110,6 +110,23 @@ namespace MiraEngine {
 		);
 	}
 
+	void Shader::SetInt(
+		const char* name,
+		int value
+	) const
+	{
+		const int location =
+			glGetUniformLocation(
+				m_program,
+				name
+			);
+
+		glUniform1i(
+			location,
+			value
+		);
+	}
+
 	unsigned int Shader::Compile(unsigned int type, const char* source)
 	{
 		const unsigned int shader = glCreateShader(type);

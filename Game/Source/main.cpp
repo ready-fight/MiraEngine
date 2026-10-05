@@ -6,6 +6,7 @@
 
 #include <glm/vec3.hpp>
 #include <memory>
+#include "Graphics/Model.h"
 
 int main()
 {
@@ -40,19 +41,34 @@ int main()
         std::move(enemy)
     );
 
-    auto item =
-        std::make_unique<MiraGame::Item>("Sword");
+    MiraGame::ItemData swordData;
+    swordData.name = "Sword";
+    swordData.type = MiraGame::ItemType::Weapon;
+	swordData.damage = 20;
 
-    item->SetModel(
+    auto item =
+        std::make_unique<MiraGame::Item>(
+            swordData
+        );
+
+    auto swordModel =
         MiraEngine::AssetManager::LoadModel(
-            "Assets/Models/Sword/espada_low.obj"
-        )
+            "Assets/Models/Sword/Sword.obj"
+        );
+
+    swordModel->SetTexture(
+        "Assets/Models/Sword/all.001_Base_color.png"
     );
 
+    item->SetModel(swordModel);
+
     // Temporary placeholder size/location.
-    /*item->GetTransform().SetScale(
-        glm::vec3(0.3f)
-    );*/
+    item->GetTransform().SetRotation(
+        glm::vec3(-90.f, 0.f, 0.f)
+    );
+    item->GetTransform().SetScale(
+        glm::vec3(0.1f)
+    );
 
     item->GetTransform().SetPosition(
         glm::vec3(2.0f, 0.0f, 0.0f)

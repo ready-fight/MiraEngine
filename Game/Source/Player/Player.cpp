@@ -172,8 +172,16 @@ namespace MiraGame
 
 						if (distance <= m_attackRadius)
 						{
+							int attackDamage = 5;
+
+							if (m_equippedWeapon.has_value())
+							{
+								attackDamage =
+									m_equippedWeapon->damage;
+							}
+
 							enemy->TakeDamage(
-								m_attackDamage
+								attackDamage
 							);
 
 							std::cout
@@ -271,20 +279,32 @@ namespace MiraGame
 							item->GetTransform().GetPosition()
 						);
 
-					std::cout << distance << "\n";
-
 					if (distance <= m_interactRange)
 					{
 
 						m_inventory.AddItem(
-							item->GetItemName()
+							item->GetItemData()
 						);
+
+						if (
+							item->GetItemData().type == ItemType::Weapon &&
+							!m_equippedWeapon.has_value()
+							)
+						{
+							m_equippedWeapon =
+								item->GetItemData();
+
+							std::cout
+								<< "Equipped: "
+								<< m_equippedWeapon->name
+								<< "\n";
+						}
 
 						item->Pickup();
 
 						std::cout
 							<< "Picked up: "
-							<< item->GetItemName()
+							<< item->GetItemData().name
 							<< "\n";
 
 						break;
@@ -314,12 +334,30 @@ namespace MiraGame
 			healthText
 		);
 
-		MiraEngine::UI::DrawText("Inventory:");
+		MiraEngine::UI::DrawText("Equipped:");
 
-		for (const std::string& itemName : m_inventory.GetItems())
+		if (m_equippedWeapon.has_value())
 		{
 			MiraEngine::UI::DrawText(
-				"- " + itemName
+				m_equippedWeapon->name +
+				" (Damage: " +
+				std::to_string(
+					m_equippedWeapon->damage
+				) +
+				")"
+			);
+		}
+		else
+		{
+			MiraEngine::UI::DrawText("None");
+		}
+
+		MiraEngine::UI::DrawText("Inventory:");
+
+		for (const ItemData& item : m_inventory.GetItems())
+		{
+			MiraEngine::UI::DrawText(
+				"- " + item.name
 			);
 		}
 

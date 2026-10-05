@@ -142,6 +142,8 @@ namespace MiraEngine
 						{
 							const std::string label = objects[i]->GetName();
 
+							std::cout << label << "\n";
+
 							if (ImGui::Selectable(
 								label.c_str(), selectedObject == i))
 							{

@@ -3,7 +3,9 @@
 
 namespace MiraGame
 {
-    Item::Item(const std::string& itemName) : MiraEngine::GameObject("Item"), m_itemName(itemName)
+    Item::Item(const ItemData& itemData)
+        : MiraEngine::GameObject(itemData.name),
+        m_itemData(itemData)
     {
     }
 
@@ -25,8 +27,8 @@ namespace MiraGame
         return m_pickedUp;
     }
 
-    const std::string& Item::GetItemName() const
+    const ItemData& Item::GetItemData() const
     {
-        return m_itemName;
+        return m_itemData;
     }
 }
