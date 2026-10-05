@@ -5,6 +5,7 @@
 
 #include <optional>
 #include <cmath>
+#include <cstddef>
 
 namespace MiraEngine
 {
@@ -20,6 +21,9 @@ namespace MiraGame
 
         void Update(float deltaTime) override;
         void DrawUI() override;
+        void EquipItem(std::size_t index);
+        void UnequipWeapon();
+        void UseItem(std::size_t index);
 
     private:
         float m_speed = 4.0f;

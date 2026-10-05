@@ -286,20 +286,6 @@ namespace MiraGame
 							item->GetItemData()
 						);
 
-						if (
-							item->GetItemData().type == ItemType::Weapon &&
-							!m_equippedWeapon.has_value()
-							)
-						{
-							m_equippedWeapon =
-								item->GetItemData();
-
-							std::cout
-								<< "Equipped: "
-								<< m_equippedWeapon->name
-								<< "\n";
-						}
-
 						item->Pickup();
 
 						std::cout
@@ -352,15 +338,122 @@ namespace MiraGame
 			MiraEngine::UI::DrawText("None");
 		}
 
+		if (MiraEngine::UI::DrawButton("Unequip"))
+		{
+			UnequipWeapon();
+		}
+
 		MiraEngine::UI::DrawText("Inventory:");
 
-		for (const ItemData& item : m_inventory.GetItems())
+		const auto& items =
+			m_inventory.GetItems();
+
+		for (std::size_t i = 0; i < items.size(); ++i)
 		{
+			const ItemData& item =
+				items[i];
+
 			MiraEngine::UI::DrawText(
 				"- " + item.name
 			);
+
+			if (item.type == ItemType::Weapon)
+			{
+				if (
+					MiraEngine::UI::DrawButton(
+						"Equip##" +
+						std::to_string(i)
+					)
+					)
+				{
+					EquipItem(i);
+				}
+			}
+
+			if (item.type == ItemType::Consumable)
+			{
+				if (
+					MiraEngine::UI::DrawButton(
+						"Use##" +
+						std::to_string(i)
+					)
+					)
+				{
+					UseItem(i);
+					break;
+				}
+			}
 		}
 
 		MiraEngine::UI::EndWindow();
+	}
+
+	void Player::EquipItem(std::size_t index)
+	{
+		const auto& items =
+			m_inventory.GetItems();
+
+		if (index >= items.size())
+		{
+			return;
+		}
+
+		const ItemData& item =
+			items[index];
+
+		if (item.type != ItemType::Weapon)
+		{
+			return;
+		}
+
+		m_equippedWeapon = item;
+
+		std::cout
+			<< "Equipped: "
+			<< item.name
+			<< "\n";
+	}
+
+	void Player::UnequipWeapon()
+	{
+		if (!m_equippedWeapon.has_value())
+		{
+			return;
+		}
+
+		std::cout
+			<< "Unequipped: "
+			<< m_equippedWeapon->name
+			<< "\n";
+
+		m_equippedWeapon.reset();
+	}
+
+	void Player::UseItem(std::size_t index)
+	{
+		const auto& items =
+			m_inventory.GetItems();
+
+		if (index >= items.size())
+		{
+			return;
+		}
+
+		const ItemData item =
+			items[index];
+
+		if (item.type != ItemType::Consumable)
+		{
+			return;
+		}
+
+		Heal(item.healAmount);
+
+		m_inventory.RemoveItem(index);
+
+		std::cout
+			<< "Used: "
+			<< item.name
+			<< "\n";
 	}
 }

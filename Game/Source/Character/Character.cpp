@@ -22,6 +22,16 @@ namespace MiraGame
         );
     }
 
+    void Character::Heal(int amount)
+    {
+        m_health += amount;
+
+        if (m_health > m_maxHealth)
+        {
+            m_health = m_maxHealth;
+        }
+    }
+
     int Character::GetHealth() const
     {
         return m_health;

@@ -15,6 +15,7 @@ namespace MiraGame
         );
 
         void TakeDamage(int amount);
+        void Heal(int amount);
 
         int GetHealth() const;
         int GetMaxHealth() const;

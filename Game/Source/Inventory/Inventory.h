@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <cstddef>
 
 namespace MiraGame
 {
@@ -11,6 +12,7 @@ namespace MiraGame
     {
     public:
         void AddItem(const ItemData& item);
+        void RemoveItem(std::size_t index);
 
         const std::vector<ItemData>& GetItems() const;
 
