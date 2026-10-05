@@ -66,6 +66,7 @@ int main()
     item->GetTransform().SetRotation(
         glm::vec3(-90.f, 0.f, 0.f)
     );
+    
     item->GetTransform().SetScale(
         glm::vec3(0.1f)
     );
@@ -76,6 +77,37 @@ int main()
 
     application.GetScene().AddObject(
         std::move(item)
+    );
+
+    MiraGame::ItemData potionData;
+    potionData.name = "Potion";
+    potionData.type = MiraGame::ItemType::Consumable;
+    potionData.healAmount = 30;
+
+    auto potion =
+        std::make_unique<MiraGame::Item>(
+            potionData
+        );
+
+    potion->GetTransform().SetScale(
+        glm::vec3(0.06f)
+    );
+
+    auto potionModel =
+        MiraEngine::AssetManager::LoadModel(
+            "Assets/Models/Potion/potion.obj"
+        );
+
+    potionModel->SetTexture("Assets/Models/Potion/potion_lp2_DefaultMaterial_BaseColor.png");
+
+    potion->SetModel(potionModel);
+
+    potion->GetTransform().SetPosition(
+        glm::vec3(-2.0f, 0.0f, 3.0f)
+    );
+
+    application.GetScene().AddObject(
+        std::move(potion)
     );
 
     application.Run();
