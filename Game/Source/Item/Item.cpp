@@ -1,5 +1,6 @@
 #include "Item.h"
 #include "Item/Item.h"
+#include "Player/Player.h"
 
 namespace MiraGame
 {
@@ -30,5 +31,26 @@ namespace MiraGame
     const ItemData& Item::GetItemData() const
     {
         return m_itemData;
+    }
+
+    bool Item::CanInteract() const
+    {
+        return !m_pickedUp;
+    }
+
+    void Item::Interact(
+        Player& player
+    )
+    {
+        if (m_pickedUp)
+        {
+            return;
+        }
+
+        player.AddItem(
+            m_itemData
+        );
+
+        Pickup();
     }
 }

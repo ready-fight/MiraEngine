@@ -6,6 +6,7 @@
 #include <optional>
 #include <cmath>
 #include <cstddef>
+#include <string>
 
 namespace MiraEngine
 {
@@ -24,6 +25,15 @@ namespace MiraGame
         void EquipItem(std::size_t index);
         void UnequipWeapon();
         void UseItem(std::size_t index);
+        void AddItem(
+            const ItemData& item
+        );
+        bool HasItem(
+            const std::string& itemName
+        ) const;
+        bool RemoveItem(
+            const std::string& itemName
+        );
 
     private:
         float m_speed = 4.0f;

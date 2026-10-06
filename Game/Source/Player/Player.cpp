@@ -9,7 +9,7 @@
 
 #include "Assets/AssetManager.h"
 #include "Animation/Animator.h"
-#include "Item/Item.h"
+#include "Interaction/Interactable.h"
 
 #include <glm/geometric.hpp>
 #include <glm/vec3.hpp>
@@ -164,6 +164,8 @@ namespace MiraGame
 							continue;
 						}
 
+
+
 						const float distance =
 							glm::distance(
 								attackCenter,
@@ -261,14 +263,20 @@ namespace MiraGame
 		{
 			if (m_scene)
 			{
+				Interactable* closestInteractable = nullptr;
+				float closestDistance = m_interactRange;
+
 				for (const auto& object : m_scene->GetObjects())
 				{
-					MiraGame::Item* item =
-						dynamic_cast<MiraGame::Item*>(
+					Interactable* interactable =
+						dynamic_cast<Interactable*>(
 							object.get()
 							);
 
-					if (!item || item->IsPickedUp())
+					if (
+						!interactable ||
+						!interactable->CanInteract()
+						)
 					{
 						continue;
 					}
@@ -276,25 +284,21 @@ namespace MiraGame
 					const float distance =
 						glm::distance(
 							GetTransform().GetPosition(),
-							item->GetTransform().GetPosition()
+							object->GetTransform().GetPosition()
 						);
 
-					if (distance <= m_interactRange)
+					if (distance <= closestDistance)
 					{
-
-						m_inventory.AddItem(
-							item->GetItemData()
-						);
-
-						item->Pickup();
-
-						std::cout
-							<< "Picked up: "
-							<< item->GetItemData().name
-							<< "\n";
-
-						break;
+						closestDistance = distance;
+						closestInteractable = interactable;
 					}
+				}
+
+				if (closestInteractable)
+				{
+					closestInteractable->Interact(
+						*this
+					);
 				}
 			}
 		}
@@ -442,7 +446,7 @@ namespace MiraGame
 		const ItemData item =
 			items[index];
 
-		if (item.type != ItemType::Consumable)
+		if (item.type != ItemType::Consumable && item.type != ItemType::KeyItem)
 		{
 			return;
 		}
@@ -455,5 +459,41 @@ namespace MiraGame
 			<< "Used: "
 			<< item.name
 			<< "\n";
+	}
+
+	void Player::AddItem(
+		const ItemData& item
+	)
+	{
+		m_inventory.AddItem(item);
+
+		std::cout
+			<< "Picked up: "
+			<< item.name
+			<< "\n";
+	}
+
+	bool Player::HasItem(
+		const std::string& itemName
+	) const
+	{
+		for (const ItemData& item : m_inventory.GetItems())
+		{
+			if (item.name == itemName)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool Player::RemoveItem(
+		const std::string& itemName
+	)
+	{
+		return m_inventory.RemoveItem(
+			itemName
+		);
 	}
 }

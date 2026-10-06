@@ -2,12 +2,13 @@
 
 #include "Scene/GameObject.h"
 #include "Item/ItemData.h"
+#include "Interaction/Interactable.h"
 
 #include <string>
 
 namespace MiraGame
 {
-    class Item : public MiraEngine::GameObject
+    class Item : public MiraEngine::GameObject, public Interactable
     {
     public:
         explicit Item(const ItemData& itemData);
@@ -17,6 +18,12 @@ namespace MiraGame
         bool IsPickedUp() const;
 
         const ItemData& GetItemData() const;
+
+        bool CanInteract() const override;
+
+        void Interact(
+            Player& player
+        ) override;
 
     private:
         bool m_pickedUp = false;

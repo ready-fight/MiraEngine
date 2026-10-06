@@ -13,6 +13,9 @@ namespace MiraGame
     public:
         void AddItem(const ItemData& item);
         void RemoveItem(std::size_t index);
+        bool RemoveItem(
+            const std::string& itemName
+        );
 
         const std::vector<ItemData>& GetItems() const;
 

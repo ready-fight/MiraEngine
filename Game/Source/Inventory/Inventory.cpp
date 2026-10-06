@@ -21,6 +21,24 @@ namespace MiraGame
         );
     }
 
+    bool Inventory::RemoveItem(
+        const std::string& itemName
+    )
+    {
+        for (auto it = m_items.begin();
+            it != m_items.end();
+            ++it)
+        {
+            if (it->name == itemName)
+            {
+                m_items.erase(it);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     const std::vector<ItemData>&
         Inventory::GetItems() const
     {
