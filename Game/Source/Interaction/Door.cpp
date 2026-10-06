@@ -40,14 +40,17 @@ namespace MiraGame
             return;
         }
 
-        player.RemoveItem(
-            m_requiredKey
-        );
+        if (!m_requiredKey.empty())
+        {
+            player.RemoveItem(
+                m_requiredKey
+            );
 
-        std::cout
-            << "Used: "
-            << m_requiredKey
-            << "\n";
+            std::cout
+                << "Used: "
+                << m_requiredKey
+                << "\n";
+        }
 
         const float currentYaw =
             GetTransform().GetRotation().y;

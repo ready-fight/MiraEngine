@@ -389,6 +389,38 @@ namespace MiraGame
 			}
 		}
 
+		MiraEngine::UI::DrawText("Quests:");
+
+		for (const Quest& quest : m_questSystem.GetQuests())
+		{
+			if (quest.status == QuestStatus::Inactive)
+			{
+				continue;
+			}
+
+			std::string status;
+
+			if (quest.status == QuestStatus::Active)
+			{
+				status = "Active";
+			}
+			else if (quest.status == QuestStatus::Completed)
+			{
+				status = "Completed";
+			}
+
+			MiraEngine::UI::DrawText(
+				quest.name +
+				" [" +
+				status +
+				"]"
+			);
+
+			MiraEngine::UI::DrawText(
+				quest.description
+			);
+		}
+
 		MiraEngine::UI::EndWindow();
 	}
 
@@ -471,6 +503,13 @@ namespace MiraGame
 			<< "Picked up: "
 			<< item.name
 			<< "\n";
+
+		if (item.name == "Dungeon Key")
+		{
+			CompleteQuest(
+				"Find the Dungeon Key"
+			);
+		}
 	}
 
 	bool Player::HasItem(
@@ -494,6 +533,33 @@ namespace MiraGame
 	{
 		return m_inventory.RemoveItem(
 			itemName
+		);
+	}
+
+	bool Player::StartQuest(
+		const std::string& questName
+	)
+	{
+		return m_questSystem.StartQuest(
+			questName
+		);
+	}
+
+	bool Player::CompleteQuest(
+		const std::string& questName
+	)
+	{
+		return m_questSystem.CompleteQuest(
+			questName
+		);
+	}
+
+	const Quest* Player::GetQuest(
+		const std::string& questName
+	) const
+	{
+		return m_questSystem.GetQuest(
+			questName
 		);
 	}
 }

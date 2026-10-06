@@ -2,6 +2,7 @@
 
 #include "Character/Character.h"
 #include "Inventory/Inventory.h"
+#include "Quest/QuestSystem.h"
 
 #include <optional>
 #include <cmath>
@@ -35,6 +36,16 @@ namespace MiraGame
             const std::string& itemName
         );
 
+        bool StartQuest(
+            const std::string& questName
+        );
+        bool CompleteQuest(
+            const std::string& questName
+        );
+        const Quest* GetQuest(
+            const std::string& questName
+        ) const;
+
     private:
         float m_speed = 4.0f;
         bool m_isMoving = false;
@@ -58,5 +69,7 @@ namespace MiraGame
         MiraEngine::Scene* m_scene = nullptr;
 
         std::optional<ItemData> m_equippedWeapon;
+
+        QuestSystem m_questSystem;
     };
 }

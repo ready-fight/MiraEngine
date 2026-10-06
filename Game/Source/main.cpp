@@ -2,6 +2,7 @@
 #include "Player/Player.h"
 #include "Enemy/Enemy.h"
 #include "Item/Item.h"
+#include "Quest/QuestDatabase.h"
 #include "Interaction/Chest.h"
 #include "Interaction/Door.h"
 #include "Interaction/NPC.h"
@@ -15,15 +16,22 @@ int main()
 {
     MiraEngine::Application application;
 
+    MiraGame::Quest dungeonKeyQuest;
+
+    dungeonKeyQuest.name =
+        "Find the Dungeon Key";
+
+    dungeonKeyQuest.description =
+        "Find the key that opens the dungeon door.";
+
+    MiraGame::QuestDatabase::RegisterQuest(
+        dungeonKeyQuest
+    );
+
     auto player =
         std::make_unique<MiraGame::Player>(
             &application.GetScene()
         );
-
-    MiraGame::ItemData keyData;
-    keyData.name = "Dungeon Key";
-    keyData.type = MiraGame::ItemType::KeyItem;
-    player->AddItem(keyData);
 
     MiraGame::Player* playerPtr =
         player.get();
@@ -119,6 +127,37 @@ int main()
         std::move(potion)
     );
 
+    // Dungeon Key
+    MiraGame::ItemData dungeonKeyData;
+    dungeonKeyData.name = "Dungeon Key";
+    dungeonKeyData.type = MiraGame::ItemType::KeyItem;
+
+    auto dungeonKey =
+        std::make_unique<MiraGame::Item>(
+            dungeonKeyData
+        );
+
+    dungeonKey->GetTransform().SetScale(
+        glm::vec3(0.5f)
+    );
+
+    auto dungeonKeyModel =
+        MiraEngine::AssetManager::LoadModel(
+            "Assets/Models/Interactable/Key/Key.fbx"
+        );
+
+    dungeonKeyModel->SetTexture("Assets/Models/Interactable/Key/Key2_albedo.jpeg");
+
+    dungeonKey->SetModel(dungeonKeyModel);
+
+    dungeonKey->GetTransform().SetPosition(
+        glm::vec3(-3.0f, 0.0f, 2.0f)
+    );
+
+    application.GetScene().AddObject(
+        std::move(dungeonKey)
+    );
+
     // Chest
 
     MiraGame::ItemData chestPotion;
@@ -178,7 +217,12 @@ int main()
     auto npc =
         std::make_unique<MiraGame::NPC>(
             "Village Elder",
-            "The dungeon lies beyond the locked door."
+            std::vector<std::string>{
+                "Greetings, traveler.",
+                "The dungeon lies beyond the locked door.",
+                "You will need the Dungeon Key to enter."
+            },
+            "Find the Dungeon Key"
         );
 
     npc->GetMaterial().color = glm::vec3(0, .5, 1);

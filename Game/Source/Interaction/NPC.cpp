@@ -10,10 +10,12 @@ namespace MiraGame
 {
     NPC::NPC(
         const std::string& name,
-        const std::string& dialogue
+        const std::vector<std::string>& dialogue,
+        const std::string& questToStart
     )
         : MiraEngine::GameObject(name),
-        m_dialogue(dialogue)
+        m_dialogue(dialogue),
+        m_questToStart(questToStart)
     {
         auto model = MiraEngine::AssetManager::LoadModel(
             "Assets/Models/NPC.fbx"
@@ -40,12 +42,19 @@ namespace MiraGame
         Player& player
     )
     {
+        m_interactingPlayer =
+            &player;
+
+        m_dialogueIndex = 0;
         m_showDialogue = true;
     }
 
     void NPC::DrawUI()
     {
-        if (!m_showDialogue)
+        if (
+            !m_showDialogue ||
+            m_dialogue.empty()
+            )
         {
             return;
         }
@@ -55,16 +64,44 @@ namespace MiraGame
         );
 
         MiraEngine::UI::DrawText(
-            m_dialogue
+            m_dialogue[m_dialogueIndex]
         );
 
         if (
-            MiraEngine::UI::DrawButton(
-                "Close"
-            )
+            m_dialogueIndex + 1 <
+            m_dialogue.size()
             )
         {
-            m_showDialogue = false;
+            if (
+                MiraEngine::UI::DrawButton(
+                    "Next"
+                )
+                )
+            {
+                ++m_dialogueIndex;
+            }
+        }
+        else
+        {
+            if (
+                MiraEngine::UI::DrawButton(
+                    "Close"
+                )
+                )
+            {
+                if (
+                    m_interactingPlayer &&
+                    !m_questToStart.empty()
+                    )
+                {
+                    m_interactingPlayer->StartQuest(
+                        m_questToStart
+                    );
+                }
+
+                m_showDialogue = false;
+                m_interactingPlayer = nullptr;
+            }
         }
 
         MiraEngine::UI::EndWindow();
