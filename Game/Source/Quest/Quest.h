@@ -8,13 +8,16 @@ namespace MiraGame
     {
         Inactive,
         Active,
-        Completed
+        Completed,
+        TurnedIn
     };
 
     struct Quest
     {
         std::string name;
         std::string description;
+
+        std::string requiredItem;
 
         QuestStatus status =
             QuestStatus::Inactive;

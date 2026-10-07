@@ -77,4 +77,43 @@ namespace MiraGame
 
         return nullptr;
     }
+
+    void QuestSystem::OnItemAdded(
+        const std::string& itemName
+    )
+    {
+        for (Quest& quest : m_quests)
+        {
+            if (
+                quest.status == QuestStatus::Active &&
+                !quest.requiredItem.empty() &&
+                quest.requiredItem == itemName
+                )
+            {
+                quest.status =
+                    QuestStatus::Completed;
+            }
+        }
+    }
+
+    bool QuestSystem::TurnInQuest(
+        const std::string& name
+    )
+    {
+        for (Quest& quest : m_quests)
+        {
+            if (
+                quest.name == name &&
+                quest.status == QuestStatus::Completed
+                )
+            {
+                quest.status =
+                    QuestStatus::TurnedIn;
+
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

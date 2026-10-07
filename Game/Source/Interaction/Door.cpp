@@ -1,5 +1,7 @@
 #include "Interaction/Door.h"
 #include "Player/Player.h"
+#include "Collision/BoxCollider.h"
+#include "Collision/SphereCollider.h"
 
 #include <iostream>
 
@@ -11,6 +13,17 @@ namespace MiraGame
         : MiraEngine::GameObject("Door"),
         m_requiredKey(requiredKey)
     {
+        SetCollider(
+            std::make_unique<
+            MiraEngine::BoxCollider
+            >(
+                glm::vec3(
+                    0.8f,
+                    1.5f,
+                    0.2f
+                )
+            )
+        );
     }
 
     bool Door::CanInteract() const
@@ -80,6 +93,8 @@ namespace MiraGame
         if (rotation.y > m_targetYaw) {
             rotation.y =
                 m_targetYaw;
+
+            SetCollider(nullptr);
         }
 
         GetTransform().SetRotation(

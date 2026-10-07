@@ -1,5 +1,6 @@
 #include "Interaction/Chest.h"
 #include "Player/Player.h"
+#include "Collision/SphereCollider.h"
 
 #include <iostream>
 
@@ -8,6 +9,11 @@ namespace MiraGame
     Chest::Chest(const ItemData& itemData)
 		: MiraEngine::GameObject("Chest"), m_itemData(itemData)
     {
+        SetCollider(
+            std::make_unique<MiraEngine::SphereCollider>(
+                0.5f
+            )
+        );
     }
 
     bool Chest::CanInteract() const

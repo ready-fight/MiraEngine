@@ -68,12 +68,13 @@ namespace MiraEngine {
 	}
 
 	void Model::Draw(
-		const Shader& shader
+		const Shader& shader,
+		const std::shared_ptr<Texture>& diffuseOverride
 	) const
 	{
 		for (const auto& mesh : m_meshes)
 		{
-			mesh->Draw(shader);
+			mesh->Draw(shader, diffuseOverride);
 		}
 	}
 
@@ -298,7 +299,6 @@ namespace MiraEngine {
 		)
 	{
 		aiString texturePath;
-
 		aiTextureType textureType;
 
 		if (
@@ -335,17 +335,23 @@ namespace MiraEngine {
 			return nullptr;
 		}
 
+		const std::filesystem::path textureFileName =
+			std::filesystem::path(
+				texturePath.C_Str()
+			).filename();
+
 		const std::filesystem::path fullPath =
-			std::filesystem::path(m_directory) /
-			texturePath.C_Str();
+			std::filesystem::path(
+				m_directory
+			) /
+			textureFileName;
 
-		if (!std::filesystem::is_regular_file(fullPath))
+		if (
+			!std::filesystem::is_regular_file(
+				fullPath
+			)
+			)
 		{
-			std::cout
-				<< "Skipping invalid automatic texture: "
-				<< fullPath.string()
-				<< '\n';
-
 			return nullptr;
 		}
 
@@ -516,6 +522,41 @@ namespace MiraEngine {
 
 			texture =
 				LoadMaterialTexture(material);
+
+			std::cout
+				<< "Material index: "
+				<< mesh->mMaterialIndex
+				<< '\n';
+
+			std::cout
+				<< "Diffuse textures: "
+				<< material->GetTextureCount(
+					aiTextureType_DIFFUSE
+				)
+				<< '\n';
+
+			std::cout
+				<< "Base color textures: "
+				<< material->GetTextureCount(
+					aiTextureType_BASE_COLOR
+				)
+				<< '\n';
+
+			aiString path;
+
+			if (
+				material->GetTexture(
+					aiTextureType_DIFFUSE,
+					0,
+					&path
+				) == AI_SUCCESS
+				)
+			{
+				std::cout
+					<< "Diffuse path: "
+					<< path.C_Str()
+					<< '\n';
+			}
 		}
 
 		return std::make_unique<Mesh>(
@@ -528,20 +569,5 @@ namespace MiraEngine {
 	const glm::mat4& Model::GetGlobalInverseTransform() const
 	{
 		return m_globalInverseTransform;
-	}
-
-	void Model::SetTexture(
-		const std::string& filePath
-	)
-	{
-		auto texture =
-			std::make_shared<Texture>(
-				filePath
-			);
-
-		for (auto& mesh : m_meshes)
-		{
-			mesh->SetTexture(texture);
-		}
 	}
 }

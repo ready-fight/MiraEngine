@@ -2,6 +2,7 @@
 
 #include "Core/Input.h"
 #include "Scene/Transform.h"
+#include "Collision/SphereCollider.h"
 
 #include "Scene/Scene.h"
 #include "Enemy/Enemy.h"
@@ -47,6 +48,12 @@ namespace MiraGame
 				"Assets/Models/Death.fbx"
 			);
 		}
+
+		SetCollider(
+			std::make_unique<MiraEngine::SphereCollider>(
+				0.3f
+			)
+		);
 
 		SetModel(model);
 
@@ -248,10 +255,13 @@ namespace MiraGame
 
 			transform.SetRotation(rotation);
 
-			transform.SetPosition(
-				transform.GetPosition() +
-				movement * m_speed * deltaTime
-			);
+			if (m_scene)
+			{
+				m_scene->TryMove(
+					*this,
+					movement * m_speed * deltaTime
+				);
+			}
 		}
 
 		const bool interactDown =
@@ -409,6 +419,11 @@ namespace MiraGame
 				status = "Completed";
 			}
 
+			else if (quest.status == QuestStatus::TurnedIn)
+			{
+				status = "Turned In";
+			}
+
 			MiraEngine::UI::DrawText(
 				quest.name +
 				" [" +
@@ -504,12 +519,9 @@ namespace MiraGame
 			<< item.name
 			<< "\n";
 
-		if (item.name == "Dungeon Key")
-		{
-			CompleteQuest(
-				"Find the Dungeon Key"
-			);
-		}
+		m_questSystem.OnItemAdded(
+			item.name
+		);
 	}
 
 	bool Player::HasItem(
@@ -540,9 +552,26 @@ namespace MiraGame
 		const std::string& questName
 	)
 	{
-		return m_questSystem.StartQuest(
-			questName
-		);
+		if (!m_questSystem.StartQuest(questName))
+		{
+			return false;
+		}
+
+		const Quest* quest =
+			m_questSystem.GetQuest(questName);
+
+		if (
+			quest &&
+			!quest->requiredItem.empty() &&
+			HasItem(quest->requiredItem)
+			)
+		{
+			m_questSystem.OnItemAdded(
+				quest->requiredItem
+			);
+		}
+
+		return true;
 	}
 
 	bool Player::CompleteQuest(
@@ -559,6 +588,15 @@ namespace MiraGame
 	) const
 	{
 		return m_questSystem.GetQuest(
+			questName
+		);
+	}
+
+	bool Player::TurnInQuest(
+		const std::string& questName
+	)
+	{
+		return m_questSystem.TurnInQuest(
 			questName
 		);
 	}

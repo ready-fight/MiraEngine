@@ -46,6 +46,10 @@ namespace MiraGame
             const std::string& questName
         ) const;
 
+        bool TurnInQuest(
+            const std::string& questName
+        );
+
     private:
         float m_speed = 4.0f;
         bool m_isMoving = false;

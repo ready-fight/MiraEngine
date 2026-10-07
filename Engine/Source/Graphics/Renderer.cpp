@@ -193,7 +193,7 @@ namespace MiraEngine {
                 material.color
             );
 
-			model->Draw(m_shader);
+			model->Draw(m_shader, object->GetDiffuseOverride());
 		}
 
 		m_shader.Unbind();

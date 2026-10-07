@@ -3,6 +3,7 @@
 #include "Animation/Animator.h"
 
 #include "Collision/Collider.h"
+#include "Collision/BoxCollider.h"
 #include "Collision/SphereCollider.h"
 
 namespace MiraEngine
@@ -35,30 +36,84 @@ namespace MiraEngine
         const GameObject& b
     ) const
     {
-        const Collider* colliderA = a.GetCollider();
-        const Collider* colliderB = b.GetCollider();
+        const Collider* colliderA =
+            a.GetCollider();
+
+        const Collider* colliderB =
+            b.GetCollider();
 
         if (!colliderA || !colliderB)
         {
             return false;
         }
 
+        const glm::vec3 positionA =
+            a.GetTransform().GetPosition();
+
+        const glm::vec3 positionB =
+            b.GetTransform().GetPosition();
+
         const auto* sphereA =
-            dynamic_cast<const SphereCollider*>(colliderA);
+            dynamic_cast<
+            const SphereCollider*
+            >(colliderA);
 
         const auto* sphereB =
-            dynamic_cast<const SphereCollider*>(colliderB);
+            dynamic_cast<
+            const SphereCollider*
+            >(colliderB);
 
-        if (!sphereA || !sphereB)
+        const auto* boxA =
+            dynamic_cast<
+            const BoxCollider*
+            >(colliderA);
+
+        const auto* boxB =
+            dynamic_cast<
+            const BoxCollider*
+            >(colliderB);
+
+        // Sphere vs Sphere
+        if (sphereA && sphereB)
         {
-            return false;
+            return sphereA->Intersects(
+                positionA,
+                *sphereB,
+                positionB
+            );
         }
 
-        return sphereA->Intersects(
-            a.GetTransform().GetPosition(),
-            *sphereB,
-            b.GetTransform().GetPosition()
-        );
+        // Box vs Box
+        if (boxA && boxB)
+        {
+            return boxA->Intersects(
+                positionA,
+                *boxB,
+                positionB
+            );
+        }
+
+        // Sphere A vs Box B
+        if (sphereA && boxB)
+        {
+            return boxB->Intersects(
+                positionB,
+                *sphereA,
+                positionA
+            );
+        }
+
+        // Box A vs Sphere B
+        if (boxA && sphereB)
+        {
+            return boxA->Intersects(
+                positionA,
+                *sphereB,
+                positionB
+            );
+        }
+
+        return false;
     }
 
     bool Scene::IsColliding(

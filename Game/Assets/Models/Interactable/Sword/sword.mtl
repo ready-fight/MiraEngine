@@ -1,0 +1,8 @@
+# Material file for Sword.obj
+newmtl all.001
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ns 32.000000
+map_Kd all.001_Base_color.png
+map_Bump all.001_Normal_OpenGL.png

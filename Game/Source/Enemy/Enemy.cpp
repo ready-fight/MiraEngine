@@ -4,6 +4,7 @@
 #include "Assets/AssetManager.h"
 #include "Animation/Animator.h"
 #include "Scene/Transform.h"
+#include "Collision/SphereCollider.h"
 
 #include <glm/geometric.hpp>
 #include <glm/vec3.hpp>
@@ -13,9 +14,10 @@
 
 namespace MiraGame
 {
-    Enemy::Enemy(Player* player)
+    Enemy::Enemy(Player* player, MiraEngine::Scene* scene)
         : Character("Enemy", 100),
-        m_player(player)
+        m_player(player),
+        m_scene(scene)
     {
         auto model =
             MiraEngine::AssetManager::LoadModel(
@@ -44,6 +46,12 @@ namespace MiraGame
         }
 
         SetModel(model);
+
+        SetCollider(
+            std::make_unique<MiraEngine::SphereCollider>(
+                0.3f
+            )
+        );
 
         GetTransform().SetScale(
             glm::vec3(0.01f)
@@ -185,10 +193,13 @@ namespace MiraGame
 
         direction = glm::normalize(direction);
 
-        transform.SetPosition(
-            enemyPosition +
-            direction * m_speed * deltaTime
-        );
+        if (m_scene)
+        {
+            m_scene->TryMove(
+                *this,
+                (enemyPosition + direction) * m_speed * deltaTime
+            );
+        }
 
         const float yaw =
             std::atan2(direction.x, direction.z) *

@@ -1,7 +1,9 @@
 #include "Core/Application.h"
+#include "Initialize.h"
 #include "Player/Player.h"
 #include "Enemy/Enemy.h"
 #include "Item/Item.h"
+#include "Collision/BoxCollider.h"
 #include "Quest/QuestDatabase.h"
 #include "Interaction/Chest.h"
 #include "Interaction/Door.h"
@@ -16,6 +18,22 @@ int main()
 {
     MiraEngine::Application application;
 
+    InitializeQuests();
+
+	InitializePlayer_Enemy(application.GetScene());
+
+    InitializeInteractions(application.GetScene());
+
+    InitializeNPCs(application.GetScene());
+
+	InitializeCollisionObjects(application.GetScene());
+
+    application.Run();
+
+    return 0;
+}
+
+void InitializeQuests() {
     MiraGame::Quest dungeonKeyQuest;
 
     dungeonKeyQuest.name =
@@ -24,25 +42,31 @@ int main()
     dungeonKeyQuest.description =
         "Find the key that opens the dungeon door.";
 
+    dungeonKeyQuest.requiredItem =
+        "Dungeon Key";
+
     MiraGame::QuestDatabase::RegisterQuest(
         dungeonKeyQuest
     );
+}
 
+void InitializePlayer_Enemy(MiraEngine::Scene& scene) {
     auto player =
         std::make_unique<MiraGame::Player>(
-            &application.GetScene()
+            &scene
         );
 
     MiraGame::Player* playerPtr =
         player.get();
 
-    application.GetScene().AddObject(
+    scene.AddObject(
         std::move(player)
     );
 
     auto enemy =
         std::make_unique<MiraGame::Enemy>(
-            playerPtr
+            playerPtr,
+            &scene
         );
 
     MiraGame::Enemy* enemyPtr = enemy.get();
@@ -53,14 +77,17 @@ int main()
         glm::vec3(5.0f, 0.0f, 5.0f)
     );
 
-    application.GetScene().AddObject(
+    scene.AddObject(
         std::move(enemy)
     );
+}
 
+void InitializeInteractions(MiraEngine::Scene& scene) {
+    // Sword
     MiraGame::ItemData swordData;
     swordData.name = "Sword";
     swordData.type = MiraGame::ItemType::Weapon;
-	swordData.damage = 20;
+    swordData.damage = 20;
 
     auto item =
         std::make_unique<MiraGame::Item>(
@@ -72,17 +99,12 @@ int main()
             "Assets/Models/Interactable/Sword/Sword.obj"
         );
 
-    swordModel->SetTexture(
-        "Assets/Models/Interactable/Sword/all.001_Base_color.png"
-    );
-
     item->SetModel(swordModel);
 
-    // Temporary placeholder size/location.
     item->GetTransform().SetRotation(
         glm::vec3(-90.f, 0.f, 0.f)
     );
-    
+
     item->GetTransform().SetScale(
         glm::vec3(0.1f)
     );
@@ -91,7 +113,7 @@ int main()
         glm::vec3(2.0f, 0.0f, 0.0f)
     );
 
-    application.GetScene().AddObject(
+    scene.AddObject(
         std::move(item)
     );
 
@@ -115,15 +137,13 @@ int main()
             "Assets/Models/Interactable/Potion/potion.obj"
         );
 
-    potionModel->SetTexture("Assets/Models/Interactable/Potion/potion_lp2_DefaultMaterial_BaseColor.png");
-
     potion->SetModel(potionModel);
 
     potion->GetTransform().SetPosition(
         glm::vec3(-2.0f, 0.0f, 3.0f)
     );
 
-    application.GetScene().AddObject(
+    scene.AddObject(
         std::move(potion)
     );
 
@@ -146,20 +166,17 @@ int main()
             "Assets/Models/Interactable/Key/Key.fbx"
         );
 
-    dungeonKeyModel->SetTexture("Assets/Models/Interactable/Key/Key2_albedo.jpeg");
-
     dungeonKey->SetModel(dungeonKeyModel);
 
     dungeonKey->GetTransform().SetPosition(
         glm::vec3(-3.0f, 0.0f, 2.0f)
     );
 
-    application.GetScene().AddObject(
+    scene.AddObject(
         std::move(dungeonKey)
     );
 
     // Chest
-
     MiraGame::ItemData chestPotion;
     chestPotion.name = "Chest Potion";
     chestPotion.type =
@@ -174,18 +191,17 @@ int main()
             "Assets/Models/Interactable/Chest/Chest.obj"
         );
 
-    chestModel->SetTexture("Assets/Models/Interactable/Chest/BaseColor.png");
-
     chest->SetModel(chestModel);
 
     chest->GetTransform().SetPosition(
         glm::vec3(-5.0f, 0.0f, 3.0f)
     );
 
-    application.GetScene().AddObject(
+    scene.AddObject(
         std::move(chest)
     );
 
+    // Door
     auto door =
         std::make_unique<MiraGame::Door>("Dungeon Key");
 
@@ -193,8 +209,6 @@ int main()
         MiraEngine::AssetManager::LoadModel(
             "Assets/Models/Interactable/Door/Door.fbx"
         );
-
-    doorModel->SetTexture("Assets/Models/Interactable/Door/Door.png");
 
     door->SetModel(doorModel);
 
@@ -210,18 +224,40 @@ int main()
         glm::vec3(0.005f, 0.005f, 0.005f)
     );
 
-    application.GetScene().AddObject(
+    scene.AddObject(
         std::move(door)
     );
+}
 
+void InitializeNPCs(MiraEngine::Scene& scene) {
     auto npc =
         std::make_unique<MiraGame::NPC>(
             "Village Elder",
+
+            // Quest not started
             std::vector<std::string>{
                 "Greetings, traveler.",
-                "The dungeon lies beyond the locked door.",
-                "You will need the Dungeon Key to enter."
+                    "The dungeon lies beyond the locked door.",
+                    "Find the Dungeon Key and you may enter."
             },
+
+            // Quest active
+            std::vector<std::string>{
+                "Have you found the Dungeon Key yet?",
+                    "Search carefully. It must be nearby."
+            },
+
+            // Quest completed
+            std::vector<std::string>{
+                "Excellent. You found the Dungeon Key.",
+                    "The dungeon awaits you."
+            },
+
+            // Quest turned in
+            std::vector<std::string>{
+				"Good luck in the dungeon."
+            },
+
             "Find the Dungeon Key"
         );
 
@@ -235,12 +271,68 @@ int main()
         glm::vec3(0.f, 120.f, 0.f)
     );
 
-    application.GetScene().AddObject(
+    scene.AddObject(
         std::move(npc)
     );
+}
 
-    application.Run();
+void InitializeCollisionObjects(MiraEngine::Scene& scene) {
 
+    auto wallModel =
+        MiraEngine::AssetManager::LoadModel(
+            "Assets/Models/Collision/Wall/Wall.obj"
+        );
 
-    return 0;
+    auto wall1 =
+        std::make_unique<MiraEngine::GameObject>(
+            "Wall 1"
+        );
+
+    wall1->SetModel(wallModel);
+
+    wall1->SetCollider(
+        std::make_unique<MiraEngine::BoxCollider>(
+            glm::vec3(10.0f, 2.0f, 0.5f)
+        )
+    );
+
+    wall1->GetTransform().SetPosition(
+        glm::vec3(0.0f, 0.0f, 10.0f)
+    );
+
+    wall1->GetTransform().SetRotation(
+        glm::vec3(0.0f, -90.0f, -5.0f)
+    );
+
+    scene.AddObject(
+        std::move(wall1)
+    );
+    auto wall2 =
+        std::make_unique<MiraEngine::GameObject>(
+            "Wall 2"
+        );
+
+    wall2->SetModel(wallModel);
+
+    /*wall2->SetDiffuseOverride(
+        "Assets/Models/Collision/Wall/tex_u1_v1_normal.jpg"
+    );*/
+
+    wall2->SetCollider(
+        std::make_unique<MiraEngine::BoxCollider>(
+            glm::vec3(10.0f, 2.0f, 0.5f)
+        )
+    );
+
+    wall2->GetTransform().SetPosition(
+        glm::vec3(-6.0f, 0.0f, 10.0f)
+    );
+
+    wall2->GetTransform().SetRotation(
+        glm::vec3(0.0f, -90.0f, 0.0f)
+    );
+
+    scene.AddObject(
+        std::move(wall2)
+    );
 }

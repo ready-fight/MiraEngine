@@ -1,4 +1,5 @@
 # This file uses centimeters as units for non-parametric coordinates.
+mtllib potion.mtl
 
 v 2.769262 -0.048389 -0.899788
 v 2.355675 -0.048389 -1.711498
@@ -1161,6 +1162,7 @@ vn 0.915226 -0.271899 0.297374
 vn 0.962326 -0.271899 0.000001
 vn 0.962326 -0.271899 0.000001
 s 1
+usemtl DefaultMaterial
 f 2/396/1 1/397/2 21/398/3
 f 3/400/4 2/396/1 21/398/3
 f 4/402/5 3/400/4 21/398/3

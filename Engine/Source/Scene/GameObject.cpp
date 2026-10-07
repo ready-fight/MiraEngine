@@ -1,6 +1,7 @@
 #include "Scene/GameObject.h"
 #include "Collision/Collider.h"
 #include "Graphics/Model.h"
+#include "Graphics/Material.h"
 #include "Animation/Animator.h"
 
 namespace MiraEngine
@@ -63,6 +64,22 @@ namespace MiraEngine
         {
             m_animator.reset();
         }
+    }
+
+    void GameObject::SetDiffuseOverride(
+        const std::string& path
+    )
+    {
+        m_diffuseOverride =
+            std::make_shared<Texture>(
+                path
+            );
+    }
+
+    const std::shared_ptr<Texture>&
+        GameObject::GetDiffuseOverride() const
+    {
+        return m_diffuseOverride;
     }
 
     Model* GameObject::GetModel()

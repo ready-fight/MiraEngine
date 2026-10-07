@@ -10,18 +10,30 @@ namespace MiraGame
 {
     NPC::NPC(
         const std::string& name,
-        const std::vector<std::string>& dialogue,
+        const std::vector<std::string>& inactiveDialogue,
+        const std::vector<std::string>& activeDialogue,
+        const std::vector<std::string>& completedDialogue,
+        const std::vector<std::string>& turnedInDialogue,
         const std::string& questToStart
     )
         : MiraEngine::GameObject(name),
-        m_dialogue(dialogue),
+        m_inactiveDialogue(inactiveDialogue),
+        m_activeDialogue(activeDialogue),
+        m_completedDialogue(completedDialogue),
+        m_turnedInDialogue(turnedInDialogue),
         m_questToStart(questToStart)
     {
         auto model = MiraEngine::AssetManager::LoadModel(
-            "Assets/Models/NPC.fbx"
+            "Assets/Models/Interactable/NPC.fbx"
         );
 
         SetModel(model);
+
+        SetCollider(
+            std::make_unique<MiraEngine::SphereCollider>(
+                0.3f
+            )
+        );
 
         GetTransform().SetScale(
             glm::vec3(0.01f)
@@ -42,10 +54,44 @@ namespace MiraGame
         Player& player
     )
     {
-        m_interactingPlayer =
-            &player;
-
+        m_interactingPlayer = &player;
         m_dialogueIndex = 0;
+
+        const Quest* quest = nullptr;
+
+        if (!m_questToStart.empty())
+        {
+            quest = player.GetQuest(
+                m_questToStart
+            );
+        }
+
+        if (!quest)
+        {
+            m_dialogue = m_inactiveDialogue;
+        }
+        else
+        {
+            switch (quest->status)
+            {
+            case QuestStatus::Active:
+                m_dialogue = m_activeDialogue;
+                break;
+
+            case QuestStatus::Completed:
+                m_dialogue = m_completedDialogue;
+                break;
+
+            case QuestStatus::TurnedIn:
+                m_dialogue = m_turnedInDialogue;
+                break;
+
+            default:
+                m_dialogue = m_inactiveDialogue;
+                break;
+            }
+        }
+
         m_showDialogue = true;
     }
 
@@ -94,9 +140,26 @@ namespace MiraGame
                     !m_questToStart.empty()
                     )
                 {
-                    m_interactingPlayer->StartQuest(
-                        m_questToStart
-                    );
+                    const Quest* quest =
+                        m_interactingPlayer->GetQuest(
+                            m_questToStart
+                        );
+
+                    if (!quest)
+                    {
+                        m_interactingPlayer->StartQuest(
+                            m_questToStart
+                        );
+                    }
+                    else if (
+                        quest->status ==
+                        QuestStatus::Completed
+                        )
+                    {
+                        m_interactingPlayer->TurnInQuest(
+                            m_questToStart
+                        );
+                    }
                 }
 
                 m_showDialogue = false;

@@ -101,12 +101,16 @@ namespace MiraEngine {
 	}
 
 	void Mesh::Draw(
-		const Shader& shader
+		const Shader& shader,
+		const std::shared_ptr<Texture>& diffuseOverride
 	) const
 	{
-		if (m_texture)
+
+		auto diffuseTexture = diffuseOverride ? diffuseOverride : m_texture;
+
+		if (diffuseTexture)
 		{
-			m_texture->Bind(0);
+			diffuseTexture->Bind(0);
 
 			shader.SetInt(
 				"hasTexture",

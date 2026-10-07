@@ -26,6 +26,15 @@ namespace MiraGame
             const std::string& name
         ) const;
 
+        void OnItemAdded(
+            const std::string& itemName
+        );
+
+        bool TurnInQuest(
+            const std::string& name
+        );
+
+
     private:
         std::vector<Quest> m_quests;
     };

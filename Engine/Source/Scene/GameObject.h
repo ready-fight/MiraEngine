@@ -11,6 +11,7 @@ namespace MiraEngine
     class Collider;
     class Model;
     class Animator;
+    class Texture;
 
     class GameObject
     {
@@ -31,6 +32,11 @@ namespace MiraEngine
         const Collider* GetCollider() const;
 
         void SetModel(std::shared_ptr<Model> model);
+        void SetDiffuseOverride(
+            const std::string& path
+        );
+        const std::shared_ptr<Texture>&
+            GameObject::GetDiffuseOverride() const;
 
         Model* GetModel();
         const Model* GetModel() const;
@@ -46,8 +52,9 @@ namespace MiraEngine
         Transform m_transform;
 
         std::unique_ptr<Collider> m_collider;
-        std::shared_ptr<Model> m_model;
         std::unique_ptr<Animator> m_animator;
+        std::shared_ptr<Model> m_model;
+        std::shared_ptr<Texture> m_diffuseOverride;
         Material m_material;
     };
 }

@@ -33,7 +33,8 @@ namespace MiraEngine {
 			Mesh& operator=(const Mesh&) = delete;
 
 			void Draw(
-				const Shader& shader
+				const Shader& shader,
+				const std::shared_ptr<Texture>& diffuseOverride
 			) const;
 			Texture* GetTexture() const;
 			void SetTexture(

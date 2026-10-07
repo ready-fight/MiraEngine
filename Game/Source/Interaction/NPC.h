@@ -2,6 +2,7 @@
 
 #include "Scene/GameObject.h"
 #include "Interaction/Interactable.h"
+#include "Collision/SphereCollider.h"
 
 #include <string>
 #include <vector>
@@ -15,7 +16,10 @@ namespace MiraGame
     public:
         NPC(
             const std::string& name,
-            const std::vector<std::string>& dialogue,
+            const std::vector<std::string>& inactiveDialogue,
+            const std::vector<std::string>& activeDialogue,
+            const std::vector<std::string>& completedDialogue,
+            const std::vector<std::string>& turnedInDialogue,
             const std::string& questToStart = ""
         );
 
@@ -28,6 +32,11 @@ namespace MiraGame
         void DrawUI() override;
 
     private:
+        std::vector<std::string> m_inactiveDialogue;
+        std::vector<std::string> m_activeDialogue;
+        std::vector<std::string> m_completedDialogue;
+        std::vector<std::string> m_turnedInDialogue;
+
         std::vector<std::string> m_dialogue;
         std::size_t m_dialogueIndex = 0;
 
