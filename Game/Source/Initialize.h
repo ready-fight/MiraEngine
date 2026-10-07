@@ -1,5 +1,10 @@
 #pragma once
 
+
+namespace MiraEngine {
+	class Scene;
+}
+
 void InitializeQuests();
 void InitializePlayer_Enemy(MiraEngine::Scene& scene);
 void InitializeInteractions(MiraEngine::Scene& scene);
