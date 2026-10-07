@@ -522,41 +522,6 @@ namespace MiraEngine {
 
 			texture =
 				LoadMaterialTexture(material);
-
-			std::cout
-				<< "Material index: "
-				<< mesh->mMaterialIndex
-				<< '\n';
-
-			std::cout
-				<< "Diffuse textures: "
-				<< material->GetTextureCount(
-					aiTextureType_DIFFUSE
-				)
-				<< '\n';
-
-			std::cout
-				<< "Base color textures: "
-				<< material->GetTextureCount(
-					aiTextureType_BASE_COLOR
-				)
-				<< '\n';
-
-			aiString path;
-
-			if (
-				material->GetTexture(
-					aiTextureType_DIFFUSE,
-					0,
-					&path
-				) == AI_SUCCESS
-				)
-			{
-				std::cout
-					<< "Diffuse path: "
-					<< path.C_Str()
-					<< '\n';
-			}
 		}
 
 		return std::make_unique<Mesh>(

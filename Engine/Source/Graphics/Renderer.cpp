@@ -197,6 +197,15 @@ namespace MiraEngine {
 		}
 
 		m_shader.Unbind();
+
+        if (m_debugColliders)
+        {
+            m_debugRenderer.Render(
+                aspectRatio,
+                camera,
+                scene
+            );
+        }
 	}
 
     void Renderer::SetAmbientLight(
@@ -211,6 +220,13 @@ namespace MiraEngine {
     )
     {
         m_directionalLight = light;
+    }
+
+    void Renderer::SetDebugColliders(
+        bool enabled
+    )
+    {
+        m_debugColliders = enabled;
     }
 }
 

@@ -292,7 +292,7 @@ void InitializeCollisionObjects(MiraEngine::Scene& scene) {
 
     wall1->SetCollider(
         std::make_unique<MiraEngine::BoxCollider>(
-            glm::vec3(10.0f, 2.0f, 0.5f)
+            glm::vec3(2.95f, 0.7f, 0.15f)
         )
     );
 
@@ -320,7 +320,7 @@ void InitializeCollisionObjects(MiraEngine::Scene& scene) {
 
     wall2->SetCollider(
         std::make_unique<MiraEngine::BoxCollider>(
-            glm::vec3(10.0f, 2.0f, 0.5f)
+            glm::vec3(2.95f, 0.7f, 0.15f)
         )
     );
 

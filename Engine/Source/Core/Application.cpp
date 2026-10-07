@@ -47,12 +47,14 @@ namespace MiraEngine
 
 	void Application::Run()
 	{
-		const float movementSpeed = 2.0f;
+		const float movementSpeed = 5.0f;
 		const float mouseSensitivity = 0.1f;
 
 		int selectedObject = 0;
 		bool cameraMode = false;
 		bool wasF1Down = false;
+		bool debugColliders = false;
+		bool wasF2Down = false;
 
 		GLFWwindow* window = m_window.GetNativeWindow();
 
@@ -70,8 +72,6 @@ namespace MiraEngine
 				break;
 			}
 
-			m_scene.Update(deltaTime);
-
 			UI::BeginFrame();
 
 			m_scene.DrawUI();
@@ -81,6 +81,7 @@ namespace MiraEngine
 			const bool focused =
 				glfwGetWindowAttrib(window, GLFW_FOCUSED) == GLFW_TRUE;
 
+			// F1
 			const bool f1Down =
 				glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS;
 
@@ -100,11 +101,44 @@ namespace MiraEngine
 
 			wasF1Down = f1Down;
 
+			// F2
+			const bool f2Down =
+				glfwGetKey(
+					window,
+					GLFW_KEY_F2
+				) == GLFW_PRESS;
+
+			if (
+				focused &&
+				f2Down &&
+				!wasF2Down &&
+				!io.WantTextInput
+				)
+			{
+				debugColliders =
+					!debugColliders;
+
+				m_renderer.SetDebugColliders(
+					debugColliders
+				);
+			}
+
+			wasF2Down = f2Down;
+
+			Input::SetGameplayEnabled(
+				!cameraMode
+			);
+
+			m_scene.Update(deltaTime);
+
 			if (!focused && cameraMode)
 			{
 				cameraMode = false;
 				m_window.ReleaseCursor();
 			}
+
+
+
 
 			// Inspector
 			ImGui::SetNextWindowSize(

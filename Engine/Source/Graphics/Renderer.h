@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Shader.h"
+#include "Graphics/DebugRenderer.h"
 #include "Graphics/Light.h"
 
 namespace MiraEngine {
@@ -24,11 +25,17 @@ namespace MiraEngine {
 
 		void SetAmbientLight(const AmbientLight& light);
 		void SetDirectionalLight(const DirectionalLight& light);
+		void SetDebugColliders(
+			bool enabled
+		);
 
 	private:
 		Shader m_shader;
 		AmbientLight m_ambientLight;
 		DirectionalLight m_directionalLight;
+		DebugRenderer m_debugRenderer;
+
+		bool m_debugColliders = false;
 	};
 }
 
