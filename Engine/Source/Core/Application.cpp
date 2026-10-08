@@ -5,6 +5,8 @@
 #include "Scene/GameObject.h"
 #include "Scene/Transform.h"
 #include "Animation/Animator.h"
+#include "Collision/SphereCollider.h"
+#include "Collision/BoxCollider.h"
 
 #include <glm/vec3.hpp>
 
@@ -33,7 +35,7 @@ namespace MiraEngine
 		)
 	{
 
-		Input::Initialize(m_window);
+		Input::Initialize(m_window, m_camera);
 
 		UI::Initialize(m_window.GetNativeWindow());
 
@@ -47,14 +49,14 @@ namespace MiraEngine
 
 	void Application::Run()
 	{
-		const float movementSpeed = 5.0f;
+		const float movementSpeed = 10.0f;
 		const float mouseSensitivity = 0.1f;
 
 		int selectedObject = 0;
 		bool cameraMode = false;
 		bool wasF1Down = false;
-		bool debugColliders = false;
 		bool wasF2Down = false;
+		bool debugColliders = false;
 
 		GLFWwindow* window = m_window.GetNativeWindow();
 
@@ -131,6 +133,27 @@ namespace MiraEngine
 
 			m_scene.Update(deltaTime);
 
+			if (
+				!cameraMode &&
+				m_cameraTarget
+				)
+			{
+				const glm::vec3 playerPosition =
+					m_cameraTarget
+					->GetTransform()
+					.GetPosition();
+
+				m_camera.SetPosition(
+					playerPosition +
+					m_gameplayCameraOffset
+				);
+
+				m_camera.LookAt(
+					playerPosition +
+					m_gameplayCameraLookOffset
+				);
+			}
+
 			if (!focused && cameraMode)
 			{
 				cameraMode = false;
@@ -148,11 +171,11 @@ namespace MiraEngine
 
 			if (ImGui::Begin("Scene Inspector"))
 			{
-				ImGui::TextUnformatted(
+				/*ImGui::TextUnformatted(
 					cameraMode
 					? "F1: release mouse to edit"
 					: "F1: enable camera controls"
-				);
+				);*/
 
 				auto& objects = m_scene.GetObjects();
 				const int count = static_cast<int>(objects.size());
@@ -188,17 +211,20 @@ namespace MiraEngine
 						ImGui::EndCombo();
 					}
 
+					ImGui::Separator();
+
 					Transform& transform =
 						objects[selectedObject]->GetTransform();
-
 					glm::vec3 position = transform.GetPosition();
 					glm::vec3 rotation = transform.GetRotation();
 					glm::vec3 scale = transform.GetScale();
 					float yaw = m_camera.GetYaw();
 					float pitch = m_camera.GetPitch();
 
+
+					ImGui::TextUnformatted("Camera");
+
 					ImGui::Separator();
-					ImGui::TextUnformatted("Components: X / Y / Z");
 
 					if (ImGui::DragFloat(
 						"Pitch",
@@ -215,6 +241,12 @@ namespace MiraEngine
 					{
 						m_camera.SetYaw(yaw);
 					}
+
+					ImGui::Separator();
+
+					ImGui::TextUnformatted("Transform");
+
+					ImGui::Separator();
 
 					if (ImGui::DragFloat3(
 						"Position",
@@ -242,6 +274,47 @@ namespace MiraEngine
 						ImGuiSliderFlags_AlwaysClamp))
 					{
 						transform.SetScale(scale);
+					}
+
+					ImGui::Separator();
+
+					Collider* collider = objects[selectedObject]->GetCollider();
+
+					ImGui::TextUnformatted("Collider");
+					ImGui::Separator();
+
+					if (
+						auto* sphere =
+						dynamic_cast<
+						SphereCollider*
+						>(collider)
+						)
+					{
+						float radius = sphere->GetRadius();
+
+						if (ImGui::DragFloat(
+							"Radius",
+							&radius,
+							0.1f))
+						{
+							sphere->SetRadius(radius);
+						}
+					} else if (
+						auto* box =
+						dynamic_cast<
+						BoxCollider*
+						>(collider)
+						)
+					{
+						glm::vec3 halfExtents = box->GetHalfExtents();
+
+						if (ImGui::DragFloat3(
+							"Half Extents",
+							glm::value_ptr(halfExtents),
+							0.1f))
+						{
+							box->SetHalfExtents(halfExtents);
+						}
 					}
 
 				}
@@ -296,6 +369,13 @@ namespace MiraEngine
 
 			m_window.SwapBuffers();
 		}
+	}
+
+	void Application::SetCameraTarget(
+		GameObject* target
+	)
+	{
+		m_cameraTarget = target;
 	}
 
 	Scene& Application::GetScene()

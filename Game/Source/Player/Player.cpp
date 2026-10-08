@@ -88,22 +88,22 @@ namespace MiraGame
 			return;
 		}
 
-		glm::vec3 movement(0.0f);
+		glm::vec2 movementInput(0.0f);
 
 		if (MiraEngine::Input::IsKeyPressed(MiraEngine::Key::W))
-			movement.z += 1.0f;
+			movementInput.y += 1.0f;
 
 		if (MiraEngine::Input::IsKeyPressed(MiraEngine::Key::S))
-			movement.z -= 1.0f;
+			movementInput.y -= 1.0f;
 
 		if (MiraEngine::Input::IsKeyPressed(MiraEngine::Key::A))
-			movement.x += 1.0f;
+			movementInput.x -= 1.0f;
 
 		if (MiraEngine::Input::IsKeyPressed(MiraEngine::Key::D))
-			movement.x -= 1.0f;
+			movementInput.x += 1.0f;
 
 		const bool isMoving =
-			glm::length(movement) > 0.0f;
+			glm::length(movementInput) > 0.0f;
 
 		const bool attackDown =
 			MiraEngine::Input::IsKeyPressed(
@@ -237,16 +237,21 @@ namespace MiraGame
 
 		if (isMoving)
 		{
-			movement = glm::normalize(movement);
+			glm::vec3 movement =
+				MiraEngine::Input::GetMovementDirection(
+					movementInput
+				);
 
 			MiraEngine::Transform& transform =
 				GetTransform();
 
 			const float yaw =
-				std::atan2(
-					movement.x,
-					movement.z
-				) * 180.0f / 3.14159265f;
+				glm::degrees(
+					std::atan2(
+						movement.x,
+						movement.z
+					)
+				);
 
 			glm::vec3 rotation =
 				transform.GetRotation();

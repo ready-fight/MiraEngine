@@ -197,7 +197,7 @@ namespace MiraGame
         {
             m_scene->TryMove(
                 *this,
-                (enemyPosition + direction) * m_speed * deltaTime
+                direction * m_speed * deltaTime
             );
         }
 

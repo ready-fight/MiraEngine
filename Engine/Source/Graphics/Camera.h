@@ -16,20 +16,28 @@ namespace MiraEngine {
 			void Rotate(float yawOffset, float pitchOffset);
 			float GetYaw() { return m_yaw; }
 			float GetPitch() { return m_pitch; }
+			glm::vec3 GetForward() { return m_forward; }
+			glm::vec3 GetRight() { return m_right; }
 			void SetPitch(float pitch);
 			void SetYaw(float yaw);
 			void UpdateTarget();
+			void SetPosition( const glm::vec3& position);
+			void LookAt(const glm::vec3& target);
 
 		private:
 			glm::vec3 m_position;
 			glm::vec3 m_target;
 			glm::vec3 m_up = glm::vec3(0.0f, 1.0f, 0.0f);
+			glm::vec3 m_forward;
+			glm::vec3 m_right;
+
 
 			float m_fov = 45.0f;
 			float m_nearPlane = 0.1f;
 			float m_farPlane = 100.0f;
 			float m_yaw = 0.0f;
 			float m_pitch = 0.0f;
+
 	};
 }
 

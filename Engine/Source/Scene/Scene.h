@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <glm/vec3.hpp>
+#include "Graphics/Camera.h"
 
 
 namespace MiraEngine
@@ -13,6 +14,7 @@ namespace MiraEngine
     class Scene
     {
     public:
+
         void AddObject(std::unique_ptr<GameObject> object);
         void DrawUI();
 

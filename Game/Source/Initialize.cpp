@@ -32,7 +32,7 @@ void InitializeQuests() {
     );
 }
 
-void InitializePlayer_Enemy(MiraEngine::Scene& scene) {
+MiraGame::Player* InitializePlayer(MiraEngine::Scene& scene) {
     auto player =
         std::make_unique<MiraGame::Player>(
             &scene
@@ -45,13 +45,15 @@ void InitializePlayer_Enemy(MiraEngine::Scene& scene) {
         std::move(player)
     );
 
+	return playerPtr;
+}
+
+void InitializeEnemy(MiraEngine::Scene& scene, MiraGame::Player* playerPtr) {
     auto enemy =
         std::make_unique<MiraGame::Enemy>(
             playerPtr,
             &scene
         );
-
-    MiraGame::Enemy* enemyPtr = enemy.get();
 
     enemy->GetMaterial().color = glm::vec3(0.85, 0, 0);
 
