@@ -197,20 +197,7 @@ namespace MiraEngine {
                 material.color
             );
 
-            if (material.color.a < 1.0f)
-            {
-                glDepthMask(GL_FALSE);
-            }
-
-            model->Draw(
-                m_shader,
-                object->GetDiffuseOverride()
-            );
-
-            if (material.color.a < 1.0f)
-            {
-                glDepthMask(GL_TRUE);
-            }
+			model->Draw(m_shader, object->GetDiffuseOverride());
 		}
 
 		m_shader.Unbind();
