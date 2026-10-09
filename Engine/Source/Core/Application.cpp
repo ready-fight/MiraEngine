@@ -65,6 +65,11 @@ namespace MiraEngine
 
 		GLFWwindow* window = m_window.GetNativeWindow();
 
+		if (!glfwGetWindowAttrib(window, GLFW_MAXIMIZED))
+		{
+			glfwMaximizeWindow(window);
+		}
+
 		while (!m_window.ShouldClose())
 		{
 			Time::Tick();
@@ -167,6 +172,14 @@ namespace MiraEngine
 				}
 				else
 				{
+
+					ImGui::TextUnformatted("F1: Camera Mode");
+					ImGui::TextUnformatted("F2: Show Collision");
+					ImGui::TextUnformatted("F: Interact");
+					ImGui::TextUnformatted("E: Attack");
+
+					ImGui::Separator();
+
 					if (selectedObject >= count)
 					{
 						selectedObject = count - 1;
@@ -179,6 +192,8 @@ namespace MiraEngine
 						for (int i = 0; i < count; ++i)
 						{
 							const std::string label = objects[i]->GetName();
+
+							if (label == "CameraController") continue;
 
 							std::cout << label << "\n";
 
@@ -202,12 +217,9 @@ namespace MiraEngine
 					float yaw = m_camera.GetYaw();
 					float pitch = m_camera.GetPitch();
 
-
-					ImGui::TextUnformatted("Camera");
-
 					ImGui::Separator();
 
-					if (ImGui::DragFloat(
+					/*if (ImGui::DragFloat(
 						"Pitch",
 						&pitch,
 						0.01f))
@@ -221,7 +233,7 @@ namespace MiraEngine
 						0.01f))
 					{
 						m_camera.SetYaw(yaw);
-					}
+					}*/
 
 					ImGui::Separator();
 
@@ -261,43 +273,45 @@ namespace MiraEngine
 
 					Collider* collider = objects[selectedObject]->GetCollider();
 
-					ImGui::TextUnformatted("Collider");
-					ImGui::Separator();
+					if (collider) {
+						ImGui::TextUnformatted("Collider");
+						ImGui::Separator();
 
-					if (
-						auto* sphere =
-						dynamic_cast<
-						SphereCollider*
-						>(collider)
-						)
-					{
-						float radius = sphere->GetRadius();
-
-						if (ImGui::DragFloat(
-							"Radius",
-							&radius,
-							0.1f))
+						if (
+							auto* sphere =
+							dynamic_cast<
+							SphereCollider*
+							>(collider)
+							)
 						{
-							sphere->SetRadius(radius);
+							float radius = sphere->GetRadius();
+
+							if (ImGui::DragFloat(
+								"Radius",
+								&radius,
+								0.1f))
+							{
+								sphere->SetRadius(radius);
+							}
 						}
-					} else if (
-						auto* box =
-						dynamic_cast<
-						BoxCollider*
-						>(collider)
-						)
-					{
-						glm::vec3 halfExtents = box->GetHalfExtents();
-
-						if (ImGui::DragFloat3(
-							"Half Extents",
-							glm::value_ptr(halfExtents),
-							0.1f))
+						else if (
+							auto* box =
+							dynamic_cast<
+							BoxCollider*
+							>(collider)
+							)
 						{
-							box->SetHalfExtents(halfExtents);
+							glm::vec3 halfExtents = box->GetHalfExtents();
+
+							if (ImGui::DragFloat3(
+								"Half Extents",
+								glm::value_ptr(halfExtents),
+								0.1f))
+							{
+								box->SetHalfExtents(halfExtents);
+							}
 						}
 					}
-
 				}
 			}
 

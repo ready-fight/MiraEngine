@@ -23,7 +23,7 @@ namespace MiraGame
         float m_stopDistance = 1.5f;
         bool m_isMoving = false;
         bool m_hasDied = false;
-        int m_attackDamage = 30;
+        int m_attackDamage = 5;
         float m_attackCooldown = 1.0f;
         float m_attackTimer = 0.0f;
         bool m_isAttacking = false;

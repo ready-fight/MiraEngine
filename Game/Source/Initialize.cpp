@@ -43,6 +43,11 @@ MiraGame::Player* InitializePlayer(MiraEngine::Scene& scene) {
     MiraGame::Player* playerPtr =
         player.get();
 
+
+    player->GetTransform().SetPosition(
+        glm::vec3(0.886f, 0.0f, -3.98f)
+    );
+
     scene.AddObject(
         std::move(player)
     );
@@ -143,6 +148,8 @@ void InitializeInteractions(MiraEngine::Scene& scene) {
             dungeonKeyData
         );
 
+    dungeonKey->GetMaterial().color.a = 0.0f;
+
     dungeonKey->GetTransform().SetScale(
         glm::vec3(0.5f)
     );
@@ -155,7 +162,7 @@ void InitializeInteractions(MiraEngine::Scene& scene) {
     dungeonKey->SetModel(dungeonKeyModel);
 
     dungeonKey->GetTransform().SetPosition(
-        glm::vec3(-3.0f, 0.0f, 2.0f)
+        glm::vec3(-1.68f, 0.0f, 1.0f)
     );
 
     scene.AddObject(
@@ -180,7 +187,15 @@ void InitializeInteractions(MiraEngine::Scene& scene) {
     chest->SetModel(chestModel);
 
     chest->GetTransform().SetPosition(
-        glm::vec3(-5.0f, 0.0f, 3.0f)
+        glm::vec3(1.07f, 0.0f, 12.0f)
+    );
+
+    chest->GetTransform().SetRotation(
+        glm::vec3(0.0f, 90.0f, 0.0f)
+    );
+
+    chest->GetTransform().SetScale(
+        glm::vec3(2.0f, 2.0f, 2.0f)
     );
 
     scene.AddObject(
@@ -199,7 +214,7 @@ void InitializeInteractions(MiraEngine::Scene& scene) {
     door->SetModel(doorModel);
 
     door->GetTransform().SetPosition(
-        glm::vec3(3.0f, 0.0f, 3.0f)
+        glm::vec3(1.5f, 0.0f, 3.0f)
     );
 
     door->GetTransform().SetRotation(

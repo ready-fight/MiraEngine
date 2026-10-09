@@ -22,10 +22,26 @@ namespace MiraEngine
     {
     }
 
+    void GameObject::FadeIn(float deltaTime)
+    {
+
+        if (m_material.color.a == 1.0f)
+        {
+            return;
+        }
+
+
+        float alpha = m_material.color.a;
+        alpha += m_fadeSpeed * deltaTime;
+        alpha = std::min(alpha, 1.0f);
+
+        m_material.color.a = alpha;
+    }
+
     void GameObject::FadeOut(float deltaTime)
     {
         
-        if (m_material.color.a == 0)
+        if (m_material.color.a == 0.0f)
         {
             return;
         }

@@ -1,6 +1,7 @@
 #include "Item.h"
 #include "Item/Item.h"
 #include "Player/Player.h"
+#include <iostream>
 
 namespace MiraGame
 {
@@ -12,6 +13,8 @@ namespace MiraGame
 
     void Item::Update(float deltaTime) {
         if (m_pickedUp) {
+
+            std::cout << "Fading..." << "\n";
             FadeOut(deltaTime);
         }
     }
@@ -24,9 +27,6 @@ namespace MiraGame
         }
 
         m_pickedUp = true;
-
-        // Remove the visible model.
-        //SetModel(nullptr);
     }
 
     bool Item::IsPickedUp() const

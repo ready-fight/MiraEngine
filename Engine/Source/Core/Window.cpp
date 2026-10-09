@@ -44,7 +44,6 @@ namespace MiraEngine {
 			throw std::runtime_error("Failed to initialize GLEW");
 		}
 
-
 		glfwSetFramebufferSizeCallback(m_window,
 			[](GLFWwindow* window, int newWidth, int newHeight)
 			{

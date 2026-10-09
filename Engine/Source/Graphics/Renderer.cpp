@@ -140,7 +140,8 @@ namespace MiraEngine {
 
 	void Renderer::Render(float aspectRatio, Camera& camera, Scene& scene)
 	{
-		glClearColor(0.392f, 0.431f, 0.471f, 1.0f);
+		//glClearColor(0.392f, 0.431f, 0.471f, 1.0f);
+		glClearColor(0.1, 0.1, 0.1, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		m_shader.Bind();
@@ -196,7 +197,20 @@ namespace MiraEngine {
                 material.color
             );
 
-			model->Draw(m_shader, object->GetDiffuseOverride());
+            if (material.color.a < 1.0f)
+            {
+                glDepthMask(GL_FALSE);
+            }
+
+            model->Draw(
+                m_shader,
+                object->GetDiffuseOverride()
+            );
+
+            if (material.color.a < 1.0f)
+            {
+                glDepthMask(GL_TRUE);
+            }
 		}
 
 		m_shader.Unbind();

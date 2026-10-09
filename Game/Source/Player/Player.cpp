@@ -7,6 +7,7 @@
 #include "Scene/Scene.h"
 #include "Enemy/Enemy.h"
 #include "UI/UI.h"
+#include "Item/Item.h"
 
 #include "Assets/AssetManager.h"
 #include "Animation/Animator.h"
@@ -69,6 +70,20 @@ namespace MiraGame
 
 	void Player::Update(float deltaTime)
 	{
+
+		if (m_questStarted) {
+			for (auto& object : m_scene->GetObjects())
+			{
+				Item* item = dynamic_cast<Item*>(object.get());
+
+				if (!item) { continue; }
+
+				if (item->GetName() == "Dungeon Key" && !item->IsPickedUp()) {
+					item->FadeIn(deltaTime);
+					break;
+				}
+			}
+		}
 
 		if (IsDead())
 		{
@@ -334,6 +349,8 @@ namespace MiraGame
 			" / " +
 			std::to_string(GetMaxHealth());
 
+		MiraEngine::UI::DrawText("HP:");
+
 		MiraEngine::UI::DrawProgressBar(
 			healthPercent,
 			healthText
@@ -561,6 +578,8 @@ namespace MiraGame
 		{
 			return false;
 		}
+
+		m_questStarted = true;
 
 		const Quest* quest =
 			m_questSystem.GetQuest(questName);

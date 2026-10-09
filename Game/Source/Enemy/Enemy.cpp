@@ -105,8 +105,9 @@ namespace MiraGame
         const float distance =
             glm::length(direction);
 
-        const bool isMoving = false;
-            //distance > m_stopDistance;
+        //const bool isMoving = false;
+        const bool isMoving =
+            distance > m_stopDistance;
 
         // Change animation only when state changes.
         if (isMoving != m_isMoving)
@@ -173,18 +174,18 @@ namespace MiraGame
             // Waiting for next attack.
             m_attackTimer += deltaTime;
 
-            //if (m_attackTimer >= m_attackCooldown)
-            //{
-            //    m_attackTimer = 0.0f;
-            //    m_attackTime = 0.0f;
-            //    m_attackHitApplied = false;
-            //    m_isAttacking = true;
+            if (m_attackTimer >= m_attackCooldown)
+            {
+                m_attackTimer = 0.0f;
+                m_attackTime = 0.0f;
+                m_attackHitApplied = false;
+                m_isAttacking = true;
 
-            //    if (MiraEngine::Animator* animator = GetAnimator())
-            //    {
-            //        animator->PlayAnimation(2, false); // Attack
-            //    }
-            //}
+                if (MiraEngine::Animator* animator = GetAnimator())
+                {
+                    animator->PlayAnimation(2, false); // Attack
+                }
+            }
 
             return;
         }

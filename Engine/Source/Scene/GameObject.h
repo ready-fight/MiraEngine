@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace MiraEngine
 {
@@ -21,6 +22,7 @@ namespace MiraEngine
         virtual ~GameObject();
         virtual void Update(float deltaTime);
         virtual void DrawUI();
+        void FadeIn(float deltaTime);
         void FadeOut(float deltaTime);
 
         bool IsPendingDestroy() const;

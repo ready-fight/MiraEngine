@@ -69,6 +69,7 @@ namespace MiraGame
 
         float m_interactRange = 1.5f;
         bool m_wasInteractDown = false;
+        bool m_questStarted = false;
 
         MiraEngine::Scene* m_scene = nullptr;
 
