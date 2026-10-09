@@ -26,6 +26,16 @@ namespace MiraEngine
 
         static glm::vec3 GetMovementDirection(glm::vec2 input);
 
+        static bool IsMouseButtonPressed(
+            MouseButton button
+        );
+
+        static MouseMovement GetMouseMovement();
+
+        static void CaptureCursor();
+        static void ReleaseCursor();
+        static float GetMouseScroll();
+
     private:
         static Window* s_window;
         static Camera* s_camera;

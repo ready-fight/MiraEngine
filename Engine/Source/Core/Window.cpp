@@ -62,6 +62,34 @@ namespace MiraEngine {
 		);
 
 		glViewport(0, 0, framebufferWidth, framebufferHeight);
+
+		glfwSetWindowUserPointer(
+			m_window,
+			this
+		);
+
+		glfwSetScrollCallback(
+			m_window,
+			[](
+				GLFWwindow* window,
+				double xOffset,
+				double yOffset
+				)
+			{
+				Window* self =
+					static_cast<Window*>(
+						glfwGetWindowUserPointer(
+							window
+						)
+						);
+
+				if (self)
+				{
+					self->m_mouseScrollY +=
+						yOffset;
+				}
+			}
+		);
 	}
 
 	Window::~Window()
@@ -75,8 +103,41 @@ namespace MiraEngine {
 		return glfwWindowShouldClose(m_window);
 	}
 
+	bool Window::IsMouseButtonPressed(
+		MouseButton button
+	) const
+	{
+		int glfwButton =
+			GLFW_MOUSE_BUTTON_LEFT;
+
+		switch (button)
+		{
+		case MouseButton::Left:
+			glfwButton =
+				GLFW_MOUSE_BUTTON_LEFT;
+			break;
+
+		case MouseButton::Right:
+			glfwButton =
+				GLFW_MOUSE_BUTTON_RIGHT;
+			break;
+
+		case MouseButton::Middle:
+			glfwButton =
+				GLFW_MOUSE_BUTTON_MIDDLE;
+			break;
+		}
+
+		return glfwGetMouseButton(
+			m_window,
+			glfwButton
+		) == GLFW_PRESS;
+	}
+
 	void Window::ProcessEvents()
 	{
+		m_mouseScrollY = 0.0;
+
 		glfwPollEvents();
 
 		if(glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -103,6 +164,11 @@ namespace MiraEngine {
 		}
 
 		return static_cast<float>(width) / static_cast<float>(height);
+	}
+
+	double Window::GetMouseScroll() const
+	{
+		return m_mouseScrollY;
 	}
 
 	bool Window::IsKeyPressed(Key key) const

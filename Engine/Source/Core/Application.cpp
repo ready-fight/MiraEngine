@@ -9,20 +9,22 @@
 #include "Collision/BoxCollider.h"
 
 #include <glm/vec3.hpp>
+#include <glm/geometric.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 
 #include <imgui.h>
 #include "UI/UI.h"
 
 #include <GLFW/glfw3.h>
-#include <glm/geometric.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include <algorithm>
 #include <stdexcept>
 #include <string>
 #include <iostream>
 #include <memory>
+
+#include <cmath>
 
 #include "Graphics/Model.h"
 
@@ -53,9 +55,12 @@ namespace MiraEngine
 		const float mouseSensitivity = 0.1f;
 
 		int selectedObject = 0;
+
 		bool cameraMode = false;
+
 		bool wasF1Down = false;
 		bool wasF2Down = false;
+
 		bool debugColliders = false;
 
 		GLFWwindow* window = m_window.GetNativeWindow();
@@ -133,35 +138,11 @@ namespace MiraEngine
 
 			m_scene.Update(deltaTime);
 
-			if (
-				!cameraMode &&
-				m_cameraTarget
-				)
-			{
-				const glm::vec3 playerPosition =
-					m_cameraTarget
-					->GetTransform()
-					.GetPosition();
-
-				m_camera.SetPosition(
-					playerPosition +
-					m_gameplayCameraOffset
-				);
-
-				m_camera.LookAt(
-					playerPosition +
-					m_gameplayCameraLookOffset
-				);
-			}
-
 			if (!focused && cameraMode)
 			{
 				cameraMode = false;
 				m_window.ReleaseCursor();
 			}
-
-
-
 
 			// Inspector
 			ImGui::SetNextWindowSize(
@@ -371,13 +352,6 @@ namespace MiraEngine
 		}
 	}
 
-	void Application::SetCameraTarget(
-		GameObject* target
-	)
-	{
-		m_cameraTarget = target;
-	}
-
 	Scene& Application::GetScene()
 	{
 		return m_scene;
@@ -386,5 +360,15 @@ namespace MiraEngine
 	const Scene& Application::GetScene() const
 	{
 		return m_scene;
+	}
+
+	Camera& Application::GetCamera()
+	{
+		return m_camera;
+	}
+
+	const Camera& Application::GetCamera() const
+	{
+		return m_camera;
 	}
 }

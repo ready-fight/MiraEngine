@@ -59,4 +59,65 @@ namespace MiraEngine
             right * input.x
         );
     }
+
+    bool Input::IsMouseButtonPressed(
+        MouseButton button
+    )
+    {
+        if (
+            !s_window ||
+            !s_gameplayEnabled
+            )
+        {
+            return false;
+        }
+
+        return s_window->IsMouseButtonPressed(
+            button
+        );
+    }
+
+    MouseMovement Input::GetMouseMovement()
+    {
+        if (
+            !s_window ||
+            !s_gameplayEnabled
+            )
+        {
+            return {};
+        }
+
+        return s_window->GetMouseMovement();
+    }
+
+    void Input::CaptureCursor()
+    {
+        if (s_window)
+        {
+            s_window->CaptureCursor();
+        }
+    }
+
+    void Input::ReleaseCursor()
+    {
+        if (s_window)
+        {
+            s_window->ReleaseCursor();
+        }
+    }
+
+    float Input::GetMouseScroll()
+    {
+        if (
+            !s_window ||
+            !s_gameplayEnabled
+            )
+        {
+            return 0.0f;
+        }
+
+        return static_cast<float>(
+            s_window->GetMouseScroll()
+            );
+    }
 }

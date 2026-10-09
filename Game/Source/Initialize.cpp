@@ -1,6 +1,8 @@
 #include "Initialize.h"
 
 #include "Player/Player.h"
+#include "Camera/CameraController.h"
+#include "Graphics/Camera.h"
 #include "Enemy/Enemy.h"
 #include "Item/Item.h"
 #include "Collision/BoxCollider.h"
@@ -318,5 +320,26 @@ void InitializeCollisionObjects(MiraEngine::Scene& scene) {
 
     scene.AddObject(
         std::move(wall2)
+    );
+}
+
+void InitializeCamera(
+    MiraEngine::Scene& scene,
+    MiraEngine::Camera& camera,
+    MiraGame::Player& player
+)
+{
+    auto cameraController =
+        std::make_unique<
+        MiraGame::CameraController
+        >(
+            camera,
+            player
+        );
+
+    scene.AddObject(
+        std::move(
+            cameraController
+        )
     );
 }

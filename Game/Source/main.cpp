@@ -5,6 +5,7 @@
 int main()
 {
     MiraEngine::Application application;
+    MiraEngine::Camera& camera = application.GetCamera();
 	MiraEngine::Scene& scene = application.GetScene();
 	MiraGame::Player* player = InitializePlayer(scene);
 
@@ -13,8 +14,8 @@ int main()
     InitializeInteractions(scene);
     InitializeNPCs(scene);
 	InitializeCollisionObjects(scene);
+	InitializeCamera(scene, camera, *player);
 
-    application.SetCameraTarget(player);
     application.Run();
 
     return 0;

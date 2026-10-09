@@ -19,6 +19,13 @@ namespace MiraEngine {
 		F
 	};
 
+	enum class MouseButton
+	{
+		Left,
+		Right,
+		Middle
+	};
+
 	class Window
 	{
 		public:
@@ -29,19 +36,24 @@ namespace MiraEngine {
 			Window& operator=(const Window&) = delete;
 
 			bool ShouldClose() const;
+			bool IsMouseButtonPressed(
+				MouseButton button
+			) const;
+			bool IsKeyPressed(Key key) const;
 			void ProcessEvents();
 			void SwapBuffers();
-			float GetAspectRatio() const;
-			bool IsKeyPressed(Key key) const;
 			void CaptureCursor();
+			void ReleaseCursor();
+			float GetAspectRatio() const;
+			double GetMouseScroll() const;
 			MouseMovement GetMouseMovement();
 			GLFWwindow* GetNativeWindow() const;
-			void ReleaseCursor();
 
 		private:
 			GLFWwindow* m_window = nullptr;
 			double m_lastMouseX = 0.0;
 			double m_lastMouseY = 0.0;
+			double m_mouseScrollY = 0.0;
 			bool m_firstMouseMovement = true;
 	};
 }
