@@ -151,13 +151,50 @@ namespace MiraGame
             std::sin(yaw) *
             m_distance;
 
-        m_camera->SetPosition(
+        const glm::vec3 desiredPosition =
             lookTarget +
-            cameraOffset
+            cameraOffset;
+
+        if (!m_cameraInitialized)
+        {
+            m_currentPosition =
+                desiredPosition;
+
+            m_currentLookTarget =
+                lookTarget;
+
+            m_cameraInitialized = true;
+        }
+        else
+        {
+            const float smoothing =
+                1.0f -
+                std::exp(
+                    -m_smoothingSpeed *
+                    deltaTime
+                );
+
+            m_currentPosition =
+                glm::mix(
+                    m_currentPosition,
+                    desiredPosition,
+                    smoothing
+                );
+
+            m_currentLookTarget =
+                glm::mix(
+                    m_currentLookTarget,
+                    lookTarget,
+                    smoothing
+                );
+        }
+
+        m_camera->SetPosition(
+            m_currentPosition
         );
 
         m_camera->LookAt(
-            lookTarget
+            m_currentLookTarget
         );
     }
 }

@@ -36,17 +36,15 @@ namespace MiraGame
         float m_zoomSpeed = 0.75f;
         float m_minDistance = 2.5f;
         float m_maxDistance = 10.0f;
+        float m_mouseSensitivity = 0.15f;
+        float m_smoothingSpeed = 10.0f;
 
-        float m_mouseSensitivity =
-            0.15f;
+        glm::vec3 m_lookOffset = glm::vec3(0.0f, 1.0f, 0.0f);
+        glm::vec3 m_currentPosition = glm::vec3(0.0f);
+        glm::vec3 m_currentLookTarget = glm::vec3(0.0f);
 
-        glm::vec3 m_lookOffset =
-            glm::vec3(
-                0.0f,
-                1.0f,
-                0.0f
-            );
 
+        bool m_cameraInitialized = false;
         bool m_orbiting = false;
         
     };
