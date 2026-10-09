@@ -57,7 +57,7 @@ void InitializeEnemy(MiraEngine::Scene& scene, MiraGame::Player* playerPtr) {
             &scene
         );
 
-    enemy->GetMaterial().color = glm::vec3(0.85, 0, 0);
+    enemy->GetMaterial().color = glm::vec4(1.0f, 0.5f, 0.0f, 1.0f);
 
     enemy->GetTransform().SetPosition(
         glm::vec3(5.0f, 0.0f, 5.0f)
@@ -247,7 +247,7 @@ void InitializeNPCs(MiraEngine::Scene& scene) {
             "Find the Dungeon Key"
         );
 
-    npc->GetMaterial().color = glm::vec3(0, .5, 1);
+    npc->GetMaterial().color = glm::vec4(0, .5, 1, 1);
 
     npc->GetTransform().SetPosition(
         glm::vec3(-3.3f, 0.0f, 2.0f)

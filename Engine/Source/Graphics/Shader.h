@@ -2,6 +2,7 @@
 
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 namespace MiraEngine
 {
@@ -31,6 +32,10 @@ namespace MiraEngine
 			void SetVector3(
 				const char* name,
 				const glm::vec3& vector
+			) const;
+			void SetVector4(
+				const char* name,
+				const glm::vec4& vector
 			) const;
 			void SetInt(
 				const char* name,

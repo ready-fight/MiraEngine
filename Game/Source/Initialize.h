@@ -1,6 +1,5 @@
 #pragma once
 
-
 namespace MiraEngine {
 	class Scene;
 	class Camera;

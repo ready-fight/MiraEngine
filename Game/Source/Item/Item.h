@@ -14,6 +14,7 @@ namespace MiraGame
         explicit Item(const ItemData& itemData);
 
         void Pickup();
+        void Update(float deltaTime);
 
         bool IsPickedUp() const;
 

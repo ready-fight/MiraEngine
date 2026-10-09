@@ -13,7 +13,7 @@ int main()
     InitializeEnemy(scene, player);
     InitializeInteractions(scene);
     InitializeNPCs(scene);
-	InitializeCollisionObjects(scene);
+	//InitializeCollisionObjects(scene);
 	InitializeCamera(scene, camera, *player);
 
     application.Run();

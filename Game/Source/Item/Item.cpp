@@ -10,6 +10,12 @@ namespace MiraGame
     {
     }
 
+    void Item::Update(float deltaTime) {
+        if (m_pickedUp) {
+            FadeOut(deltaTime);
+        }
+    }
+
     void Item::Pickup()
     {
         if (m_pickedUp)
@@ -20,7 +26,7 @@ namespace MiraGame
         m_pickedUp = true;
 
         // Remove the visible model.
-        SetModel(nullptr);
+        //SetModel(nullptr);
     }
 
     bool Item::IsPickedUp() const

@@ -110,6 +110,21 @@ namespace MiraEngine {
 		);
 	}
 
+	void Shader::SetVector4(
+		const char* name,
+		const glm::vec4& vector
+	) const
+	{
+		const int location =
+			glGetUniformLocation(m_program, name);
+
+		glUniform4fv(
+			location,
+			1,
+			glm::value_ptr(vector)
+		);
+	}
+
 	void Shader::SetInt(
 		const char* name,
 		int value

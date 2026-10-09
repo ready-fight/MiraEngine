@@ -6,6 +6,8 @@
 #include "Collision/BoxCollider.h"
 #include "Collision/SphereCollider.h"
 
+#include <algorithm>
+
 namespace MiraEngine
 {
     void Scene::AddObject(std::unique_ptr<GameObject> object)
@@ -169,5 +171,17 @@ namespace MiraEngine
                 animator->Update(deltaTime);
             }
         }
+
+        m_objects.erase(
+            std::remove_if(
+                m_objects.begin(),
+                m_objects.end(),
+                [](const std::unique_ptr<GameObject>& object)
+                {
+                    return object->IsPendingDestroy();
+                }
+            ),
+            m_objects.end()
+        );
     }
 }

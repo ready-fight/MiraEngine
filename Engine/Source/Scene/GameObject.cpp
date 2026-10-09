@@ -1,4 +1,5 @@
 #include "Scene/GameObject.h"
+#include "Scene/Scene.h"
 #include "Collision/Collider.h"
 #include "Graphics/Model.h"
 #include "Graphics/Material.h"
@@ -15,11 +16,35 @@ namespace MiraEngine
 
     void GameObject::Update(float deltaTime)
     {
-        (void)deltaTime;
     }
 
     void GameObject::DrawUI()
     {
+    }
+
+    void GameObject::FadeOut(float deltaTime)
+    {
+        
+        if (m_material.color.a == 0)
+        {
+            return;
+        }
+
+
+        float alpha = m_material.color.a;
+        alpha -= m_fadeSpeed * deltaTime;
+        alpha = std::max(alpha, 0.0f);
+
+        m_material.color.a = alpha;
+
+        if (alpha == 0) {
+            m_pendingDestroy = true;
+        }
+    }
+
+    bool GameObject::IsPendingDestroy() const
+    {
+        return m_pendingDestroy;
     }
 
     Transform& GameObject::GetTransform()

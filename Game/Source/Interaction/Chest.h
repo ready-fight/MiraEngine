@@ -15,6 +15,8 @@ namespace MiraGame
 
         bool CanInteract() const override;
 
+        void Update(float deltaTime);
+
         void Interact(
             Player& player
         ) override;

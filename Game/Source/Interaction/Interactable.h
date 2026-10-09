@@ -14,6 +14,5 @@ namespace MiraGame
         virtual void Interact(
             Player& player
         ) = 0;
-
     };
 }

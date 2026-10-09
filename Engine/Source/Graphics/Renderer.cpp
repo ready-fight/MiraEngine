@@ -71,7 +71,7 @@ namespace
     const char* FragmentShaderSource = R"(
         #version 460 core
 
-        uniform vec3 baseColor;
+        uniform vec4 baseColor;
 
         uniform vec3 ambientLight;
         uniform vec3 lightDirection;
@@ -105,20 +105,20 @@ namespace
                 ambientLight +
                 lightColor * diffuseAmount;
 
-            vec3 surfaceColor =
+            vec4 surfaceColor =
                 baseColor;
 
             if (hasTexture == 1)
             {
-                surfaceColor *= texture(
+                surfaceColor.rgb *= texture(
                     diffuseTexture,
                     textureCoordinate
                 ).rgb;
             }
 
             fragmentColor = vec4(
-                surfaceColor * lighting,
-                1.0
+                surfaceColor.rgb * lighting,
+                surfaceColor.a
             );
         }
     )";
@@ -128,6 +128,9 @@ namespace MiraEngine {
 	Renderer::Renderer() : m_shader(VertexShaderSource, FragmentShaderSource)
 	{
 		glEnable(GL_DEPTH_TEST);
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	Renderer::~Renderer()
@@ -137,7 +140,7 @@ namespace MiraEngine {
 
 	void Renderer::Render(float aspectRatio, Camera& camera, Scene& scene)
 	{
-		glClearColor(0.1f, 0.15f, 0.2f, 1.0f);
+		glClearColor(0.392f, 0.431f, 0.471f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		m_shader.Bind();
@@ -188,7 +191,7 @@ namespace MiraEngine {
             const Material& material =
                 object->GetMaterial();
 
-            m_shader.SetVector3(
+            m_shader.SetVector4(
                 "baseColor",
                 material.color
             );

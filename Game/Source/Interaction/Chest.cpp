@@ -6,6 +6,7 @@
 
 namespace MiraGame
 {
+
     Chest::Chest(const ItemData& itemData)
 		: MiraEngine::GameObject("Chest"), m_itemData(itemData)
     {
@@ -14,6 +15,13 @@ namespace MiraGame
                 0.5f
             )
         );
+    }
+
+    void Chest::Update(float deltaTime) {
+
+        if (m_isOpen) {
+            FadeOut(deltaTime);
+        }
     }
 
     bool Chest::CanInteract() const

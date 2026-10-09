@@ -2,6 +2,7 @@
 
 #include "Graphics/Material.h"
 #include "Scene/Transform.h"
+#include "Scene/Scene.h"
 
 #include <memory>
 #include <string>
@@ -20,6 +21,10 @@ namespace MiraEngine
         virtual ~GameObject();
         virtual void Update(float deltaTime);
         virtual void DrawUI();
+        void FadeOut(float deltaTime);
+
+        bool IsPendingDestroy() const;
+
 
         Transform& GetTransform();
         const Transform& GetTransform() const;
@@ -49,6 +54,7 @@ namespace MiraEngine
 
     private:
         std::string m_name;
+        const Scene* m_scene;
         Transform m_transform;
 
         std::unique_ptr<Collider> m_collider;
@@ -56,5 +62,10 @@ namespace MiraEngine
         std::shared_ptr<Model> m_model;
         std::shared_ptr<Texture> m_diffuseOverride;
         Material m_material;
+
+        float m_fadeTimer = 0.0f;
+        const float m_fadeTime = 0.5f;
+        const float m_fadeSpeed = 3.0f;
+        bool m_pendingDestroy = false;
     };
 }
