@@ -1,0 +1,13 @@
+{
+  "name": "mira-engine",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "assimp",
+    "glfw3",
+    "glew",
+    "glm",
+    "imgui",
+    "stb",
+    "miniaudio"
+  ]
+}
