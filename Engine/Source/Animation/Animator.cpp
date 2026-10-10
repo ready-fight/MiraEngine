@@ -3,24 +3,33 @@
 namespace MiraEngine
 {
     Animator::Animator(const Model& model)
-        : m_model(model)
+        : m_model(&model)
     {
-        m_finalBoneMatrices.resize(
+        m_currentAnimation = nullptr;
+        m_currentTime = 0.0;
+
+        m_finalBoneMatrices.assign(
             model.GetBoneCount(),
             glm::mat4(1.0f)
         );
     }
 
-    void Animator::PlayAnimation(size_t animationIndex, bool looping)
+    void Animator::PlayAnimation(
+        size_t animationIndex,
+        bool looping
+    )
     {
-        const auto& animations = m_model.GetAnimations();
+        const auto& animations =
+            m_model->GetAnimations();
 
         if (animationIndex >= animations.size())
         {
             return;
         }
 
-        m_currentAnimation = &animations[animationIndex];
+        m_currentAnimation =
+            animations[animationIndex].get();
+
         m_currentTime = 0.0;
         m_looping = looping;
     }
@@ -49,7 +58,8 @@ namespace MiraEngine
             : 25.0;
 
         m_currentTime +=
-            static_cast<double>(deltaTime) * ticksPerSecond;
+            static_cast<double>(deltaTime)
+            * ticksPerSecond;
 
         if (m_looping)
         {
@@ -58,7 +68,6 @@ namespace MiraEngine
                 m_currentAnimation->duration
             );
         }
-
         else if (
             m_currentTime >
             m_currentAnimation->duration
@@ -69,7 +78,17 @@ namespace MiraEngine
         }
 
         CalculateNodeTransforms(
-            m_model.GetRootNode(),
+            m_model->GetRootNode(),
+            glm::mat4(1.0f)
+        );
+    }
+
+    void Animator::SetModel(const Model& model)
+    {
+        m_model = &model;
+
+        m_finalBoneMatrices.resize(
+            model.GetBoneCount(),
             glm::mat4(1.0f)
         );
     }
@@ -85,14 +104,18 @@ namespace MiraEngine
         const glm::mat4& parentTransform
     )
     {
-        glm::mat4 localTransform = node.transform;
+        glm::mat4 localTransform =
+            node.transform;
 
-        for (const BoneAnimation& channel : m_currentAnimation->channels)
+        for (
+            const BoneAnimation& channel :
+            m_currentAnimation->channels
+            )
         {
             if (channel.boneName == node.name)
             {
                 localTransform =
-                    MiraEngine::CalculateBoneTransform(
+                    CalculateBoneTransform(
                         channel,
                         m_currentTime
                     );
@@ -105,21 +128,26 @@ namespace MiraEngine
             parentTransform * localTransform;
 
         const auto& boneMap =
-            m_model.GetBoneInfoMap();
+            m_model->GetBoneInfoMap();
 
-        const auto bone = boneMap.find(node.name);
+        const auto bone =
+            boneMap.find(node.name);
 
         if (bone != boneMap.end())
         {
-            const int boneID = bone->second.id;
+            const int boneID =
+                bone->second.id;
 
             m_finalBoneMatrices[boneID] =
-                m_model.GetGlobalInverseTransform()
+                m_model->GetGlobalInverseTransform()
                 * globalTransform
                 * bone->second.offset;
         }
 
-        for (const Model::NodeData& child : node.children)
+        for (
+            const Model::NodeData& child :
+            node.children
+            )
         {
             CalculateNodeTransforms(
                 child,

@@ -207,7 +207,6 @@ namespace MiraEngine
 						ImGui::EndCombo();
 					}
 
-					ImGui::Separator();
 
 					Transform& transform =
 						objects[selectedObject]->GetTransform();
@@ -216,8 +215,6 @@ namespace MiraEngine
 					glm::vec3 scale = transform.GetScale();
 					float yaw = m_camera.GetYaw();
 					float pitch = m_camera.GetPitch();
-
-					ImGui::Separator();
 
 					/*if (ImGui::DragFloat(
 						"Pitch",

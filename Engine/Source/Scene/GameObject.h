@@ -56,7 +56,6 @@ namespace MiraEngine
 
     private:
         std::string m_name;
-        const Scene* m_scene;
         Transform m_transform;
 
         std::unique_ptr<Collider> m_collider;

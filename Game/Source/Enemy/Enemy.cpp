@@ -3,8 +3,11 @@
 
 #include "Assets/AssetManager.h"
 #include "Animation/Animator.h"
+#include "Animation/Animation.h"
+#include "Assets/AssetManager.h"
 #include "Scene/Transform.h"
 #include "Collision/SphereCollider.h"
+#include "Graphics/Model.h"
 
 #include <glm/geometric.hpp>
 #include <glm/vec3.hpp>
@@ -23,27 +26,6 @@ namespace MiraGame
             MiraEngine::AssetManager::LoadModel(
                 "Assets/Models/Idle.fbx"
             );
-
-        if (model->GetAnimations().size() < 2)
-        {
-            model->LoadAnimation(
-                "Assets/Models/Walking.fbx"
-            );
-        }
-
-        if (model->GetAnimations().size() < 3)
-        {
-            model->LoadAnimation(
-                "Assets/Models/Attack.fbx"
-            );
-        }
-
-        if (model->GetAnimations().size() < 4)
-        {
-            model->LoadAnimation(
-                "Assets/Models/Death.fbx"
-            );
-        }
 
         SetModel(model);
 
@@ -73,7 +55,7 @@ namespace MiraGame
             {
                 if (MiraEngine::Animator* animator = GetAnimator())
                 {
-                    animator->PlayAnimation(3, false); // Death
+                    animator->PlayAnimation(4, false); // Death
 
                 }
 
@@ -183,7 +165,7 @@ namespace MiraGame
 
                 if (MiraEngine::Animator* animator = GetAnimator())
                 {
-                    animator->PlayAnimation(2, false); // Attack
+                    animator->PlayAnimation(3, false); // Attack
                 }
             }
 

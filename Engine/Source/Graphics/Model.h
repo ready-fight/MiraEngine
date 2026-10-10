@@ -40,10 +40,10 @@ namespace MiraEngine {
 
 			explicit Model(const std::string& filePath);
 			void Draw(const Shader& shader, const std::shared_ptr<Texture>& diffuseOverride = nullptr) const;
-			void LoadAnimation(const std::string& filePath);
+			void AddAnimation(std::shared_ptr<AnimationClip> clip);
 
 			const NodeData& GetRootNode() const;
-			const std::vector<AnimationClip>& GetAnimations() const;
+			const std::vector<std::shared_ptr<AnimationClip>>& GetAnimations() const;
 			const std::unordered_map<std::string, BoneInfo>& GetBoneInfoMap() const;
 			int GetBoneCount() const;
 			const glm::mat4& GetGlobalInverseTransform() const;
@@ -62,7 +62,7 @@ namespace MiraEngine {
 
 			std::unordered_map<std::string, BoneInfo> m_boneInfoMap;
 			std::vector<std::unique_ptr<Mesh>> m_meshes;
-			std::vector<AnimationClip> m_animations;
+			std::vector<std::shared_ptr<AnimationClip>> m_animations;
 			glm::mat4 m_globalInverseTransform{ 1.0f };
 			std::string m_directory;
 

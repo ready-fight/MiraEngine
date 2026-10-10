@@ -97,13 +97,24 @@ namespace MiraEngine
     {
         m_model = std::move(model);
 
-        if (m_model && !m_model->GetAnimations().empty())
+        if (!m_model)
         {
-            m_animator = std::make_unique<Animator>(*m_model);
+            return;
+        }
+
+        if (m_model->GetBoneCount() == 0)
+        {
+            return;
+        }
+
+        if (!m_animator)
+        {
+            m_animator =
+                std::make_unique<Animator>(*m_model);
         }
         else
         {
-            m_animator.reset();
+            m_animator->SetModel(*m_model);
         }
     }
 

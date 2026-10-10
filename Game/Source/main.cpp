@@ -7,9 +7,11 @@ int main()
     MiraEngine::Application application;
     MiraEngine::Camera& camera = application.GetCamera();
 	MiraEngine::Scene& scene = application.GetScene();
-	MiraGame::Player* player = InitializePlayer(scene);
 
     InitializeQuests();
+    InitializeModels();
+    InitializeAnimations();
+    MiraGame::Player* player = InitializePlayer(scene);
     InitializeEnemy(scene, player);
     InitializeInteractions(scene);
     InitializeNPCs(scene);

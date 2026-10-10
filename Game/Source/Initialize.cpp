@@ -34,6 +34,19 @@ void InitializeQuests() {
     );
 }
 
+void InitializeModels() {
+    MiraEngine::AssetManager::LoadModel("Assets/Models/Idle.fbx");
+}
+
+void InitializeAnimations() {
+    MiraEngine::AssetManager::LoadAnimation("Assets/Models/Idle.fbx");
+    MiraEngine::AssetManager::LoadAnimation("Assets/Models/Walking.fbx");
+    MiraEngine::AssetManager::LoadAnimation("Assets/Models/Running.fbx");
+    MiraEngine::AssetManager::LoadAnimation("Assets/Models/Attack.fbx");
+    MiraEngine::AssetManager::LoadAnimation("Assets/Models/Death.fbx");
+    MiraEngine::AssetManager::LoadAnimation("Assets/Models/Interactable/NPC.fbx");
+}
+
 MiraGame::Player* InitializePlayer(MiraEngine::Scene& scene) {
     auto player =
         std::make_unique<MiraGame::Player>(

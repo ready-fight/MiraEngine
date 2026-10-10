@@ -24,10 +24,17 @@ namespace MiraGame
         m_questToStart(questToStart)
     {
         auto model = MiraEngine::AssetManager::LoadModel(
-            "Assets/Models/Interactable/NPC.fbx"
+            "Assets/Models/Idle.fbx"
         );
 
         SetModel(model);
+
+        auto npc =
+            MiraEngine::AssetManager::GetAnimation("NPC");
+
+        if (npc) {
+            model->AddAnimation(npc);
+        }
 
         SetCollider(
             std::make_unique<MiraEngine::SphereCollider>(
@@ -41,7 +48,7 @@ namespace MiraGame
 
         if (MiraEngine::Animator* animator = GetAnimator())
         {
-            animator->PlayAnimation(0);
+            animator->PlayAnimation(5);
         }
     }
 

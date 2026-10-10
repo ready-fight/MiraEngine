@@ -18,8 +18,7 @@ namespace MiraGame
         Player* m_player = nullptr;
         MiraEngine::Scene* m_scene = nullptr;
 
-
-        float m_speed = 1.0f;
+        float m_speed = 2.0f;
         float m_stopDistance = 1.5f;
         bool m_isMoving = false;
         bool m_hasDied = false;

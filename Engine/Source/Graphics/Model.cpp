@@ -78,110 +78,6 @@ namespace MiraEngine {
 		}
 	}
 
-	void Model::LoadAnimation(const std::string& filePath)
-	{
-		Assimp::Importer importer;
-
-		const aiScene* scene = importer.ReadFile(
-			filePath,
-			aiProcess_Triangulate
-		);
-
-		if (!scene || scene->mNumAnimations == 0)
-		{
-			throw std::runtime_error(
-				"Failed to load animation: " + filePath
-			);
-		}
-
-		for (unsigned int animationIndex = 0;
-			animationIndex < scene->mNumAnimations;
-			++animationIndex)
-		{
-			const aiAnimation* animation =
-				scene->mAnimations[animationIndex];
-
-			AnimationClip clip;
-
-			clip.name = animation->mName.C_Str();
-			clip.duration = animation->mDuration;
-			clip.ticksPerSecond = animation->mTicksPerSecond;
-
-			clip.channels.reserve(animation->mNumChannels);
-
-			for (unsigned int channelIndex = 0;
-				channelIndex < animation->mNumChannels;
-				++channelIndex)
-			{
-				const aiNodeAnim* channel =
-					animation->mChannels[channelIndex];
-
-				BoneAnimation boneAnimation;
-
-				boneAnimation.boneName =
-					channel->mNodeName.C_Str();
-
-				for (unsigned int i = 0;
-					i < channel->mNumPositionKeys;
-					++i)
-				{
-					const aiVectorKey& key =
-						channel->mPositionKeys[i];
-
-					boneAnimation.positions.push_back({
-						glm::vec3(
-							key.mValue.x,
-							key.mValue.y,
-							key.mValue.z
-						),
-						key.mTime
-						});
-				}
-
-				for (unsigned int i = 0;
-					i < channel->mNumRotationKeys;
-					++i)
-				{
-					const aiQuatKey& key =
-						channel->mRotationKeys[i];
-
-					boneAnimation.rotations.push_back({
-						glm::quat(
-							key.mValue.w,
-							key.mValue.x,
-							key.mValue.y,
-							key.mValue.z
-						),
-						key.mTime
-						});
-				}
-
-				for (unsigned int i = 0;
-					i < channel->mNumScalingKeys;
-					++i)
-				{
-					const aiVectorKey& key =
-						channel->mScalingKeys[i];
-
-					boneAnimation.scales.push_back({
-						glm::vec3(
-							key.mValue.x,
-							key.mValue.y,
-							key.mValue.z
-						),
-						key.mTime
-						});
-				}
-
-				clip.channels.push_back(
-					std::move(boneAnimation)
-				);
-			}
-
-			m_animations.push_back(std::move(clip));
-		}
-	}
-
 	void Model::Load(const std::string& filePath)
 	{
 		Assimp::Importer importer;
@@ -211,86 +107,6 @@ namespace MiraEngine {
 
 		m_globalInverseTransform =
 			glm::inverse(ConvertMatrix(scene->mRootNode->mTransformation));
-
-		m_animations.clear();
-		m_animations.reserve(scene->mNumAnimations);
-
-		for (unsigned int i = 0; i < scene->mNumAnimations; ++i)
-		{
-			const aiAnimation* animation = scene->mAnimations[i];
-
-			AnimationClip clip;
-
-			clip.name = animation->mName.C_Str();
-			clip.duration = animation->mDuration;
-			clip.ticksPerSecond = animation->mTicksPerSecond;
-
-			clip.channels.reserve(animation->mNumChannels);
-
-			for (unsigned int channelIndex = 0;
-				channelIndex < animation->mNumChannels;
-				++channelIndex)
-			{
-				const aiNodeAnim* channel =
-					animation->mChannels[channelIndex];
-
-				BoneAnimation boneAnimation;
-				boneAnimation.boneName = channel->mNodeName.C_Str();
-
-				boneAnimation.positions.reserve(channel->mNumPositionKeys);
-
-				for (unsigned int i = 0; i < channel->mNumPositionKeys; ++i)
-				{
-					const aiVectorKey& key = channel->mPositionKeys[i];
-
-					boneAnimation.positions.push_back({
-						glm::vec3(
-							key.mValue.x,
-							key.mValue.y,
-							key.mValue.z
-						),
-						key.mTime
-						});
-				}
-
-				boneAnimation.rotations.reserve(channel->mNumRotationKeys);
-
-				for (unsigned int i = 0; i < channel->mNumRotationKeys; ++i)
-				{
-					const aiQuatKey& key = channel->mRotationKeys[i];
-
-					boneAnimation.rotations.push_back({
-						glm::quat(
-							key.mValue.w,
-							key.mValue.x,
-							key.mValue.y,
-							key.mValue.z
-						),
-						key.mTime
-						});
-				}
-
-				boneAnimation.scales.reserve(channel->mNumScalingKeys);
-
-				for (unsigned int i = 0; i < channel->mNumScalingKeys; ++i)
-				{
-					const aiVectorKey& key = channel->mScalingKeys[i];
-
-					boneAnimation.scales.push_back({
-						glm::vec3(
-							key.mValue.x,
-							key.mValue.y,
-							key.mValue.z
-						),
-						key.mTime
-						});
-				}
-
-				clip.channels.push_back(std::move(boneAnimation));
-			}
-
-			m_animations.push_back(std::move(clip));
-		}
 	}
 
 	std::shared_ptr<Texture>
@@ -403,9 +219,14 @@ namespace MiraEngine {
 		return m_rootNode;
 	}
 
-	const std::vector<AnimationClip>& Model::GetAnimations() const
+	const std::vector<std::shared_ptr<AnimationClip>>& Model::GetAnimations() const
 	{
 		return m_animations;
+	}
+
+	void Model::AddAnimation(std::shared_ptr<AnimationClip> clip)
+	{
+		m_animations.push_back(clip);
 	}
 
 	const std::unordered_map<std::string, Model::BoneInfo>& Model::GetBoneInfoMap() const

@@ -16,6 +16,7 @@ namespace MiraEngine
         void PlayAnimation(size_t animationIndex, bool looping = true);
         void StopAnimation();
         void Update(float deltaTime);
+        void SetModel(const Model& model);
 
         const std::vector<glm::mat4>& GetFinalBoneMatrices() const;
 
@@ -26,7 +27,7 @@ namespace MiraEngine
             const glm::mat4& parentTransform
         );
 
-        const Model& m_model;
+        const Model* m_model;
 
         const AnimationClip* m_currentAnimation = nullptr;
 

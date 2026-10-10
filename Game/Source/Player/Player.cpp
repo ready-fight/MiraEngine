@@ -29,26 +29,70 @@ namespace MiraGame
 				"Assets/Models/Idle.fbx"
 			);
 
-		if (model->GetAnimations().size() < 2)
-		{
-			model->LoadAnimation(
-				"Assets/Models/Walking.fbx"
-			);
+		SetModel(model);
+
+		auto idle =
+			MiraEngine::AssetManager::GetAnimation("Idle");
+
+		if (idle) {
+			model->AddAnimation(idle);
 		}
 
-		if (model->GetAnimations().size() < 3)
-		{
-			model->LoadAnimation(
-				"Assets/Models/Attack.fbx"
-			);
+		auto walking =
+			MiraEngine::AssetManager::GetAnimation("Walking");
+
+		if (walking) {
+			model->AddAnimation(walking);
 		}
 
-		if (model->GetAnimations().size() < 4)
-		{
-			model->LoadAnimation(
-				"Assets/Models/Death.fbx"
-			);
+		auto running =
+			MiraEngine::AssetManager::GetAnimation("Running");
+
+		if (running) {
+			model->AddAnimation(running);
 		}
+
+		auto attack =
+			MiraEngine::AssetManager::GetAnimation("Attack");
+
+		if (attack) {
+			model->AddAnimation(attack);
+		}
+
+		auto death =
+			MiraEngine::AssetManager::GetAnimation("Death");
+
+		if (death) {
+			model->AddAnimation(death);
+		}
+
+		/*auto idle =
+			MiraEngine::AssetManager::GetAnimation("Idle");
+
+		if (idle) {
+			model->AddAnimation(idle);
+		}
+
+		auto walking =
+			MiraEngine::AssetManager::GetAnimation("Walking");
+
+		if (walking) {
+			model->AddAnimation(walking);
+		}
+
+		auto attack =
+			MiraEngine::AssetManager::GetAnimation("Attack");
+
+		if (attack) {
+			model->AddAnimation(attack);
+		}
+
+		auto death =
+			MiraEngine::AssetManager::GetAnimation("Death");
+
+		if (death) {
+			model->AddAnimation(death);
+		}*/
 
 		SetCollider(
 			std::make_unique<MiraEngine::SphereCollider>(
@@ -56,7 +100,6 @@ namespace MiraGame
 			)
 		);
 
-		SetModel(model);
 
 		GetTransform().SetScale(
 			glm::vec3(0.01f)
@@ -80,7 +123,7 @@ namespace MiraGame
 
 				if (MiraEngine::Animator* animator = GetAnimator())
 				{
-					animator->PlayAnimation(3, false);
+					animator->PlayAnimation(4, false);
 				}
 
 				m_hasDied = true;
@@ -124,7 +167,7 @@ namespace MiraGame
 
 			if (MiraEngine::Animator* animator = GetAnimator())
 			{
-				animator->PlayAnimation(2, false);
+				animator->PlayAnimation(3, false);
 			}
 		}
 
@@ -215,7 +258,7 @@ namespace MiraGame
 				if (MiraEngine::Animator* animator = GetAnimator())
 				{
 					animator->PlayAnimation(
-						isMoving ? 1 : 0
+						isMoving ? 2 : 0
 					);
 				}
 			}
@@ -229,7 +272,7 @@ namespace MiraGame
 			if (MiraEngine::Animator* animator = GetAnimator())
 			{
 				animator->PlayAnimation(
-					isMoving ? 1 : 0
+					isMoving ? 2 : 0
 				);
 			}
 
