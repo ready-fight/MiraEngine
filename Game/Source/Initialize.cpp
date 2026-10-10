@@ -62,7 +62,7 @@ void InitializeEnemy(MiraEngine::Scene& scene, MiraGame::Player* playerPtr) {
             &scene
         );
 
-    enemy->GetMaterial().color = glm::vec4(1.0f, 0.5f, 0.0f, 1.0f);
+    enemy->GetMaterial().color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 
     enemy->GetTransform().SetPosition(
         glm::vec3(5.0f, 0.0f, 5.0f)
