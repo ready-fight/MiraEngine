@@ -13,7 +13,7 @@ namespace MiraEngine
     public:
         explicit Animator(const Model& model);
 
-        void PlayAnimation(size_t animationIndex, bool looping = true);
+        void PlayAnimation(const std::string&, bool looping = true);
         void StopAnimation();
         void Update(float deltaTime);
         void SetModel(const Model& model);

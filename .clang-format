@@ -1,0 +1,8 @@
+PointerAlignment: Left
+ReferenceAlignment: Left
+
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+FixNamespaceComments: false
+NamespaceIndentation: All

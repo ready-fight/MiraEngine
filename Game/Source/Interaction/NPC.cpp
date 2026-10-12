@@ -48,7 +48,7 @@ namespace MiraGame
 
         if (MiraEngine::Animator* animator = GetAnimator())
         {
-            animator->PlayAnimation(5);
+            animator->PlayAnimation("NPC");
         }
     }
 

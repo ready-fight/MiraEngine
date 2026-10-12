@@ -3,6 +3,8 @@
 #include "Character/Character.h"
 #include "Scene/Scene.h"
 
+#include <glm/vec3.hpp>
+
 namespace MiraGame
 {
     class Player;
@@ -10,23 +12,59 @@ namespace MiraGame
     class Enemy : public Character
     {
     public:
-        explicit Enemy(Player* player, MiraEngine::Scene* scene);
+        explicit Enemy(
+            Player* player,
+            MiraEngine::Scene* scene
+        );
 
         void Update(float deltaTime) override;
 
     private:
+        enum class EnemyState
+        {
+            Idle,
+            Chasing,
+            Attacking,
+            Returning,
+            Dead
+        };
+
+        void ChangeState(
+            EnemyState newState
+        );
+
+        void MoveTowards(
+            const glm::vec3& target,
+            float deltaTime
+        );
+
         Player* m_player = nullptr;
         MiraEngine::Scene* m_scene = nullptr;
 
-        float m_speed = 2.0f;
+        EnemyState m_state =
+            EnemyState::Idle;
+
+        float m_speed = 1.0f;
+
         float m_stopDistance = 1.5f;
-        bool m_isMoving = false;
-        bool m_hasDied = false;
-        int m_attackDamage = 5;
+        float m_detectionRange = 6.0f;
+
+        glm::vec3 m_spawnPosition =
+            glm::vec3(0.0f);
+
+        bool m_spawnPositionInitialized =
+            false;
+
+        float m_returnStopDistance = 0.1f;
+
+        int m_attackDamage = 10;
+
         float m_attackCooldown = 1.0f;
         float m_attackTimer = 0.0f;
-        bool m_isAttacking = false;
+
+        bool m_attackInProgress = false;
         bool m_attackHitApplied = false;
+
         float m_attackTime = 0.0f;
         float m_attackHitTime = 0.55f;
         float m_attackDuration = 0.6f;
