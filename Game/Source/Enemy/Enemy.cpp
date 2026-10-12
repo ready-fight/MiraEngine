@@ -49,25 +49,25 @@ namespace MiraGame {
         }
 
         switch (m_state) {
-        case EnemyState::Idle:
-            animator->PlayAnimation("Idle");
-            break;
+            case EnemyState::Idle:
+                animator->PlayAnimation("Idle");
+                break;
 
-        case EnemyState::Chasing:
-            animator->PlayAnimation("Walking");
-            break;
+            case EnemyState::Chasing:
+                animator->PlayAnimation("Walking");
+                break;
 
-        case EnemyState::Attacking:
-            animator->PlayAnimation("Idle");
-            break;
+            case EnemyState::Attacking:
+                animator->PlayAnimation("Idle");
+                break;
 
-        case EnemyState::Returning:
-            animator->PlayAnimation("Walking");
-            break;
+            case EnemyState::Returning:
+                animator->PlayAnimation("Walking");
+                break;
 
-        case EnemyState::Dead:
-            animator->PlayAnimation("Death", false);
-            break;
+            case EnemyState::Dead:
+                animator->PlayAnimation("Death", false);
+                break;
         }
     }
 
@@ -133,125 +133,126 @@ namespace MiraGame {
         const float playerDistance = glm::length(toPlayer);
 
         switch (m_state) {
-        case EnemyState::Idle: {
-            if (playerDistance <= m_stopDistance) {
-                ChangeState(EnemyState::Attacking);
-            } else if (playerDistance <= m_detectionRange) {
-                ChangeState(EnemyState::Chasing);
-            }
-
-            break;
-        }
-
-        case EnemyState::Chasing: {
-            if (playerDistance > m_detectionRange) {
-                ChangeState(EnemyState::Returning);
-
-                break;
-            }
-
-            if (playerDistance <= m_stopDistance) {
-                ChangeState(EnemyState::Attacking);
-
-                break;
-            }
-
-            MoveTowards(playerPosition, deltaTime);
-
-            break;
-        }
-
-        case EnemyState::Attacking: {
-            if (playerDistance > m_detectionRange) {
-                ChangeState(EnemyState::Returning);
-
-                break;
-            }
-
-            if (playerDistance > m_stopDistance) {
-                ChangeState(EnemyState::Chasing);
-
-                break;
-            }
-
-            if (m_attackInProgress) {
-                m_attackTime += deltaTime;
-
-                if (!m_attackHitApplied && m_attackTime >= m_attackHitTime) {
-                    m_player->TakeDamage(m_attackDamage);
-
-                    std::cout << "Player HP: " << m_player->GetHealth() << "/"
-                              << m_player->GetMaxHealth() << "\n";
-
-                    m_attackHitApplied = true;
-                }
-
-                if (m_attackTime >= m_attackDuration) {
-                    m_attackInProgress = false;
-
-                    m_attackHitApplied = false;
-
-                    m_attackTime = 0.0f;
-
-                    m_attackTimer = 0.0f;
-
-                    if (MiraEngine::Animator* animator = GetAnimator()) {
-                        animator->PlayAnimation("Idle");
-                    }
-                }
-
-                break;
-            }
-
-            m_attackTimer += deltaTime;
-
-            if (m_attackTimer >= m_attackCooldown) {
-                m_attackTimer = 0.0f;
-
-                m_attackTime = 0.0f;
-
-                m_attackHitApplied = false;
-
-                m_attackInProgress = true;
-
-                if (MiraEngine::Animator* animator = GetAnimator()) {
-                    animator->PlayAnimation("Attack", false);
-                }
-            }
-
-            break;
-        }
-
-        case EnemyState::Returning: {
-            if (playerDistance <= m_detectionRange) {
+            case EnemyState::Idle: {
                 if (playerDistance <= m_stopDistance) {
                     ChangeState(EnemyState::Attacking);
-                } else {
+                } else if (playerDistance <= m_detectionRange) {
                     ChangeState(EnemyState::Chasing);
                 }
 
                 break;
             }
 
-            glm::vec3 toSpawn = m_spawnPosition - enemyPosition;
+            case EnemyState::Chasing: {
+                if (playerDistance > m_detectionRange) {
+                    ChangeState(EnemyState::Returning);
 
-            toSpawn.y = 0.0f;
+                    break;
+                }
 
-            const float spawnDistance = glm::length(toSpawn);
+                if (playerDistance <= m_stopDistance) {
+                    ChangeState(EnemyState::Attacking);
 
-            if (spawnDistance <= m_returnStopDistance) {
-                ChangeState(EnemyState::Idle);
+                    break;
+                }
+
+                MoveTowards(playerPosition, deltaTime);
 
                 break;
             }
 
-            MoveTowards(m_spawnPosition, deltaTime);
+            case EnemyState::Attacking: {
+                if (playerDistance > m_detectionRange) {
+                    ChangeState(EnemyState::Returning);
 
-            break;
-        }
+                    break;
+                }
 
-        case EnemyState::Dead:
-            break;
+                if (playerDistance > m_stopDistance) {
+                    ChangeState(EnemyState::Chasing);
+
+                    break;
+                }
+
+                if (m_attackInProgress) {
+                    m_attackTime += deltaTime;
+
+                    if (!m_attackHitApplied &&
+                        m_attackTime >= m_attackHitTime) {
+                        m_player->TakeDamage(m_attackDamage);
+
+                        std::cout << "Player HP: " << m_player->GetHealth()
+                                  << "/" << m_player->GetMaxHealth() << "\n";
+
+                        m_attackHitApplied = true;
+                    }
+
+                    if (m_attackTime >= m_attackDuration) {
+                        m_attackInProgress = false;
+
+                        m_attackHitApplied = false;
+
+                        m_attackTime = 0.0f;
+
+                        m_attackTimer = 0.0f;
+
+                        if (MiraEngine::Animator* animator = GetAnimator()) {
+                            animator->PlayAnimation("Idle");
+                        }
+                    }
+
+                    break;
+                }
+
+                m_attackTimer += deltaTime;
+
+                if (m_attackTimer >= m_attackCooldown) {
+                    m_attackTimer = 0.0f;
+
+                    m_attackTime = 0.0f;
+
+                    m_attackHitApplied = false;
+
+                    m_attackInProgress = true;
+
+                    if (MiraEngine::Animator* animator = GetAnimator()) {
+                        animator->PlayAnimation("Attack", false);
+                    }
+                }
+
+                break;
+            }
+
+            case EnemyState::Returning: {
+                if (playerDistance <= m_detectionRange) {
+                    if (playerDistance <= m_stopDistance) {
+                        ChangeState(EnemyState::Attacking);
+                    } else {
+                        ChangeState(EnemyState::Chasing);
+                    }
+
+                    break;
+                }
+
+                glm::vec3 toSpawn = m_spawnPosition - enemyPosition;
+
+                toSpawn.y = 0.0f;
+
+                const float spawnDistance = glm::length(toSpawn);
+
+                if (spawnDistance <= m_returnStopDistance) {
+                    ChangeState(EnemyState::Idle);
+
+                    break;
+                }
+
+                MoveTowards(m_spawnPosition, deltaTime);
+
+                break;
+            }
+
+            case EnemyState::Dead:
+                break;
         }
     }
 }
