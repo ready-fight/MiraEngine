@@ -16,10 +16,7 @@ namespace MiraGame
     {
         std::string name;
         std::string description;
-
         std::string requiredItem;
-
-        QuestStatus status =
-            QuestStatus::Inactive;
+        QuestStatus status = QuestStatus::Inactive;
     };
 }

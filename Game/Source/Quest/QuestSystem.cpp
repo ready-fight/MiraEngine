@@ -2,9 +2,7 @@
 
 namespace MiraGame
 {
-    bool QuestSystem::StartQuest(
-        const std::string& name
-    )
+    bool QuestSystem::StartQuest(const std::string& name)
     {
         // Don't add the same quest twice.
         for (const Quest& quest : m_quests)
@@ -15,40 +13,27 @@ namespace MiraGame
             }
         }
 
-        const Quest* questDefinition =
-            QuestDatabase::GetQuest(name);
+        const Quest* questDefinition = QuestDatabase::GetQuest(name);
 
         if (!questDefinition)
         {
             return false;
         }
 
-        Quest quest =
-            *questDefinition;
-
-        quest.status =
-            QuestStatus::Active;
-
-        m_quests.push_back(
-            quest
-        );
+        Quest quest = *questDefinition;
+        quest.status = QuestStatus::Active;
+        m_quests.push_back(quest);
 
         return true;
     }
 
-    bool QuestSystem::CompleteQuest(
-        const std::string& name
-    )
+    bool QuestSystem::CompleteQuest(const std::string& name)
     {
         for (Quest& quest : m_quests)
         {
-            if (
-                quest.name == name &&
-                quest.status == QuestStatus::Active
-                )
+            if (quest.name == name && quest.status == QuestStatus::Active)
             {
-                quest.status =
-                    QuestStatus::Completed;
+                quest.status = QuestStatus::Completed;
 
                 return true;
             }
@@ -57,15 +42,12 @@ namespace MiraGame
         return false;
     }
 
-    const std::vector<Quest>&
-        QuestSystem::GetQuests() const
+    const std::vector<Quest>& QuestSystem::GetQuests() const
     {
         return m_quests;
     }
 
-    const Quest* QuestSystem::GetQuest(
-        const std::string& name
-    ) const
+    const Quest* QuestSystem::GetQuest(const std::string& name) const
     {
         for (const Quest& quest : m_quests)
         {
@@ -78,37 +60,24 @@ namespace MiraGame
         return nullptr;
     }
 
-    void QuestSystem::OnItemAdded(
-        const std::string& itemName
-    )
+    void QuestSystem::OnItemAdded(const std::string& itemName)
     {
         for (Quest& quest : m_quests)
         {
-            if (
-                quest.status == QuestStatus::Active &&
-                !quest.requiredItem.empty() &&
-                quest.requiredItem == itemName
-                )
+            if (quest.status == QuestStatus::Active && !quest.requiredItem.empty() && quest.requiredItem == itemName)
             {
-                quest.status =
-                    QuestStatus::Completed;
+                quest.status = QuestStatus::Completed;
             }
         }
     }
 
-    bool QuestSystem::TurnInQuest(
-        const std::string& name
-    )
+    bool QuestSystem::TurnInQuest(const std::string& name)
     {
         for (Quest& quest : m_quests)
         {
-            if (
-                quest.name == name &&
-                quest.status == QuestStatus::Completed
-                )
+            if (quest.name == name && quest.status == QuestStatus::Completed)
             {
-                quest.status =
-                    QuestStatus::TurnedIn;
+                quest.status = QuestStatus::TurnedIn;
 
                 return true;
             }

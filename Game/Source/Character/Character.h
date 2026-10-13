@@ -9,17 +9,11 @@ namespace MiraGame
     class Character : public MiraEngine::GameObject
     {
     public:
-        Character(
-            const std::string& name,
-            int maxHealth
-        );
-
+        Character(const std::string& name, int maxHealth);
         void TakeDamage(int amount);
         void Heal(int amount);
-
         int GetHealth() const;
         int GetMaxHealth() const;
-
         bool IsDead() const;
 
     private:

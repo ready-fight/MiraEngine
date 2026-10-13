@@ -3,31 +3,32 @@
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 
-namespace MiraEngine {
-	class Transform
-	{
+namespace MiraEngine
+{
+    class Transform
+    {
+    private:
+        glm::vec3 m_position{0.0f};
+        glm::vec3 m_rotation{0.0f};
+        glm::vec3 m_scale{1.0f};
 
-		private:
-			glm::vec3 m_position{ 0.0f };
-			glm::vec3 m_rotation{ 0.0f };
-			glm::vec3 m_scale{ 1.0f };
+    public:
+        Transform() = default;
 
-		public:
+        Transform(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
+            : m_position(position)
+            , m_rotation(rotation)
+            , m_scale(scale)
+        {
+        }
 
-			Transform() = default;
-
-			Transform(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale) : m_position(position), m_rotation(rotation), m_scale(scale)
-			{
-			}
-
-			const glm::vec3& GetPosition() const { return m_position; }
-			const glm::vec3& GetRotation() const { return m_rotation; }
-			const glm::vec3& GetScale() const { return m_scale; }
-			void SetPosition(const glm::vec3& position);
-			void SetRotation(const glm::vec3& rotation);
-			void SetScale(const glm::vec3& scale);
-			glm::mat4 GetMatrix() const;
-			void Translate(const glm::vec3& offset);
-	};
+        const glm::vec3& GetPosition() const { return m_position; }
+        const glm::vec3& GetRotation() const { return m_rotation; }
+        const glm::vec3& GetScale() const { return m_scale; }
+        void SetPosition(const glm::vec3& position);
+        void SetRotation(const glm::vec3& rotation);
+        void SetScale(const glm::vec3& scale);
+        glm::mat4 GetMatrix() const;
+        void Translate(const glm::vec3& offset);
+    };
 }
-

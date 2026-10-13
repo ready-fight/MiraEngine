@@ -11,7 +11,6 @@ namespace MiraEngine
     public:
         AudioEngine();
         ~AudioEngine();
-
         void Play(const std::string& path);
         void SetVolume(float volume);
 

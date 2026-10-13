@@ -27,10 +27,11 @@ target_include_directories(MiraEngine
 
 target_link_libraries(MiraEngine
     PUBLIC
+        glm::glm
+   PRIVATE
         OpenGL::GL
         glfw
         GLEW::GLEW
-        glm::glm
         imgui::imgui
         assimp::assimp
 )

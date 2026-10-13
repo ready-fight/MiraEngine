@@ -8,7 +8,6 @@ namespace MiraEngine
     {
     public:
         static void Tick();
-
         static float DeltaTime();
         static float TotalTime();
 

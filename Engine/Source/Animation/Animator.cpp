@@ -1,19 +1,23 @@
 #include "Animation/Animator.h"
 
-namespace MiraEngine {
-    Animator::Animator(const Model& model) : m_model(&model) {
+namespace MiraEngine
+{
+    Animator::Animator(const Model& model)
+        : m_model(&model)
+    {
         m_currentAnimation = nullptr;
         m_currentTime = 0.0;
-
         m_finalBoneMatrices.assign(model.GetBoneCount(), glm::mat4(1.0f));
     }
 
-    void Animator::PlayAnimation(const std::string& animationName,
-                                 bool looping) {
+    void Animator::PlayAnimation(const std::string& animationName, bool looping)
+    {
         const auto& animations = m_model->GetAnimations();
 
-        for (const auto& animation : animations) {
-            if (animation->name == animationName) {
+        for (const auto& animation : animations)
+        {
+            if (animation->name == animationName)
+            {
                 m_currentAnimation = animation.get();
                 m_currentTime = 0.0;
                 m_looping = looping;
@@ -22,52 +26,60 @@ namespace MiraEngine {
         }
     }
 
-    void Animator::StopAnimation() {
+    void Animator::StopAnimation()
+    {
         m_currentAnimation = nullptr;
         m_currentTime = 0.0;
 
-        for (glm::mat4& matrix : m_finalBoneMatrices) {
+        for (glm::mat4& matrix : m_finalBoneMatrices)
+        {
             matrix = glm::mat4(1.0f);
         }
     }
 
-    void Animator::Update(float deltaTime) {
-        if (!m_currentAnimation) {
+    void Animator::Update(float deltaTime)
+    {
+        if (!m_currentAnimation)
+        {
             return;
         }
 
-        const double ticksPerSecond = m_currentAnimation->ticksPerSecond != 0.0
-                                          ? m_currentAnimation->ticksPerSecond
-                                          : 25.0;
+        const double ticksPerSecond = m_currentAnimation->ticksPerSecond != 0.0 ? m_currentAnimation->ticksPerSecond
+                                                                                : 25.0;
 
         m_currentTime += static_cast<double>(deltaTime) * ticksPerSecond;
 
-        if (m_looping) {
-            m_currentTime =
-                std::fmod(m_currentTime, m_currentAnimation->duration);
-        } else if (m_currentTime > m_currentAnimation->duration) {
+        if (m_looping)
+        {
+            m_currentTime = std::fmod(m_currentTime, m_currentAnimation->duration);
+        }
+        else if (m_currentTime > m_currentAnimation->duration)
+        {
             m_currentTime = m_currentAnimation->duration;
         }
 
         CalculateNodeTransforms(m_model->GetRootNode(), glm::mat4(1.0f));
     }
 
-    void Animator::SetModel(const Model& model) {
+    void Animator::SetModel(const Model& model)
+    {
         m_model = &model;
-
         m_finalBoneMatrices.resize(model.GetBoneCount(), glm::mat4(1.0f));
     }
 
-    const std::vector<glm::mat4>& Animator::GetFinalBoneMatrices() const {
+    const std::vector<glm::mat4>& Animator::GetFinalBoneMatrices() const
+    {
         return m_finalBoneMatrices;
     }
 
-    void Animator::CalculateNodeTransforms(const Model::NodeData& node,
-                                           const glm::mat4& parentTransform) {
+    void Animator::CalculateNodeTransforms(const Model::NodeData& node, const glm::mat4& parentTransform)
+    {
         glm::mat4 localTransform = node.transform;
 
-        for (const BoneAnimation& channel : m_currentAnimation->channels) {
-            if (channel.boneName == node.name) {
+        for (const BoneAnimation& channel : m_currentAnimation->channels)
+        {
+            if (channel.boneName == node.name)
+            {
                 localTransform = CalculateBoneTransform(channel, m_currentTime);
 
                 break;
@@ -75,19 +87,17 @@ namespace MiraEngine {
         }
 
         const glm::mat4 globalTransform = parentTransform * localTransform;
-
         const auto& boneMap = m_model->GetBoneInfoMap();
-
         const auto bone = boneMap.find(node.name);
 
-        if (bone != boneMap.end()) {
+        if (bone != boneMap.end())
+        {
             const int boneID = bone->second.id;
-
-            m_finalBoneMatrices[boneID] = m_model->GetGlobalInverseTransform() *
-                                          globalTransform * bone->second.offset;
+            m_finalBoneMatrices[boneID] = m_model->GetGlobalInverseTransform() * globalTransform * bone->second.offset;
         }
 
-        for (const Model::NodeData& child : node.children) {
+        for (const Model::NodeData& child : node.children)
+        {
             CalculateNodeTransforms(child, globalTransform);
         }
     }

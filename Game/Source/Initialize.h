@@ -1,18 +1,18 @@
 #pragma once
 
-namespace MiraEngine {
-	class Scene;
-	class Camera;
+namespace MiraEngine
+{
+    class Scene;
+    class Camera;
 }
 
 namespace MiraGame
 {
-	class Player;
+    class Player;
 }
 
 void InitializeQuests();
-void InitializeModels();
-void InitializeAnimations();
+void InitializeModels_Animations();
 MiraGame::Player* InitializePlayer(MiraEngine::Scene& scene);
 void InitializeEnemy(MiraEngine::Scene& scene, MiraGame::Player* playerPtr);
 void InitializeInteractions(MiraEngine::Scene& scene);

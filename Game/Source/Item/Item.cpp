@@ -1,20 +1,19 @@
 #include "Item.h"
-#include "Item/Item.h"
 #include "Player/Player.h"
 #include <iostream>
 
 namespace MiraGame
 {
     Item::Item(const ItemData& itemData)
-        : MiraEngine::GameObject(itemData.name),
-        m_itemData(itemData)
+        : MiraEngine::GameObject(itemData.name)
+        , m_itemData(itemData)
     {
     }
 
-    void Item::Update(float deltaTime) {
-        if (m_pickedUp) {
-
-            std::cout << "Fading..." << "\n";
+    void Item::Update(float deltaTime)
+    {
+        if (m_pickedUp)
+        {
             FadeOut(deltaTime);
         }
     }
@@ -44,19 +43,14 @@ namespace MiraGame
         return !m_pickedUp;
     }
 
-    void Item::Interact(
-        Player& player
-    )
+    void Item::Interact(Player& player)
     {
         if (m_pickedUp)
         {
             return;
         }
 
-        player.AddItem(
-            m_itemData
-        );
-
+        player.AddItem(m_itemData);
         Pickup();
     }
 }

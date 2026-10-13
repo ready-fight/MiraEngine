@@ -12,26 +12,14 @@ namespace MiraEngine
     class Input
     {
     public:
-
         Input() = delete;
-
         static void Initialize(Window& window, Camera& camera);
-
         static bool IsKeyPressed(Key key);
-
-        static void SetGameplayEnabled(
-            bool enabled
-        );
+        static void SetGameplayEnabled(bool enabled);
         static bool IsGameplayEnabled();
-
         static glm::vec3 GetMovementDirection(glm::vec2 input);
-
-        static bool IsMouseButtonPressed(
-            MouseButton button
-        );
-
+        static bool IsMouseButtonPressed(MouseButton button);
         static MouseMovement GetMouseMovement();
-
         static void CaptureCursor();
         static void ReleaseCursor();
         static float GetMouseScroll();

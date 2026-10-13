@@ -7,7 +7,7 @@ namespace MiraEngine
 {
     struct Material
     {
-        glm::vec4 color{ 1.0f };
+        glm::vec4 color{1.0f};
         float shininess = 32.0f;
     };
 }

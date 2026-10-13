@@ -15,7 +15,6 @@ namespace MiraGame
     {
         std::string name;
         ItemType type = ItemType::Consumable;
-        
         int damage = 0;
         int healAmount = 0;
     };

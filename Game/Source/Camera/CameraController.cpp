@@ -12,35 +12,22 @@
 
 namespace MiraGame
 {
-    CameraController::CameraController(
-        MiraEngine::Camera& camera,
-        Player& player
-    )
-        : MiraEngine::GameObject(
-            "CameraController"
-        ),
-        m_camera(&camera),
-        m_player(&player)
+    CameraController::CameraController(MiraEngine::Camera& camera, Player& player)
+        : MiraEngine::GameObject("CameraController")
+        , m_camera(&camera)
+        , m_player(&player)
     {
     }
 
-    void CameraController::Update(
-        float deltaTime
-    )
+    void CameraController::Update(float deltaTime)
     {
-        if (
-            !m_camera ||
-            !m_player
-            )
+        if (!m_camera || !m_player)
         {
             return;
         }
 
         // F1 editor-camera mode is active.
-        if (
-            !MiraEngine::Input::
-            IsGameplayEnabled()
-            )
+        if (!MiraEngine::Input::IsGameplayEnabled())
         {
             // Do not release the cursor here.
             // Application owns it in editor mode.
@@ -49,152 +36,59 @@ namespace MiraGame
             return;
         }
 
-        const float scroll =
-            MiraEngine::Input::
-            GetMouseScroll();
+        const float scroll = MiraEngine::Input::GetMouseScroll();
 
         if (scroll != 0.0f)
         {
-            m_distance -=
-                scroll *
-                m_zoomSpeed;
-
-            m_distance =
-                glm::clamp(
-                    m_distance,
-                    m_minDistance,
-                    m_maxDistance
-                );
+            m_distance -= scroll * m_zoomSpeed;
+            m_distance = glm::clamp(m_distance, m_minDistance, m_maxDistance);
         }
 
-        const bool rightMouseDown =
-            MiraEngine::Input::
-            IsMouseButtonPressed(
-                MiraEngine::
-                MouseButton::Right
-            );
+        const bool rightMouseDown = MiraEngine::Input::IsMouseButtonPressed(MiraEngine::MouseButton::Right);
 
         if (rightMouseDown)
         {
             if (!m_orbiting)
             {
                 m_orbiting = true;
-
-                MiraEngine::Input::
-                    CaptureCursor();
+                MiraEngine::Input::CaptureCursor();
             }
 
-            const MiraEngine::MouseMovement
-                mouse =
-                MiraEngine::Input::
-                GetMouseMovement();
-
-            m_yaw +=
-                static_cast<float>(
-                    mouse.x
-                    ) *
-                m_mouseSensitivity;
-
-            m_pitch -=
-                static_cast<float>(
-                    mouse.y
-                    ) *
-                m_mouseSensitivity;
-
-            m_pitch =
-                glm::clamp(
-                    m_pitch,
-                    -10.0f,
-                    60.0f
-                );
+            const MiraEngine::MouseMovement mouse = MiraEngine::Input::GetMouseMovement();
+            m_yaw += mouse.x * m_mouseSensitivity;
+            m_pitch -= mouse.y * m_mouseSensitivity;
+            m_pitch = glm::clamp(m_pitch, -10.0f, 60.0f);
         }
         else if (m_orbiting)
         {
             m_orbiting = false;
-
-            MiraEngine::Input::
-                ReleaseCursor();
+            MiraEngine::Input::ReleaseCursor();
         }
 
-        const glm::vec3 playerPosition =
-            m_player
-            ->GetTransform()
-            .GetPosition();
-
-        const glm::vec3 lookTarget =
-            playerPosition +
-            m_lookOffset;
-
-        const float yaw =
-            glm::radians(
-                m_yaw
-            );
-
-        const float pitch =
-            glm::radians(
-                m_pitch
-            );
-
+        const glm::vec3 playerPosition = m_player->GetTransform().GetPosition();
+        const glm::vec3 lookTarget = playerPosition + m_lookOffset;
+        const float yaw = glm::radians(m_yaw);
+        const float pitch = glm::radians(m_pitch);
         glm::vec3 cameraOffset;
-
-        cameraOffset.x =
-            std::cos(pitch) *
-            std::cos(yaw) *
-            m_distance;
-
-        cameraOffset.y =
-            std::sin(pitch) *
-            m_distance;
-
-        cameraOffset.z =
-            std::cos(pitch) *
-            std::sin(yaw) *
-            m_distance;
-
-        const glm::vec3 desiredPosition =
-            lookTarget +
-            cameraOffset;
+        cameraOffset.x = std::cos(pitch) * std::cos(yaw) * m_distance;
+        cameraOffset.y = std::sin(pitch) * m_distance;
+        cameraOffset.z = std::cos(pitch) * std::sin(yaw) * m_distance;
+        const glm::vec3 desiredPosition = lookTarget + cameraOffset;
 
         if (!m_cameraInitialized)
         {
-            m_currentPosition =
-                desiredPosition;
-
-            m_currentLookTarget =
-                lookTarget;
-
+            m_currentPosition = desiredPosition;
+            m_currentLookTarget = lookTarget;
             m_cameraInitialized = true;
         }
         else
         {
-            const float smoothing =
-                1.0f -
-                std::exp(
-                    -m_smoothingSpeed *
-                    deltaTime
-                );
-
-            m_currentPosition =
-                glm::mix(
-                    m_currentPosition,
-                    desiredPosition,
-                    smoothing
-                );
-
-            m_currentLookTarget =
-                glm::mix(
-                    m_currentLookTarget,
-                    lookTarget,
-                    smoothing
-                );
+            const float smoothing = 1.0f - std::exp(-m_smoothingSpeed * deltaTime);
+            m_currentPosition = glm::mix(m_currentPosition, desiredPosition, smoothing);
+            m_currentLookTarget = glm::mix(m_currentLookTarget, lookTarget, smoothing);
         }
 
-        m_camera->SetPosition(
-            m_currentPosition
-        );
-
-        m_camera->LookAt(
-            m_currentLookTarget
-        );
+        m_camera->SetPosition(m_currentPosition);
+        m_camera->LookAt(m_currentLookTarget);
     }
 }

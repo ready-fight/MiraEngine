@@ -1,8 +1,0 @@
-PointerAlignment: Left
-ReferenceAlignment: Left
-IndentCaseLabels: true
-IndentWidth: 4
-TabWidth: 4
-UseTab: Never
-FixNamespaceComments: false
-NamespaceIndentation: All

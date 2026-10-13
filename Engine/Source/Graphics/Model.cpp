@@ -14,346 +14,239 @@
 
 namespace
 {
-	void SetVertexBoneData(
-		MiraEngine::Vertex& vertex,
-		int boneID,
-		float weight
-	)
-	{
-		for (int i = 0; i < 4; ++i)
-		{
-			if (vertex.weights[i] == 0.0f)
-			{
-				vertex.boneIDs[i] = boneID;
-				vertex.weights[i] = weight;
-				return;
-			}
-		}
-	}
+    void SetVertexBoneData(MiraEngine::Vertex& vertex, int boneID, float weight)
+    {
+        for (int i = 0; i < 4; ++i)
+        {
+            if (vertex.weights[i] == 0.0f)
+            {
+                vertex.boneIDs[i] = boneID;
+                vertex.weights[i] = weight;
+                return;
+            }
+        }
+    }
 
-	glm::mat4 ConvertMatrix(const aiMatrix4x4& matrix)
-	{
-		glm::mat4 result;
+    glm::mat4 ConvertMatrix(const aiMatrix4x4& matrix)
+    {
+        glm::mat4 result;
+        result[0][0] = matrix.a1;
+        result[1][0] = matrix.a2;
+        result[2][0] = matrix.a3;
+        result[3][0] = matrix.a4;
+        result[0][1] = matrix.b1;
+        result[1][1] = matrix.b2;
+        result[2][1] = matrix.b3;
+        result[3][1] = matrix.b4;
+        result[0][2] = matrix.c1;
+        result[1][2] = matrix.c2;
+        result[2][2] = matrix.c3;
+        result[3][2] = matrix.c4;
+        result[0][3] = matrix.d1;
+        result[1][3] = matrix.d2;
+        result[2][3] = matrix.d3;
+        result[3][3] = matrix.d4;
 
-		result[0][0] = matrix.a1;
-		result[1][0] = matrix.a2;
-		result[2][0] = matrix.a3;
-		result[3][0] = matrix.a4;
-
-		result[0][1] = matrix.b1;
-		result[1][1] = matrix.b2;
-		result[2][1] = matrix.b3;
-		result[3][1] = matrix.b4;
-
-		result[0][2] = matrix.c1;
-		result[1][2] = matrix.c2;
-		result[2][2] = matrix.c3;
-		result[3][2] = matrix.c4;
-
-		result[0][3] = matrix.d1;
-		result[1][3] = matrix.d2;
-		result[2][3] = matrix.d3;
-		result[3][3] = matrix.d4;
-
-		return result;
-	}
+        return result;
+    }
 }
 
-namespace MiraEngine {
+namespace MiraEngine
+{
 
-	Model::Model(const std::string& filePath)
-	{
-		Load(filePath);
+    Model::Model(const std::string& filePath)
+    {
+        Load(filePath);
+    }
 
-	}
+    void Model::Draw(const Shader& shader, const std::shared_ptr<Texture>& diffuseOverride) const
+    {
+        for (const auto& mesh : m_meshes)
+        {
+            mesh->Draw(shader, diffuseOverride);
+        }
+    }
 
-	void Model::Draw(
-		const Shader& shader,
-		const std::shared_ptr<Texture>& diffuseOverride
-	) const
-	{
-		for (const auto& mesh : m_meshes)
-		{
-			mesh->Draw(shader, diffuseOverride);
-		}
-	}
+    void Model::Load(const std::string& filePath)
+    {
+        Assimp::Importer importer;
 
-	void Model::Load(const std::string& filePath)
-	{
-		Assimp::Importer importer;
+        const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenSmoothNormals |
+                                                               aiProcess_FlipUVs);
 
-		const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs);
+        if (scene == nullptr || scene->mRootNode == nullptr || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE))
+        {
+            std::cerr << "Assimp error: " << importer.GetErrorString() << '\n';
+            throw std::runtime_error("Failed to load model: " + std::string(importer.GetErrorString()));
+        }
 
-		if (scene == nullptr || scene->mRootNode == nullptr || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE))
-		{
-			std::cerr << "Assimp error: "
-				<< importer.GetErrorString()
-				<< '\n';
+        m_directory = std::filesystem::path(filePath).parent_path().string();
+        ProcessNode(scene->mRootNode, scene);
+        ReadHierarchyData(m_rootNode, scene->mRootNode);
+        m_globalInverseTransform = glm::inverse(ConvertMatrix(scene->mRootNode->mTransformation));
+    }
 
-			throw std::runtime_error("Failed to load model: " + std::string(importer.GetErrorString()));
-		}
+    std::shared_ptr<Texture> Model::LoadMaterialTexture(aiMaterial* material)
+    {
+        aiString texturePath;
+        aiTextureType textureType;
 
-		m_directory =
-			std::filesystem::path(filePath)
-			.parent_path()
-			.string();
+        if (material->GetTextureCount(aiTextureType_BASE_COLOR) > 0)
+        {
+            textureType = aiTextureType_BASE_COLOR;
+        }
+        else if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0)
+        {
+            textureType = aiTextureType_DIFFUSE;
+        }
+        else
+        {
+            return nullptr;
+        }
 
-		ProcessNode(scene->mRootNode, scene);
+        if (material->GetTexture(textureType, 0, &texturePath) != AI_SUCCESS)
+        {
+            return nullptr;
+        }
 
-		ReadHierarchyData(
-			m_rootNode,
-			scene->mRootNode
-		);
+        const std::filesystem::path textureFileName = std::filesystem::path(texturePath.C_Str()).filename();
+        const std::filesystem::path fullPath = std::filesystem::path(m_directory) / textureFileName;
 
-		m_globalInverseTransform =
-			glm::inverse(ConvertMatrix(scene->mRootNode->mTransformation));
-	}
+        if (!std::filesystem::is_regular_file(fullPath))
+        {
+            return nullptr;
+        }
 
-	std::shared_ptr<Texture>
-		Model::LoadMaterialTexture(
-			aiMaterial* material
-		)
-	{
-		aiString texturePath;
-		aiTextureType textureType;
+        return std::make_shared<Texture>(fullPath.string());
+    }
 
-		if (
-			material->GetTextureCount(
-				aiTextureType_BASE_COLOR
-			) > 0
-			)
-		{
-			textureType =
-				aiTextureType_BASE_COLOR;
-		}
-		else if (
-			material->GetTextureCount(
-				aiTextureType_DIFFUSE
-			) > 0
-			)
-		{
-			textureType =
-				aiTextureType_DIFFUSE;
-		}
-		else
-		{
-			return nullptr;
-		}
+    void Model::ProcessNode(aiNode* node, const aiScene* scene)
+    {
+        for (unsigned int i = 0; i < node->mNumMeshes; i++)
+        {
+            aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+            m_meshes.push_back(ProcessMesh(mesh, scene));
+        }
 
-		if (
-			material->GetTexture(
-				textureType,
-				0,
-				&texturePath
-			) != AI_SUCCESS
-			)
-		{
-			return nullptr;
-		}
+        for (unsigned int i = 0; i < node->mNumChildren; i++)
+        {
+            ProcessNode(node->mChildren[i], scene);
+        }
+    }
 
-		const std::filesystem::path textureFileName =
-			std::filesystem::path(
-				texturePath.C_Str()
-			).filename();
+    void Model::ReadHierarchyData(NodeData& destination, const aiNode* source)
+    {
+        destination.name = source->mName.C_Str();
+        destination.transform = ConvertMatrix(source->mTransformation);
+        destination.children.clear();
+        destination.children.reserve(source->mNumChildren);
 
-		const std::filesystem::path fullPath =
-			std::filesystem::path(
-				m_directory
-			) /
-			textureFileName;
+        for (unsigned int i = 0; i < source->mNumChildren; ++i)
+        {
+            NodeData child;
+            ReadHierarchyData(child, source->mChildren[i]);
+            destination.children.push_back(std::move(child));
+        }
+    }
 
-		if (
-			!std::filesystem::is_regular_file(
-				fullPath
-			)
-			)
-		{
-			return nullptr;
-		}
+    const Model::NodeData& Model::GetRootNode() const
+    {
+        return m_rootNode;
+    }
 
-		return std::make_shared<Texture>(
-			fullPath.string()
-		);
-	}
+    const std::vector<std::shared_ptr<AnimationClip>>& Model::GetAnimations() const
+    {
+        return m_animations;
+    }
 
-	void Model::ProcessNode(aiNode* node, const aiScene* scene)
-	{
-		for (unsigned int i = 0; i < node->mNumMeshes; i++)
-		{
-			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-			m_meshes.push_back(ProcessMesh(mesh, scene));
-		}
+    void Model::AddAnimation(std::shared_ptr<AnimationClip> clip)
+    {
+        m_animations.push_back(clip);
+    }
 
-		for (unsigned int i = 0; i < node->mNumChildren; i++)
-		{
-			ProcessNode(node->mChildren[i], scene);
-		}
-	}
+    const std::unordered_map<std::string, Model::BoneInfo>& Model::GetBoneInfoMap() const
+    {
+        return m_boneInfoMap;
+    }
 
-	void Model::ReadHierarchyData(
-		NodeData& destination,
-		const aiNode* source
-	)
-	{
-		destination.name = source->mName.C_Str();
-		destination.transform = ConvertMatrix(source->mTransformation);
+    int Model::GetBoneCount() const
+    {
+        return m_boneCounter;
+    }
 
-		destination.children.clear();
-		destination.children.reserve(source->mNumChildren);
+    std::unique_ptr<Mesh> Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
+    {
+        std::vector<Vertex> vertices;
+        std::vector<std::uint32_t> indices;
+        vertices.reserve(mesh->mNumVertices);
 
-		for (unsigned int i = 0; i < source->mNumChildren; ++i)
-		{
-			NodeData child;
+        for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+        {
+            const aiVector3D& position = mesh->mVertices[i];
+            const aiVector3D& normal = mesh->mNormals[i];
+            glm::vec2 texCoord(0.0f);
 
-			ReadHierarchyData(
-				child,
-				source->mChildren[i]
-			);
+            if (mesh->HasTextureCoords(0))
+            {
+                texCoord.x = mesh->mTextureCoords[0][i].x;
+                texCoord.y = mesh->mTextureCoords[0][i].y;
+            }
 
-			destination.children.push_back(std::move(child));
-		}
-	}
+            vertices.push_back({{position.x, position.y, position.z}, {normal.x, normal.y, normal.z}, texCoord});
+        }
 
-	const Model::NodeData& Model::GetRootNode() const
-	{
-		return m_rootNode;
-	}
+        for (unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
+        {
+            aiBone* bone = mesh->mBones[boneIndex];
+            const std::string boneName = bone->mName.C_Str();
+            int boneID = 0;
+            auto it = m_boneInfoMap.find(boneName);
 
-	const std::vector<std::shared_ptr<AnimationClip>>& Model::GetAnimations() const
-	{
-		return m_animations;
-	}
+            if (it == m_boneInfoMap.end())
+            {
+                BoneInfo info;
+                info.id = m_boneCounter;
+                info.offset = ConvertMatrix(bone->mOffsetMatrix);
+                m_boneInfoMap[boneName] = info;
+                boneID = m_boneCounter;
+                ++m_boneCounter;
+            }
+            else
+            {
+                boneID = it->second.id;
+            }
 
-	void Model::AddAnimation(std::shared_ptr<AnimationClip> clip)
-	{
-		m_animations.push_back(clip);
-	}
+            for (unsigned int weightIndex = 0; weightIndex < bone->mNumWeights; ++weightIndex)
+            {
+                const aiVertexWeight& weight = bone->mWeights[weightIndex];
+                const unsigned int vertexID = weight.mVertexId;
+                SetVertexBoneData(vertices[vertexID], boneID, weight.mWeight);
+            }
+        }
 
-	const std::unordered_map<std::string, Model::BoneInfo>& Model::GetBoneInfoMap() const
-	{
-		return m_boneInfoMap;
-	}
+        for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+        {
+            const aiFace& face = mesh->mFaces[i];
 
-	int Model::GetBoneCount() const
-	{
-		return m_boneCounter;
-	}
+            for (unsigned int j = 0; j < face.mNumIndices; ++j)
+            {
+                indices.push_back(face.mIndices[j]);
+            }
+        }
 
-	std::unique_ptr<Mesh> Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
-	{
-		std::vector<Vertex> vertices;
-		std::vector<std::uint32_t> indices;
+        std::shared_ptr<Texture> texture;
 
-		vertices.reserve(mesh->mNumVertices);
+        if (mesh->mMaterialIndex < scene->mNumMaterials)
+        {
+            aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+            texture = LoadMaterialTexture(material);
+        }
 
-		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
-		{
-			const aiVector3D& position = mesh->mVertices[i];
-			const aiVector3D& normal = mesh->mNormals[i];
+        return std::make_unique<Mesh>(vertices, indices, texture);
+    }
 
-			glm::vec2 texCoord(0.0f);
-
-			if (mesh->HasTextureCoords(0))
-			{
-				texCoord.x = mesh->mTextureCoords[0][i].x;
-				texCoord.y = mesh->mTextureCoords[0][i].y;
-			}
-
-			vertices.push_back(
-				{
-					{
-						position.x,
-						position.y,
-						position.z
-					},
-					{
-						normal.x,
-						normal.y,
-						normal.z
-					},
-					texCoord
-				}
-			);
-		}
-
-		for (unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
-		{
-			aiBone* bone = mesh->mBones[boneIndex];
-
-			const std::string boneName = bone->mName.C_Str();
-
-			int boneID = 0;
-
-			auto it = m_boneInfoMap.find(boneName);
-
-			if (it == m_boneInfoMap.end())
-			{
-				BoneInfo info;
-
-				info.id = m_boneCounter;
-
-				info.offset = ConvertMatrix(bone->mOffsetMatrix);
-
-				m_boneInfoMap[boneName] = info;
-
-				boneID = m_boneCounter;
-				++m_boneCounter;
-			}
-			else
-			{
-				boneID = it->second.id;
-			}
-
-			for (unsigned int weightIndex = 0;
-				weightIndex < bone->mNumWeights;
-				++weightIndex)
-			{
-				const aiVertexWeight& weight =
-					bone->mWeights[weightIndex];
-
-				const unsigned int vertexID =
-					weight.mVertexId;
-
-				SetVertexBoneData(
-					vertices[vertexID],
-					boneID,
-					weight.mWeight
-				);
-			}
-		}
-
-		for (unsigned int i = 0; i < mesh->mNumFaces; i++)
-		{
-			const aiFace& face = mesh->mFaces[i];
-				
-			for (unsigned int j = 0; j < face.mNumIndices; ++j)
-			{
-				indices.push_back(face.mIndices[j]);
-			}
-		}
-
-		std::shared_ptr<Texture> texture;
-
-		if (mesh->mMaterialIndex < scene->mNumMaterials)
-		{
-			aiMaterial* material =
-				scene->mMaterials[
-					mesh->mMaterialIndex
-				];
-
-			texture =
-				LoadMaterialTexture(material);
-		}
-
-		return std::make_unique<Mesh>(
-			vertices,
-			indices,
-			texture
-		);
-	}
-
-	const glm::mat4& Model::GetGlobalInverseTransform() const
-	{
-		return m_globalInverseTransform;
-	}
+    const glm::mat4& Model::GetGlobalInverseTransform() const
+    {
+        return m_globalInverseTransform;
+    }
 }

@@ -9,9 +9,7 @@ namespace MiraEngine
     {
         if (ma_engine_init(nullptr, &m_engine) != MA_SUCCESS)
         {
-            throw std::runtime_error(
-                "Failed to initialize audio engine"
-            );
+            throw std::runtime_error("Failed to initialize audio engine");
         }
     }
 
@@ -22,11 +20,7 @@ namespace MiraEngine
 
     void AudioEngine::Play(const std::string& path)
     {
-        ma_engine_play_sound(
-            &m_engine,
-            path.c_str(),
-            nullptr
-        );
+        ma_engine_play_sound(&m_engine, path.c_str(), nullptr);
     }
 
     void AudioEngine::SetVolume(float volume)

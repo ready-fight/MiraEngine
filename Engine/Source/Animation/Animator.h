@@ -12,29 +12,18 @@ namespace MiraEngine
     {
     public:
         explicit Animator(const Model& model);
-
         void PlayAnimation(const std::string&, bool looping = true);
         void StopAnimation();
         void Update(float deltaTime);
         void SetModel(const Model& model);
-
         const std::vector<glm::mat4>& GetFinalBoneMatrices() const;
 
     private:
-
-        void CalculateNodeTransforms(
-            const Model::NodeData& node,
-            const glm::mat4& parentTransform
-        );
-
+        void CalculateNodeTransforms(const Model::NodeData& node, const glm::mat4& parentTransform);
         const Model* m_model;
-
         const AnimationClip* m_currentAnimation = nullptr;
-
         double m_currentTime = 0.0;
-
         bool m_looping = true;
-
         std::vector<glm::mat4> m_finalBoneMatrices;
     };
 }

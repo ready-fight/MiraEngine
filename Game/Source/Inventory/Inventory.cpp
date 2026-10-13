@@ -2,9 +2,7 @@
 
 namespace MiraGame
 {
-    void Inventory::AddItem(
-        const ItemData& item
-    )
+    void Inventory::AddItem(const ItemData& item)
     {
         m_items.push_back(item);
     }
@@ -16,18 +14,12 @@ namespace MiraGame
             return;
         }
 
-        m_items.erase(
-            m_items.begin() + index
-        );
+        m_items.erase(m_items.begin() + index);
     }
 
-    bool Inventory::RemoveItem(
-        const std::string& itemName
-    )
+    bool Inventory::RemoveItem(const std::string& itemName)
     {
-        for (auto it = m_items.begin();
-            it != m_items.end();
-            ++it)
+        for (auto it = m_items.begin(); it != m_items.end(); ++it)
         {
             if (it->name == itemName)
             {
@@ -39,8 +31,7 @@ namespace MiraGame
         return false;
     }
 
-    const std::vector<ItemData>&
-        Inventory::GetItems() const
+    const std::vector<ItemData>& Inventory::GetItems() const
     {
         return m_items;
     }

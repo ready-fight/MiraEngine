@@ -13,42 +13,45 @@
 #include <cmath>
 #include <iostream>
 
-namespace MiraGame {
+namespace MiraGame
+{
     Enemy::Enemy(Player* player, MiraEngine::Scene* scene)
-        : Character("Enemy", 100), m_player(player), m_scene(scene) {
-        auto model =
-            MiraEngine::AssetManager::LoadModel("Assets/Models/Idle.fbx");
-
+        : Character("Enemy", 100)
+        , m_player(player)
+        , m_scene(scene)
+    {
+        auto model = MiraEngine::AssetManager::LoadModel("Assets/Models/Idle.fbx");
         SetModel(model);
-
         SetCollider(std::make_unique<MiraEngine::SphereCollider>(0.3f));
-
         GetTransform().SetScale(glm::vec3(0.01f));
 
-        if (MiraEngine::Animator* animator = GetAnimator()) {
+        if (MiraEngine::Animator* animator = GetAnimator())
+        {
             animator->PlayAnimation("Idle");
         }
     }
 
-    void Enemy::ChangeState(EnemyState newState) {
-        if (m_state == newState) {
+    void Enemy::ChangeState(EnemyState newState)
+    {
+        if (m_state == newState)
+        {
             return;
         }
 
         m_state = newState;
-
         m_attackInProgress = false;
         m_attackHitApplied = false;
         m_attackTime = 0.0f;
         m_attackTimer = 0.0f;
-
         MiraEngine::Animator* animator = GetAnimator();
 
-        if (!animator) {
+        if (!animator)
+        {
             return;
         }
 
-        switch (m_state) {
+        switch (m_state)
+        {
             case EnemyState::Idle:
                 animator->PlayAnimation("Idle");
                 break;
@@ -71,86 +74,92 @@ namespace MiraGame {
         }
     }
 
-    void Enemy::MoveTowards(const glm::vec3& target, float deltaTime) {
+    void Enemy::MoveTowards(const glm::vec3& target, float deltaTime)
+    {
         MiraEngine::Transform& transform = GetTransform();
-
         glm::vec3 direction = target - transform.GetPosition();
-
         direction.y = 0.0f;
 
-        if (glm::length(direction) <= 0.0f) {
+        if (glm::length(direction) <= 0.0f)
+        {
             return;
         }
 
         direction = glm::normalize(direction);
 
-        if (m_scene) {
+        if (m_scene)
+        {
             m_scene->TryMove(*this, direction * m_speed * deltaTime);
         }
 
         const float yaw = glm::degrees(std::atan2(direction.x, direction.z));
-
         glm::vec3 rotation = transform.GetRotation();
-
         rotation.y = yaw;
-
         transform.SetRotation(rotation);
     }
 
-    void Enemy::Update(float deltaTime) {
+    void Enemy::Update(float deltaTime)
+    {
         MiraEngine::Transform& transform = GetTransform();
 
-        if (!m_spawnPositionInitialized) {
+        if (!m_spawnPositionInitialized)
+        {
             m_spawnPosition = transform.GetPosition();
-
             m_spawnPositionInitialized = true;
         }
 
-        if (IsDead()) {
+        if (IsDead())
+        {
             ChangeState(EnemyState::Dead);
 
             return;
         }
 
-        if (!m_player) {
+        if (!m_player)
+        {
             return;
         }
 
-        if (m_player->IsDead()) {
+        if (m_player->IsDead())
+        {
             ChangeState(EnemyState::Idle);
 
             return;
         }
 
         const glm::vec3 enemyPosition = transform.GetPosition();
-
         const glm::vec3 playerPosition = m_player->GetTransform().GetPosition();
-
         glm::vec3 toPlayer = playerPosition - enemyPosition;
-
         toPlayer.y = 0.0f;
-
         const float playerDistance = glm::length(toPlayer);
 
-        switch (m_state) {
-            case EnemyState::Idle: {
-                if (playerDistance <= m_stopDistance) {
+        switch (m_state)
+        {
+            case EnemyState::Idle:
+            {
+                if (playerDistance <= m_stopDistance)
+                {
                     ChangeState(EnemyState::Attacking);
-                } else if (playerDistance <= m_detectionRange) {
+                }
+                else if (playerDistance <= m_detectionRange)
+                {
                     ChangeState(EnemyState::Chasing);
                 }
 
                 break;
             }
 
-            case EnemyState::Chasing: {
-                if (playerDistance > m_detectionRange) {
+            case EnemyState::Chasing:
+            {
+                if (playerDistance > m_detectionRange)
+                {
                     ChangeState(EnemyState::Returning);
 
                     break;
                 }
 
-                if (playerDistance <= m_stopDistance) {
+                if (playerDistance <= m_stopDistance)
+                {
                     ChangeState(EnemyState::Attacking);
 
                     break;
@@ -161,42 +170,51 @@ namespace MiraGame {
                 break;
             }
 
-            case EnemyState::Attacking: {
-                if (playerDistance > m_detectionRange) {
+            case EnemyState::Attacking:
+            {
+                if (playerDistance > m_detectionRange)
+                {
                     ChangeState(EnemyState::Returning);
 
                     break;
                 }
 
-                if (playerDistance > m_stopDistance) {
+                if (playerDistance > m_stopDistance)
+                {
                     ChangeState(EnemyState::Chasing);
 
                     break;
                 }
 
-                if (m_attackInProgress) {
+                if (playerDistance > 0.0f)
+                {
+                    glm::vec3 direction = glm::normalize(toPlayer);
+                    const float yaw = glm::degrees(std::atan2(direction.x, direction.z));
+                    glm::vec3 rotation = transform.GetRotation();
+                    rotation.y = yaw;
+                    transform.SetRotation(rotation);
+                }
+
+                if (m_attackInProgress)
+                {
                     m_attackTime += deltaTime;
 
-                    if (!m_attackHitApplied &&
-                        m_attackTime >= m_attackHitTime) {
+                    if (!m_attackHitApplied && m_attackTime >= m_attackHitTime)
+                    {
                         m_player->TakeDamage(m_attackDamage);
-
-                        std::cout << "Player HP: " << m_player->GetHealth()
-                                  << "/" << m_player->GetMaxHealth() << "\n";
-
+                        std::cout << "Player HP: " << m_player->GetHealth() << "/" << m_player->GetMaxHealth() << "\n";
                         m_attackHitApplied = true;
                     }
 
-                    if (m_attackTime >= m_attackDuration) {
+                    if (m_attackTime >= m_attackDuration)
+                    {
                         m_attackInProgress = false;
-
                         m_attackHitApplied = false;
-
                         m_attackTime = 0.0f;
-
                         m_attackTimer = 0.0f;
 
-                        if (MiraEngine::Animator* animator = GetAnimator()) {
+                        if (MiraEngine::Animator* animator = GetAnimator())
+                        {
                             animator->PlayAnimation("Idle");
                         }
                     }
@@ -206,16 +224,15 @@ namespace MiraGame {
 
                 m_attackTimer += deltaTime;
 
-                if (m_attackTimer >= m_attackCooldown) {
+                if (m_attackTimer >= m_attackCooldown)
+                {
                     m_attackTimer = 0.0f;
-
                     m_attackTime = 0.0f;
-
                     m_attackHitApplied = false;
-
                     m_attackInProgress = true;
 
-                    if (MiraEngine::Animator* animator = GetAnimator()) {
+                    if (MiraEngine::Animator* animator = GetAnimator())
+                    {
                         animator->PlayAnimation("Attack", false);
                     }
                 }
@@ -223,11 +240,16 @@ namespace MiraGame {
                 break;
             }
 
-            case EnemyState::Returning: {
-                if (playerDistance <= m_detectionRange) {
-                    if (playerDistance <= m_stopDistance) {
+            case EnemyState::Returning:
+            {
+                if (playerDistance <= m_detectionRange)
+                {
+                    if (playerDistance <= m_stopDistance)
+                    {
                         ChangeState(EnemyState::Attacking);
-                    } else {
+                    }
+                    else
+                    {
                         ChangeState(EnemyState::Chasing);
                     }
 
@@ -235,12 +257,11 @@ namespace MiraGame {
                 }
 
                 glm::vec3 toSpawn = m_spawnPosition - enemyPosition;
-
                 toSpawn.y = 0.0f;
-
                 const float spawnDistance = glm::length(toSpawn);
 
-                if (spawnDistance <= m_returnStopDistance) {
+                if (spawnDistance <= m_returnStopDistance)
+                {
                     ChangeState(EnemyState::Idle);
 
                     break;

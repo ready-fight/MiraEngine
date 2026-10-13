@@ -14,46 +14,37 @@ namespace MiraEngine
 
     GameObject::~GameObject() = default;
 
-    void GameObject::Update(float deltaTime)
-    {
-    }
+    void GameObject::Update(float deltaTime) {}
 
-    void GameObject::DrawUI()
-    {
-    }
+    void GameObject::DrawUI() {}
 
     void GameObject::FadeIn(float deltaTime)
     {
-
         if (m_material.color.a == 1.0f)
         {
             return;
         }
 
-
         float alpha = m_material.color.a;
         alpha += m_fadeSpeed * deltaTime;
         alpha = std::min(alpha, 1.0f);
-
         m_material.color.a = alpha;
     }
 
     void GameObject::FadeOut(float deltaTime)
     {
-        
         if (m_material.color.a == 0.0f)
         {
             return;
         }
 
-
         float alpha = m_material.color.a;
         alpha -= m_fadeSpeed * deltaTime;
         alpha = std::max(alpha, 0.0f);
-
         m_material.color.a = alpha;
 
-        if (alpha == 0) {
+        if (alpha == 0)
+        {
             m_pendingDestroy = true;
         }
     }
@@ -78,9 +69,14 @@ namespace MiraEngine
         return m_name;
     }
 
-    void GameObject::SetCollider(std::unique_ptr<Collider> collider)
+    void GameObject::SetCollider(const Collider& collider)
     {
-        m_collider = std::move(collider);
+        m_collider = collider;
+    }
+
+    void GameObject::RemoveCollider()
+    {
+        m_collider.reset();
     }
 
     Collider* GameObject::GetCollider()
@@ -109,8 +105,7 @@ namespace MiraEngine
 
         if (!m_animator)
         {
-            m_animator =
-                std::make_unique<Animator>(*m_model);
+            m_animator = std::make_unique<Animator>(*m_model);
         }
         else
         {
@@ -118,18 +113,12 @@ namespace MiraEngine
         }
     }
 
-    void GameObject::SetDiffuseOverride(
-        const std::string& path
-    )
+    void GameObject::SetDiffuseOverride(const std::string& path)
     {
-        m_diffuseOverride =
-            std::make_shared<Texture>(
-                path
-            );
+        m_diffuseOverride = std::make_shared<Texture>(path);
     }
 
-    const std::shared_ptr<Texture>&
-        GameObject::GetDiffuseOverride() const
+    const std::shared_ptr<Texture>& GameObject::GetDiffuseOverride() const
     {
         return m_diffuseOverride;
     }

@@ -6,20 +6,13 @@
 
 namespace MiraGame
 {
-    class Chest :
-        public MiraEngine::GameObject,
-        public Interactable
+    class Chest : public MiraEngine::GameObject, public Interactable
     {
     public:
         explicit Chest(const ItemData& itemData);
-
         bool CanInteract() const override;
-
         void Update(float deltaTime);
-
-        void Interact(
-            Player& player
-        ) override;
+        void Interact(Player& player) override;
 
     private:
         bool m_isOpen = false;

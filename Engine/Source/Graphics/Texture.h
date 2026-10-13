@@ -9,10 +9,8 @@ namespace MiraEngine
     public:
         explicit Texture(const std::string& filePath);
         ~Texture();
-
         Texture(const Texture&) = delete;
         Texture& operator=(const Texture&) = delete;
-
         void Bind(unsigned int slot = 0) const;
 
     private:

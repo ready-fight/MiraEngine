@@ -8,18 +8,16 @@ namespace MiraGame
 {
 
     Chest::Chest(const ItemData& itemData)
-		: MiraEngine::GameObject("Chest"), m_itemData(itemData)
+        : MiraEngine::GameObject("Chest")
+        , m_itemData(itemData)
     {
-        SetCollider(
-            std::make_unique<MiraEngine::SphereCollider>(
-                0.5f
-            )
-        );
+        SetCollider(std::make_unique<MiraEngine::SphereCollider>(0.5f));
     }
 
-    void Chest::Update(float deltaTime) {
-
-        if (m_isOpen) {
+    void Chest::Update(float deltaTime)
+    {
+        if (m_isOpen)
+        {
             FadeOut(deltaTime);
         }
     }
@@ -29,24 +27,15 @@ namespace MiraGame
         return !m_isOpen;
     }
 
-    void Chest::Interact(
-        Player& player
-    )
+    void Chest::Interact(Player& player)
     {
         if (m_isOpen)
         {
             return;
         }
 
-        player.AddItem(
-            m_itemData
-        );
-
+        player.AddItem(m_itemData);
         m_isOpen = true;
-
-        std::cout
-            << "Chest opened: received "
-            << m_itemData.name
-            << "\n";
+        std::cout << "Chest opened: received " << m_itemData.name << "\n";
     }
 }

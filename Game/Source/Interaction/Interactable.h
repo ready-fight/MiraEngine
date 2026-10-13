@@ -8,11 +8,7 @@ namespace MiraGame
     {
     public:
         virtual ~Interactable() = default;
-
         virtual bool CanInteract() const = 0;
-
-        virtual void Interact(
-            Player& player
-        ) = 0;
+        virtual void Interact(Player& player) = 0;
     };
 }

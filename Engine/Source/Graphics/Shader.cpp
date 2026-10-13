@@ -7,161 +7,109 @@
 #include <stdexcept>
 #include <string>
 
+namespace MiraEngine
+{
+    Shader::Shader(const char* vertexSource, const char* fragmentSource)
+    {
+        const unsigned int vertexShader = Compile(GL_VERTEX_SHADER, vertexSource);
+        unsigned int fragmentShader;
 
-namespace MiraEngine {
-	Shader::Shader(const char* vertexSource, const char* fragmentSource)
-	{
-		const unsigned int vertexShader = Compile(GL_VERTEX_SHADER, vertexSource);
+        try
+        {
+            fragmentShader = Compile(GL_FRAGMENT_SHADER, fragmentSource);
+        }
 
-		unsigned int fragmentShader;
+        catch (...)
+        {
+            glDeleteShader(vertexShader);
+            throw;
+        }
 
-		try {
-			fragmentShader = Compile(GL_FRAGMENT_SHADER, fragmentSource);
-		}
+        m_program = glCreateProgram();
+        glAttachShader(m_program, vertexShader);
+        glAttachShader(m_program, fragmentShader);
+        glLinkProgram(m_program);
+        int success;
+        glGetProgramiv(m_program, GL_LINK_STATUS, &success);
+        glDeleteShader(vertexShader);
+        glDeleteShader(fragmentShader);
 
-		catch (...)
-		{
-			glDeleteShader(vertexShader);
-			throw;
-		}
+        if (!success)
+        {
+            char errorMessage[512];
+            glGetProgramInfoLog(m_program, sizeof(errorMessage), nullptr, errorMessage);
+            glDeleteProgram(m_program);
+            throw std::runtime_error(std::string("Shader linking error: ") + errorMessage);
+        }
+    }
 
-		m_program = glCreateProgram();
-		glAttachShader(m_program, vertexShader);
-		glAttachShader(m_program, fragmentShader);
-		glLinkProgram(m_program);
-		int success;
-		glGetProgramiv(m_program, GL_LINK_STATUS, &success);
+    Shader::~Shader()
+    {
+        glDeleteProgram(m_program);
+    }
 
-		glDeleteShader(vertexShader);
-		glDeleteShader(fragmentShader);
+    void Shader::Bind() const
+    {
+        glUseProgram(m_program);
+    }
 
-		if (!success)
-		{
-			char errorMessage[512];
-			glGetProgramInfoLog(m_program, sizeof(errorMessage), nullptr, errorMessage);
-			glDeleteProgram(m_program);
+    void Shader::Unbind() const
+    {
+        glUseProgram(0);
+    }
 
-			throw std::runtime_error(std::string("Shader linking error: ") + errorMessage);
-		}
-	}
+    void Shader::SetMatrix4(const char* name, const glm::mat4& matrix) const
+    {
+        const int location = glGetUniformLocation(m_program, name);
+        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+    }
 
-	Shader::~Shader()
-	{
-		glDeleteProgram(m_program);
-	}
+    void Shader::SetMatrix4Array(const char* name, const std::vector<glm::mat4>& matrices) const
+    {
+        if (matrices.empty())
+        {
+            return;
+        }
 
+        const int location = glGetUniformLocation(m_program, name);
+        glUniformMatrix4fv(location, static_cast<GLsizei>(matrices.size()), GL_FALSE, glm::value_ptr(matrices[0]));
+    }
 
-	void Shader::Bind() const
-	{
-		glUseProgram(m_program);
-	}
+    void Shader::SetVector3(const char* name, const glm::vec3& vector) const
+    {
+        const int location = glGetUniformLocation(m_program, name);
+        glUniform3fv(location, 1, glm::value_ptr(vector));
+    }
 
-	void Shader::Unbind() const
-	{
-		glUseProgram(0);
-	}
+    void Shader::SetVector4(const char* name, const glm::vec4& vector) const
+    {
+        const int location = glGetUniformLocation(m_program, name);
+        glUniform4fv(location, 1, glm::value_ptr(vector));
+    }
 
-	void Shader::SetMatrix4(const char* name, const glm::mat4& matrix) const
-	{
-		const int location = glGetUniformLocation(m_program, name);
+    void Shader::SetInt(const char* name, int value) const
+    {
+        const int location = glGetUniformLocation(m_program, name);
+        glUniform1i(location, value);
+    }
 
-		glUniformMatrix4fv(
-			location,
-			1,
-			GL_FALSE,
-			glm::value_ptr(matrix)
-		);
-	}
+    unsigned int Shader::Compile(unsigned int type, const char* source)
+    {
+        const unsigned int shader = glCreateShader(type);
+        glShaderSource(shader, 1, &source, nullptr);
+        glCompileShader(shader);
+        int success;
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 
+        if (!success)
+        {
+            char errorMessage[512];
+            glGetShaderInfoLog(shader, sizeof(errorMessage), nullptr, errorMessage);
+            glDeleteShader(shader);
+            throw std::runtime_error(std::string("Shader compilation failed: ") + errorMessage);
+        }
 
-	void Shader::SetMatrix4Array(
-		const char* name,
-		const std::vector<glm::mat4>& matrices
-	) const
-	{
-		if (matrices.empty())
-		{
-			return;
-		}
-
-		const int location =
-			glGetUniformLocation(m_program, name);
-
-		glUniformMatrix4fv(
-			location,
-			static_cast<GLsizei>(matrices.size()),
-			GL_FALSE,
-			glm::value_ptr(matrices[0])
-		);
-	}
-
-	void Shader::SetVector3(
-		const char* name,
-		const glm::vec3& vector
-	) const
-	{
-		const int location =
-			glGetUniformLocation(m_program, name);
-
-		glUniform3fv(
-			location,
-			1,
-			glm::value_ptr(vector)
-		);
-	}
-
-	void Shader::SetVector4(
-		const char* name,
-		const glm::vec4& vector
-	) const
-	{
-		const int location =
-			glGetUniformLocation(m_program, name);
-
-		glUniform4fv(
-			location,
-			1,
-			glm::value_ptr(vector)
-		);
-	}
-
-	void Shader::SetInt(
-		const char* name,
-		int value
-	) const
-	{
-		const int location =
-			glGetUniformLocation(
-				m_program,
-				name
-			);
-
-		glUniform1i(
-			location,
-			value
-		);
-	}
-
-	unsigned int Shader::Compile(unsigned int type, const char* source)
-	{
-		const unsigned int shader = glCreateShader(type);
-
-		glShaderSource(shader, 1, &source, nullptr);
-		glCompileShader(shader);
-
-		int success;
-		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-
-		if (!success)
-		{
-			char errorMessage[512];
-			glGetShaderInfoLog(shader, sizeof(errorMessage), nullptr, errorMessage);
-			glDeleteShader(shader);
-
-			throw std::runtime_error(std::string("Shader compilation failed: ") + errorMessage);
-		}
-
-		return shader;
-	}
+        return shader;
+    }
 
 }

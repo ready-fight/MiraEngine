@@ -4,22 +4,16 @@
 
 namespace MiraGame
 {
-    Character::Character(
-        const std::string& name,
-        int maxHealth
-    )
-        : MiraEngine::GameObject(name),
-        m_maxHealth(maxHealth),
-        m_health(maxHealth)
+    Character::Character(const std::string& name, int maxHealth)
+        : MiraEngine::GameObject(name)
+        , m_maxHealth(maxHealth)
+        , m_health(maxHealth)
     {
     }
 
     void Character::TakeDamage(int amount)
     {
-        m_health = std::max(
-            0,
-            m_health - amount
-        );
+        m_health = std::max(0, m_health - amount);
     }
 
     void Character::Heal(int amount)

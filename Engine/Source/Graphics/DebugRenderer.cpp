@@ -25,10 +25,7 @@ namespace
 
         void main()
         {
-            gl_Position =
-                projection *
-                view *
-                vec4(position, 1.0);
+            gl_Position = projection * view * vec4(position, 1.0);
         }
     )";
 
@@ -36,13 +33,11 @@ namespace
         #version 460 core
 
         uniform vec3 color;
-
         out vec4 fragmentColor;
 
         void main()
         {
-            fragmentColor =
-                vec4(color, 1.0);
+            fragmentColor = vec4(color, 1.0);
         }
     )";
 }
@@ -50,119 +45,47 @@ namespace
 namespace MiraEngine
 {
     DebugRenderer::DebugRenderer()
-        : m_shader(
-            DebugVertexShader,
-            DebugFragmentShader
-        )
+        : m_shader(DebugVertexShader, DebugFragmentShader)
     {
-        glGenVertexArrays(
-            1,
-            &m_vao
-        );
-
-        glGenBuffers(
-            1,
-            &m_vbo
-        );
-
-        glBindVertexArray(
-            m_vao
-        );
-
-        glBindBuffer(
-            GL_ARRAY_BUFFER,
-            m_vbo
-        );
-
-        glEnableVertexAttribArray(
-            0
-        );
-
-        glVertexAttribPointer(
-            0,
-            3,
-            GL_FLOAT,
-            GL_FALSE,
-            sizeof(glm::vec3),
-            nullptr
-        );
-
-        glBindBuffer(
-            GL_ARRAY_BUFFER,
-            0
-        );
-
-        glBindVertexArray(
-            0
-        );
+        glGenVertexArrays(1, &m_vao);
+        glGenBuffers(1, &m_vbo);
+        glBindVertexArray(m_vao);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
     }
 
     DebugRenderer::~DebugRenderer()
     {
-        glDeleteBuffers(
-            1,
-            &m_vbo
-        );
-
-        glDeleteVertexArrays(
-            1,
-            &m_vao
-        );
+        glDeleteBuffers(1, &m_vbo);
+        glDeleteVertexArrays(1, &m_vao);
     }
 
-    void DebugRenderer::Render(
-        float aspectRatio,
-        const Camera& camera,
-        const Scene& scene
-    )
+    void DebugRenderer::Render(float aspectRatio, const Camera& camera, const Scene& scene)
     {
-        std::vector<glm::vec3>
-            vertices;
+        std::vector<glm::vec3> vertices;
 
-        for (
-            const auto& object :
-            scene.GetObjects()
-            )
+        for (const auto& object : scene.GetObjects())
         {
-            const Collider* collider =
-                object->GetCollider();
+            const Collider* collider = object->GetCollider();
 
             if (!collider)
             {
                 continue;
             }
 
-            const glm::vec3 position =
-                object
-                ->GetTransform()
-                .GetPosition();
+            const glm::vec3 position = object->GetTransform().GetPosition();
 
-            if (
-                const auto* sphere =
-                dynamic_cast<
-                const SphereCollider*
-                >(collider)
-                )
+            if (const auto* sphere = dynamic_cast<const SphereCollider*>(collider))
             {
-                AddSphere(
-                    vertices,
-                    position,
-                    sphere->GetRadius()
-                );
+                AddSphere(vertices, position, sphere->GetRadius());
             }
 
-            else if (
-                const auto* box =
-                dynamic_cast<
-                const BoxCollider*
-                >(collider)
-                )
+            else if (const auto* box = dynamic_cast<const BoxCollider*>(collider))
             {
-                AddBox(
-                    vertices,
-                    position,
-                    box->GetHalfExtents()
-                );
+                AddBox(vertices, position, box->GetHalfExtents());
             }
         }
 
@@ -172,115 +95,37 @@ namespace MiraEngine
         }
 
         m_shader.Bind();
-
-        m_shader.SetMatrix4(
-            "view",
-            camera.GetViewMatrix()
-        );
-
-        m_shader.SetMatrix4(
-            "projection",
-            camera.GetProjectionMatrix(
-                aspectRatio
-            )
-        );
-
-        const int colorLocation =
-            glGetUniformLocation(
-                m_shader.GetProgram(),
-                "color"
-            );
-
-        glUniform3f(
-            colorLocation,
-            0.0f,
-            1.0f,
-            0.0f
-        );
-
-        glBindVertexArray(
-            m_vao
-        );
-
-        glBindBuffer(
-            GL_ARRAY_BUFFER,
-            m_vbo
-        );
-
-        glBufferData(
-            GL_ARRAY_BUFFER,
-            vertices.size() *
-            sizeof(glm::vec3),
-            vertices.data(),
-            GL_DYNAMIC_DRAW
-        );
-
-        glDrawArrays(
-            GL_LINES,
-            0,
-            static_cast<GLsizei>(
-                vertices.size()
-                )
-        );
-
-        glBindVertexArray(
-            0
-        );
-
+        m_shader.SetMatrix4("view", camera.GetViewMatrix());
+        m_shader.SetMatrix4("projection", camera.GetProjectionMatrix(aspectRatio));
+        const int colorLocation = glGetUniformLocation(m_shader.GetProgram(), "color");
+        glUniform3f(colorLocation, 0.0f, 1.0f, 0.0f);
+        glBindVertexArray(m_vao);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), vertices.data(), GL_DYNAMIC_DRAW);
+        glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(vertices.size()));
+        glBindVertexArray(0);
         m_shader.Unbind();
     }
 
-    void DebugRenderer::AddBox(
-        std::vector<glm::vec3>& vertices,
-        const glm::vec3& position,
-        const glm::vec3& halfExtents
-    )
+    void DebugRenderer::AddBox(std::vector<glm::vec3>& vertices, const glm::vec3& position,
+                               const glm::vec3& halfExtents)
     {
-        const glm::vec3 min =
-            position - halfExtents;
+        const glm::vec3 min = position - halfExtents;
+        const glm::vec3 max = position + halfExtents;
+        const glm::vec3 p000(min.x, min.y, min.z);
+        const glm::vec3 p001(min.x, min.y, max.z);
+        const glm::vec3 p010(min.x, max.y, min.z);
+        const glm::vec3 p011(min.x, max.y, max.z);
+        const glm::vec3 p100(max.x, min.y, min.z);
+        const glm::vec3 p101(max.x, min.y, max.z);
+        const glm::vec3 p110(max.x, max.y, min.z);
+        const glm::vec3 p111(max.x, max.y, max.z);
 
-        const glm::vec3 max =
-            position + halfExtents;
-
-        const glm::vec3 p000(
-            min.x, min.y, min.z
-        );
-
-        const glm::vec3 p001(
-            min.x, min.y, max.z
-        );
-
-        const glm::vec3 p010(
-            min.x, max.y, min.z
-        );
-
-        const glm::vec3 p011(
-            min.x, max.y, max.z
-        );
-
-        const glm::vec3 p100(
-            max.x, min.y, min.z
-        );
-
-        const glm::vec3 p101(
-            max.x, min.y, max.z
-        );
-
-        const glm::vec3 p110(
-            max.x, max.y, min.z
-        );
-
-        const glm::vec3 p111(
-            max.x, max.y, max.z
-        );
-
-        auto AddLine =
-            [&](const glm::vec3& a,
-                const glm::vec3& b)
-            {
-                vertices.push_back(a);
-                vertices.push_back(b);
-            };
+        auto AddLine = [&](const glm::vec3& a, const glm::vec3& b)
+        {
+            vertices.push_back(a);
+            vertices.push_back(b);
+        };
 
         // Bottom
         AddLine(p000, p001);
@@ -301,101 +146,31 @@ namespace MiraEngine
         AddLine(p101, p111);
     }
 
-    void DebugRenderer::AddSphere(
-        std::vector<glm::vec3>& vertices,
-        const glm::vec3& position,
-        float radius
-    )
+    void DebugRenderer::AddSphere(std::vector<glm::vec3>& vertices, const glm::vec3& position, float radius)
     {
         constexpr int segments = 32;
+        constexpr float twoPi = 6.28318530718f;
 
-        constexpr float twoPi =
-            6.28318530718f;
-
-        for (
-            int i = 0;
-            i < segments;
-            ++i
-            )
+        for (int i = 0; i < segments; ++i)
         {
-            const float angleA =
-                twoPi *
-                static_cast<float>(i) /
-                segments;
-
-            const float angleB =
-                twoPi *
-                static_cast<float>(i + 1) /
-                segments;
-
-            const float cosA =
-                std::cos(angleA);
-
-            const float sinA =
-                std::sin(angleA);
-
-            const float cosB =
-                std::cos(angleB);
-
-            const float sinB =
-                std::sin(angleB);
+            const float angleA = twoPi * static_cast<float>(i) / segments;
+            const float angleB = twoPi * static_cast<float>(i + 1) / segments;
+            const float cosA = std::cos(angleA);
+            const float sinA = std::sin(angleA);
+            const float cosB = std::cos(angleB);
+            const float sinB = std::sin(angleB);
 
             // XY circle
-            vertices.push_back(
-                position +
-                glm::vec3(
-                    cosA * radius,
-                    sinA * radius,
-                    0.0f
-                )
-            );
-
-            vertices.push_back(
-                position +
-                glm::vec3(
-                    cosB * radius,
-                    sinB * radius,
-                    0.0f
-                )
-            );
+            vertices.push_back(position + glm::vec3(cosA * radius, sinA * radius, 0.0f));
+            vertices.push_back(position + glm::vec3(cosB * radius, sinB * radius, 0.0f));
 
             // XZ circle
-            vertices.push_back(
-                position +
-                glm::vec3(
-                    cosA * radius,
-                    0.0f,
-                    sinA * radius
-                )
-            );
-
-            vertices.push_back(
-                position +
-                glm::vec3(
-                    cosB * radius,
-                    0.0f,
-                    sinB * radius
-                )
-            );
+            vertices.push_back(position + glm::vec3(cosA * radius, 0.0f, sinA * radius));
+            vertices.push_back(position + glm::vec3(cosB * radius, 0.0f, sinB * radius));
 
             // YZ circle
-            vertices.push_back(
-                position +
-                glm::vec3(
-                    0.0f,
-                    cosA * radius,
-                    sinA * radius
-                )
-            );
-
-            vertices.push_back(
-                position +
-                glm::vec3(
-                    0.0f,
-                    cosB * radius,
-                    sinB * radius
-                )
-            );
+            vertices.push_back(position + glm::vec3(0.0f, cosA * radius, sinA * radius));
+            vertices.push_back(position + glm::vec3(0.0f, cosB * radius, sinB * radius));
         }
     }
 }

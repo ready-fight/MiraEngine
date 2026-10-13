@@ -8,27 +8,25 @@
 namespace MiraEngine
 {
 
-	class GameObject;
+    class GameObject;
 
-	class Application
-	{
-		public:
-			Application();
-			~Application();
-			Application(const Application&) = delete;
-			Application& operator=(const Application&) = delete;
+    class Application
+    {
+    public:
+        Application();
+        ~Application();
+        Application(const Application&) = delete;
+        Application& operator=(const Application&) = delete;
+        void Run();
+        Scene& GetScene();
+        const Scene& GetScene() const;
+        Camera& GetCamera();
+        const Camera& GetCamera() const;
 
-			void Run();
-			Scene& GetScene();
-			const Scene& GetScene() const;
-			Camera& GetCamera();
-			const Camera& GetCamera() const;
-
-		private:
-			Window m_window;
-			Camera m_camera;
-			Renderer m_renderer;
-			Scene m_scene;
-	};
+    private:
+        Window m_window;
+        Camera m_camera;
+        Renderer m_renderer;
+        Scene m_scene;
+    };
 }
-
