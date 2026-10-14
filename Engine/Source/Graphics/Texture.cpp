@@ -11,18 +11,19 @@ namespace MiraEngine
     {
         int width;
         int height;
-        int channels;
-        unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &channels, 0);
+        int channelsInFile;
+        // Always ask for RGBA. stb converts grayscale and RGB for us, and 4-byte pixels
+        // keep every row aligned for OpenGL.
+        unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &channelsInFile, STBI_rgb_alpha);
 
         if (!data)
         {
             throw std::runtime_error("Failed to load texture: " + filePath);
         }
 
-        GLenum format = channels == 4 ? GL_RGBA : GL_RGB;
         glGenTextures(1, &m_textureID);
         glBindTexture(GL_TEXTURE_2D, m_textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

@@ -5,7 +5,7 @@
 #include "Graphics/Camera.h"
 #include "Enemy/Enemy.h"
 #include "Item/Item.h"
-#include "Collision/BoxCollider.h"
+#include "Collision/Collider.h"
 #include "Quest/QuestDatabase.h"
 #include "Interaction/Chest.h"
 #include "Interaction/Door.h"
@@ -43,21 +43,19 @@ void InitializeModels_Animations()
     model->AddAnimation(npc);
 }
 
-MiraGame::Player* InitializePlayer(MiraEngine::Scene& scene)
+MiraGame::Player& InitializePlayer(MiraEngine::Scene& scene)
 {
-    auto player = std::make_unique<MiraGame::Player>(&scene);
-    MiraGame::Player* playerPtr = player.get();
+    auto player = std::make_unique<MiraGame::Player>(scene);
+    MiraGame::Player& result = *player;
     player->GetTransform().SetPosition(glm::vec3(0.886f, 0.0f, -3.98f));
     scene.AddObject(std::move(player));
-
-    return playerPtr;
+    return result;
 }
 
-void InitializeEnemy(MiraEngine::Scene& scene, MiraGame::Player* playerPtr)
+void InitializeEnemy(MiraEngine::Scene& scene, MiraGame::Player& player)
 {
-    auto enemy = std::make_unique<MiraGame::Enemy>(playerPtr, &scene);
+    auto enemy = std::make_unique<MiraGame::Enemy>(player, scene, glm::vec3(5.0f, 0.0f, 5.0f));
     enemy->GetMaterial().color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-    enemy->GetTransform().SetPosition(glm::vec3(5.0f, 0.0f, 5.0f));
     scene.AddObject(std::move(enemy));
 }
 
@@ -93,7 +91,6 @@ void InitializeInteractions(MiraEngine::Scene& scene)
     dungeonKeyData.name = "Dungeon Key";
     dungeonKeyData.type = MiraGame::ItemType::KeyItem;
     auto dungeonKey = std::make_unique<MiraGame::Item>(dungeonKeyData);
-    dungeonKey->GetMaterial().color.a = 0.0f;
     dungeonKey->GetTransform().SetScale(glm::vec3(0.5f));
     auto dungeonKeyModel = MiraEngine::AssetManager::LoadModel("Assets/Models/Interactable/Key/Key.fbx");
     dungeonKey->SetModel(dungeonKeyModel);
@@ -125,25 +122,14 @@ void InitializeInteractions(MiraEngine::Scene& scene)
 
 void InitializeNPCs(MiraEngine::Scene& scene)
 {
-    auto npc = std::make_unique<MiraGame::NPC>("Village Elder",
+    MiraGame::Dialogue elderDialogue;
+    elderDialogue.beforeQuest = { "Greetings, traveler.", "The dungeon lies beyond the locked door.",
+                                 "Find the Dungeon Key and you may enter." };
+    elderDialogue.questActive = { "Have you found the Dungeon Key yet?", "Search carefully. It must be nearby." };
+    elderDialogue.questCompleted = { "Excellent. You found the Dungeon Key.", "The dungeon awaits you." };
+    elderDialogue.questTurnedIn = { "Good luck in the dungeon." };
 
-                                               // Quest not started
-                                               std::vector<std::string>{"Greetings, traveler.",
-                                                                        "The dungeon lies beyond the locked door.",
-                                                                        "Find the Dungeon Key and you may enter."},
-
-                                               // Quest active
-                                               std::vector<std::string>{"Have you found the Dungeon Key yet?",
-                                                                        "Search carefully. It must be nearby."},
-
-                                               // Quest completed
-                                               std::vector<std::string>{"Excellent. You found the Dungeon Key.",
-                                                                        "The dungeon awaits you."},
-
-                                               // Quest turned in
-                                               std::vector<std::string>{"Good luck in the dungeon."},
-
-                                               "Find the Dungeon Key");
+    auto npc = std::make_unique<MiraGame::NPC>("Village Elder", elderDialogue, "Find the Dungeon Key");
 
     npc->GetMaterial().color = glm::vec4(0, .5, 1, 1);
     npc->GetTransform().SetPosition(glm::vec3(-3.3f, 0.0f, 2.0f));
@@ -156,7 +142,7 @@ void InitializeCollisionObjects(MiraEngine::Scene& scene)
     auto wallModel = MiraEngine::AssetManager::LoadModel("Assets/Models/Collision/Wall/Wall.obj");
     auto wall1 = std::make_unique<MiraEngine::GameObject>("Wall 1");
     wall1->SetModel(wallModel);
-    wall1->SetCollider(std::make_unique<MiraEngine::BoxCollider>(glm::vec3(2.95f, 0.7f, 0.15f)));
+    wall1->SetCollider(MiraEngine::Collider::Box(glm::vec3(2.95f, 0.7f, 0.15f)));
     wall1->GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 10.0f));
     wall1->GetTransform().SetRotation(glm::vec3(0.0f, -90.0f, -5.0f));
     scene.AddObject(std::move(wall1));
@@ -167,7 +153,7 @@ void InitializeCollisionObjects(MiraEngine::Scene& scene)
         "Assets/Models/Collision/Wall/tex_u1_v1_normal.jpg"
     );*/
 
-    wall2->SetCollider(std::make_unique<MiraEngine::BoxCollider>(glm::vec3(2.95f, 0.7f, 0.15f)));
+    wall2->SetCollider(MiraEngine::Collider::Box(glm::vec3(2.95f, 0.7f, 0.15f)));
     wall2->GetTransform().SetPosition(glm::vec3(-6.0f, 0.0f, 10.0f));
     wall2->GetTransform().SetRotation(glm::vec3(0.0f, -90.0f, 0.0f));
     scene.AddObject(std::move(wall2));

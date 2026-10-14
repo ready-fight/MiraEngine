@@ -13,8 +13,8 @@ namespace MiraGame
 
 void InitializeQuests();
 void InitializeModels_Animations();
-MiraGame::Player* InitializePlayer(MiraEngine::Scene& scene);
-void InitializeEnemy(MiraEngine::Scene& scene, MiraGame::Player* playerPtr);
+MiraGame::Player& InitializePlayer(MiraEngine::Scene& scene);
+void InitializeEnemy(MiraEngine::Scene& scene, MiraGame::Player& player);
 void InitializeInteractions(MiraEngine::Scene& scene);
 void InitializeNPCs(MiraEngine::Scene& scene);
 void InitializeCollisionObjects(MiraEngine::Scene& scene);

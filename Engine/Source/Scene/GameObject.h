@@ -35,18 +35,19 @@ namespace MiraEngine
         const Collider* GetCollider() const;
         void SetModel(std::shared_ptr<Model> model);
         void SetDiffuseOverride(const std::string& path);
-        const std::shared_ptr<Texture>& GameObject::GetDiffuseOverride() const;
+        const std::shared_ptr<Texture>& GetDiffuseOverride() const;
         Model* GetModel();
         const Model* GetModel() const;
         Animator* GetAnimator();
         const Animator* GetAnimator() const;
         Material& GetMaterial();
         const Material& GetMaterial() const;
+        void PlayAnimation(const std::string& name, bool looping = true);
 
     private:
         std::string m_name;
         Transform m_transform;
-        std::unique_ptr<Collider> m_collider;
+        std::optional<Collider> m_collider;
         std::unique_ptr<Animator> m_animator;
         std::shared_ptr<Model> m_model;
         std::shared_ptr<Texture> m_diffuseOverride;

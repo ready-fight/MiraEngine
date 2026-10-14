@@ -6,8 +6,6 @@
 #include "Scene/GameObject.h"
 
 #include "Collision/Collider.h"
-#include "Collision/SphereCollider.h"
-#include "Collision/BoxCollider.h"
 
 #include <GL/glew.h>
 
@@ -78,14 +76,10 @@ namespace MiraEngine
 
             const glm::vec3 position = object->GetTransform().GetPosition();
 
-            if (const auto* sphere = dynamic_cast<const SphereCollider*>(collider))
+            switch (collider->shape)
             {
-                AddSphere(vertices, position, sphere->GetRadius());
-            }
-
-            else if (const auto* box = dynamic_cast<const BoxCollider*>(collider))
-            {
-                AddBox(vertices, position, box->GetHalfExtents());
+                case Collider::Shape::Sphere: AddSphere(vertices, position, collider->radius); break;
+                case Collider::Shape::Box:    AddBox(vertices, position, collider->halfExtents); break;
             }
         }
 
@@ -97,8 +91,7 @@ namespace MiraEngine
         m_shader.Bind();
         m_shader.SetMatrix4("view", camera.GetViewMatrix());
         m_shader.SetMatrix4("projection", camera.GetProjectionMatrix(aspectRatio));
-        const int colorLocation = glGetUniformLocation(m_shader.GetProgram(), "color");
-        glUniform3f(colorLocation, 0.0f, 1.0f, 0.0f);
+        m_shader.SetVector3("color", glm::vec3(0.0f, 1.0f, 0.0f));
         glBindVertexArray(m_vao);
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), vertices.data(), GL_DYNAMIC_DRAW);

@@ -15,6 +15,8 @@ namespace MiraGame
         int GetHealth() const;
         int GetMaxHealth() const;
         bool IsDead() const;
+        void FaceDirection(const glm::vec3& direction);
+        glm::vec3 GetFacing() const;
 
     private:
         int m_maxHealth = 100;

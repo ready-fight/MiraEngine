@@ -24,6 +24,7 @@ namespace MiraEngine
         void SetAmbientLight(const AmbientLight& light);
         void SetDirectionalLight(const DirectionalLight& light);
         void SetDebugColliders(bool enabled);
+        bool GetDebugColliders() const { return m_debugColliders; }
 
     private:
         Shader m_shader;

@@ -14,18 +14,13 @@ namespace MiraGame
 {
     CameraController::CameraController(MiraEngine::Camera& camera, Player& player)
         : MiraEngine::GameObject("CameraController")
-        , m_camera(&camera)
-        , m_player(&player)
+        , m_camera(camera)
+        , m_player(player)
     {
     }
 
     void CameraController::Update(float deltaTime)
     {
-        if (!m_camera || !m_player)
-        {
-            return;
-        }
-
         // F1 editor-camera mode is active.
         if (!MiraEngine::Input::IsGameplayEnabled())
         {
@@ -65,7 +60,7 @@ namespace MiraGame
             MiraEngine::Input::ReleaseCursor();
         }
 
-        const glm::vec3 playerPosition = m_player->GetTransform().GetPosition();
+        const glm::vec3 playerPosition = m_player.GetTransform().GetPosition();
         const glm::vec3 lookTarget = playerPosition + m_lookOffset;
         const float yaw = glm::radians(m_yaw);
         const float pitch = glm::radians(m_pitch);
@@ -88,7 +83,7 @@ namespace MiraGame
             m_currentLookTarget = glm::mix(m_currentLookTarget, lookTarget, smoothing);
         }
 
-        m_camera->SetPosition(m_currentPosition);
-        m_camera->LookAt(m_currentLookTarget);
+        m_camera.SetPosition(m_currentPosition);
+        m_camera.LookAt(m_currentLookTarget);
     }
 }

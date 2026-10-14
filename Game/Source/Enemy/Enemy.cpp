@@ -1,9 +1,8 @@
 #include "Enemy/Enemy.h"
 #include "Player/Player.h"
 
-#include "Animation/Animator.h"
 #include "Assets/AssetManager.h"
-#include "Collision/SphereCollider.h"
+#include "Collision/Collider.h"
 #include "Graphics/Model.h"
 #include "Scene/Transform.h"
 
@@ -15,20 +14,20 @@
 
 namespace MiraGame
 {
-    Enemy::Enemy(Player* player, MiraEngine::Scene* scene)
+    Enemy::Enemy(Player& player, MiraEngine::Scene& scene, const glm::vec3& spawnPosition)
         : Character("Enemy", 100)
         , m_player(player)
         , m_scene(scene)
+        , m_spawnPosition(spawnPosition)
     {
+        GetTransform().SetPosition(spawnPosition);
+
         auto model = MiraEngine::AssetManager::LoadModel("Assets/Models/Idle.fbx");
         SetModel(model);
-        SetCollider(std::make_unique<MiraEngine::SphereCollider>(0.3f));
+        SetCollider(MiraEngine::Collider::Sphere(0.3f));
         GetTransform().SetScale(glm::vec3(0.01f));
 
-        if (MiraEngine::Animator* animator = GetAnimator())
-        {
-            animator->PlayAnimation("Idle");
-        }
+        PlayAnimation("Idle");
     }
 
     void Enemy::ChangeState(EnemyState newState)
@@ -39,37 +38,28 @@ namespace MiraGame
         }
 
         m_state = newState;
-        m_attackInProgress = false;
-        m_attackHitApplied = false;
-        m_attackTime = 0.0f;
-        m_attackTimer = 0.0f;
-        MiraEngine::Animator* animator = GetAnimator();
-
-        if (!animator)
-        {
-            return;
-        }
+        ResetAttack();
 
         switch (m_state)
         {
             case EnemyState::Idle:
-                animator->PlayAnimation("Idle");
+                PlayAnimation("Idle");
                 break;
 
             case EnemyState::Chasing:
-                animator->PlayAnimation("Walking");
+                PlayAnimation("Walking");
                 break;
 
             case EnemyState::Attacking:
-                animator->PlayAnimation("Idle");
+                PlayAnimation("Idle");
                 break;
 
             case EnemyState::Returning:
-                animator->PlayAnimation("Walking");
+                PlayAnimation("Walking");
                 break;
 
             case EnemyState::Dead:
-                animator->PlayAnimation("Death", false);
+                PlayAnimation("Death", false);
                 break;
         }
     }
@@ -87,26 +77,50 @@ namespace MiraGame
 
         direction = glm::normalize(direction);
 
-        if (m_scene)
+        m_scene.TryMove(*this, direction * m_speed * deltaTime);
+        
+		FaceDirection(direction);
+    }
+
+    void Enemy::UpdateAttack(float deltaTime)
+    {
+        m_attackTimer += deltaTime;
+
+        if (!m_attackInProgress)
         {
-            m_scene->TryMove(*this, direction * m_speed * deltaTime);
+            if (m_attackTimer >= m_attackCooldown)
+            {
+                m_attackTimer = 0.0f;
+                m_attackInProgress = true;
+                PlayAnimation("Attack", false);
+            }
+            return;
         }
 
-        const float yaw = glm::degrees(std::atan2(direction.x, direction.z));
-        glm::vec3 rotation = transform.GetRotation();
-        rotation.y = yaw;
-        transform.SetRotation(rotation);
+        if (!m_attackHitApplied && m_attackTimer >= m_attackHitTime)
+        {
+            m_player.TakeDamage(m_attackDamage);
+            std::cout << "Player HP: " << m_player.GetHealth() << "/" << m_player.GetMaxHealth() << "\n";
+            m_attackHitApplied = true;
+        }
+
+        if (m_attackTimer >= m_attackDuration)
+        {
+            ResetAttack();
+            PlayAnimation("Idle");
+        }
+    }
+
+    void Enemy::ResetAttack()
+    {
+        m_attackInProgress = false;
+        m_attackHitApplied = false;
+        m_attackTimer = 0.0f;
     }
 
     void Enemy::Update(float deltaTime)
     {
         MiraEngine::Transform& transform = GetTransform();
-
-        if (!m_spawnPositionInitialized)
-        {
-            m_spawnPosition = transform.GetPosition();
-            m_spawnPositionInitialized = true;
-        }
 
         if (IsDead())
         {
@@ -115,12 +129,7 @@ namespace MiraGame
             return;
         }
 
-        if (!m_player)
-        {
-            return;
-        }
-
-        if (m_player->IsDead())
+        if (m_player.IsDead())
         {
             ChangeState(EnemyState::Idle);
 
@@ -128,7 +137,7 @@ namespace MiraGame
         }
 
         const glm::vec3 enemyPosition = transform.GetPosition();
-        const glm::vec3 playerPosition = m_player->GetTransform().GetPosition();
+        const glm::vec3 playerPosition = m_player.GetTransform().GetPosition();
         glm::vec3 toPlayer = playerPosition - enemyPosition;
         toPlayer.y = 0.0f;
         const float playerDistance = glm::length(toPlayer);
@@ -175,68 +184,17 @@ namespace MiraGame
                 if (playerDistance > m_detectionRange)
                 {
                     ChangeState(EnemyState::Returning);
-
                     break;
                 }
 
                 if (playerDistance > m_stopDistance)
                 {
                     ChangeState(EnemyState::Chasing);
-
                     break;
                 }
 
-                if (playerDistance > 0.0f)
-                {
-                    glm::vec3 direction = glm::normalize(toPlayer);
-                    const float yaw = glm::degrees(std::atan2(direction.x, direction.z));
-                    glm::vec3 rotation = transform.GetRotation();
-                    rotation.y = yaw;
-                    transform.SetRotation(rotation);
-                }
-
-                if (m_attackInProgress)
-                {
-                    m_attackTime += deltaTime;
-
-                    if (!m_attackHitApplied && m_attackTime >= m_attackHitTime)
-                    {
-                        m_player->TakeDamage(m_attackDamage);
-                        std::cout << "Player HP: " << m_player->GetHealth() << "/" << m_player->GetMaxHealth() << "\n";
-                        m_attackHitApplied = true;
-                    }
-
-                    if (m_attackTime >= m_attackDuration)
-                    {
-                        m_attackInProgress = false;
-                        m_attackHitApplied = false;
-                        m_attackTime = 0.0f;
-                        m_attackTimer = 0.0f;
-
-                        if (MiraEngine::Animator* animator = GetAnimator())
-                        {
-                            animator->PlayAnimation("Idle");
-                        }
-                    }
-
-                    break;
-                }
-
-                m_attackTimer += deltaTime;
-
-                if (m_attackTimer >= m_attackCooldown)
-                {
-                    m_attackTimer = 0.0f;
-                    m_attackTime = 0.0f;
-                    m_attackHitApplied = false;
-                    m_attackInProgress = true;
-
-                    if (MiraEngine::Animator* animator = GetAnimator())
-                    {
-                        animator->PlayAnimation("Attack", false);
-                    }
-                }
-
+                FaceDirection(toPlayer);
+                UpdateAttack(deltaTime);
                 break;
             }
 

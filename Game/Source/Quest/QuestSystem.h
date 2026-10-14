@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Quest/QuestDatabase.h"
 #include "Quest/Quest.h"
 
 #include <string>
@@ -8,17 +7,20 @@
 
 namespace MiraGame
 {
+    // A player's progress through quests. Definitions live in QuestDatabase.
     class QuestSystem
     {
     public:
         bool StartQuest(const std::string& name);
-        bool CompleteQuest(const std::string& name);
-        const std::vector<Quest>& GetQuests() const;
-        const Quest* GetQuest(const std::string& name) const;
-        void OnItemAdded(const std::string& itemName);
         bool TurnInQuest(const std::string& name);
+        void OnItemAdded(const std::string& itemName);
+
+        const Quest* GetQuest(const std::string& name) const;
+        const std::vector<Quest>& GetQuests() const;
 
     private:
+        Quest* Find(const std::string& name);
+
         std::vector<Quest> m_quests;
     };
 }

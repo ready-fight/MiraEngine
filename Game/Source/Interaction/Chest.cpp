@@ -1,17 +1,15 @@
 #include "Interaction/Chest.h"
 #include "Player/Player.h"
-#include "Collision/SphereCollider.h"
 
 #include <iostream>
 
 namespace MiraGame
 {
-
-    Chest::Chest(const ItemData& itemData)
+    Chest::Chest(const ItemData& contents)
         : MiraEngine::GameObject("Chest")
-        , m_itemData(itemData)
+        , m_contents(contents)
     {
-        SetCollider(std::make_unique<MiraEngine::SphereCollider>(0.5f));
+        SetCollider(MiraEngine::Collider::Sphere(0.5f));
     }
 
     void Chest::Update(float deltaTime)
@@ -34,8 +32,8 @@ namespace MiraGame
             return;
         }
 
-        player.AddItem(m_itemData);
+        player.AddItem(m_contents);
         m_isOpen = true;
-        std::cout << "Chest opened: received " << m_itemData.name << "\n";
+        std::cout << "Chest opened: received " << m_contents.name << "\n";
     }
 }

@@ -24,9 +24,20 @@ namespace MiraEngine
         const Camera& GetCamera() const;
 
     private:
+        void HandleEditorKeys();
+        void SetCameraMode(bool enabled);
+        void DrawInspector();
+        void DrawInspectorContents();
+        void UpdateFlyCamera(float deltaTime);
+
         Window m_window;
         Camera m_camera;
         Renderer m_renderer;
         Scene m_scene;
+
+        int m_selectedObject = 0;
+        bool m_cameraMode = false;
+        bool m_wasF1Down = false;
+        bool m_wasF2Down = false;
     };
 }

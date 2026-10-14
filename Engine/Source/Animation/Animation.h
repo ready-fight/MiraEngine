@@ -9,31 +9,20 @@
 
 namespace MiraEngine
 {
-    struct PositionKey
-    {
-        glm::vec3 position;
-        double time;
-    };
+    template <typename T>
+struct Keyframe
+{
+    T value;
+    double time;
+};
 
-    struct RotationKey
-    {
-        glm::quat rotation;
-        double time;
-    };
-
-    struct ScaleKey
-    {
-        glm::vec3 scale;
-        double time;
-    };
-
-    struct BoneAnimation
-    {
-        std::string boneName;
-        std::vector<PositionKey> positions;
-        std::vector<RotationKey> rotations;
-        std::vector<ScaleKey> scales;
-    };
+struct BoneAnimation
+{
+    std::string boneName;
+    std::vector<Keyframe<glm::vec3>> positions;
+    std::vector<Keyframe<glm::quat>> rotations;
+    std::vector<Keyframe<glm::vec3>> scales;
+};
 
     struct AnimationClip
     {

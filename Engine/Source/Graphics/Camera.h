@@ -14,17 +14,18 @@ namespace MiraEngine
         void Move(const glm::vec3& offset);
         void MoveRelative(float forward, float right, float vertical);
         void Rotate(float yawOffset, float pitchOffset);
-        float GetYaw() { return m_yaw; }
-        float GetPitch() { return m_pitch; }
-        glm::vec3 GetForward() { return m_forward; }
-        glm::vec3 GetRight() { return m_right; }
+        float GetYaw() const { return m_yaw; }
+        float GetPitch() const { return m_pitch; }
+        glm::vec3 GetForward() const { return m_forward; }
+        glm::vec3 GetRight() const { return m_right; }
         void SetPitch(float pitch);
         void SetYaw(float yaw);
-        void UpdateTarget();
         void SetPosition(const glm::vec3& position);
         void LookAt(const glm::vec3& target);
 
     private:
+        void UpdateTarget();
+
         glm::vec3 m_position;
         glm::vec3 m_target;
         glm::vec3 m_up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -35,5 +36,6 @@ namespace MiraEngine
         float m_farPlane = 100.0f;
         float m_yaw = 0.0f;
         float m_pitch = 0.0f;
+
     };
 }

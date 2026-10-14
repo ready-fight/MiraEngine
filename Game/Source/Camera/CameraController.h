@@ -20,8 +20,8 @@ namespace MiraGame
         void Update(float deltaTime) override;
 
     private:
-        MiraEngine::Camera* m_camera = nullptr;
-        Player* m_player = nullptr;
+        MiraEngine::Camera& m_camera;
+        Player& m_player;
         float m_yaw = -90.0f;
         float m_pitch = 20.0f;
         float m_distance = 5.85f;

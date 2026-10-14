@@ -12,15 +12,13 @@ namespace MiraGame
     {
     public:
         explicit Item(const ItemData& itemData);
-        void Pickup();
-        void Update(float deltaTime);
+        void Update(float deltaTime) override;
         bool IsPickedUp() const;
-        const ItemData& GetItemData() const;
         bool CanInteract() const override;
         void Interact(Player& player) override;
 
     private:
-        bool m_pickedUp = false;
         ItemData m_itemData;
+        bool m_pickedUp = false;
     };
 }

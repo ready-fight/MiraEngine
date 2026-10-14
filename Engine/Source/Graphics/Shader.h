@@ -3,6 +3,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <vector>
 
 namespace MiraEngine
 {
@@ -20,7 +21,6 @@ namespace MiraEngine
         void SetVector3(const char* name, const glm::vec3& vector) const;
         void SetVector4(const char* name, const glm::vec4& vector) const;
         void SetInt(const char* name, int value) const;
-        unsigned int& GetProgram() { return m_program; }
 
     private:
         unsigned int Compile(unsigned int type, const char* source);

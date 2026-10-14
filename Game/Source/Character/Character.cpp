@@ -1,6 +1,8 @@
 #include "Character/Character.h"
 
 #include <algorithm>
+#include <cmath>
+#include <glm/trigonometric.hpp>
 
 namespace MiraGame
 {
@@ -18,12 +20,7 @@ namespace MiraGame
 
     void Character::Heal(int amount)
     {
-        m_health += amount;
-
-        if (m_health > m_maxHealth)
-        {
-            m_health = m_maxHealth;
-        }
+        m_health = std::min(m_maxHealth, m_health + amount);
     }
 
     int Character::GetHealth() const
@@ -39,5 +36,23 @@ namespace MiraGame
     bool Character::IsDead() const
     {
         return m_health <= 0;
+    }
+
+    void Character::FaceDirection(const glm::vec3& direction)
+    {
+        if (direction.x == 0.0f && direction.z == 0.0f)
+        {
+            return;
+        }
+
+        glm::vec3 rotation = GetTransform().GetRotation();
+        rotation.y = glm::degrees(std::atan2(direction.x, direction.z));
+        GetTransform().SetRotation(rotation);
+    }
+
+    glm::vec3 Character::GetFacing() const
+    {
+        const float yaw = glm::radians(GetTransform().GetRotation().y);
+        return glm::vec3(std::sin(yaw), 0.0f, std::cos(yaw));
     }
 }

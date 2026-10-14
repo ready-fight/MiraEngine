@@ -3,8 +3,6 @@
 #include "Animation/Animator.h"
 
 #include "Collision/Collider.h"
-#include "Collision/BoxCollider.h"
-#include "Collision/SphereCollider.h"
 
 #include <algorithm>
 
@@ -43,38 +41,7 @@ namespace MiraEngine
             return false;
         }
 
-        const glm::vec3 positionA = a.GetTransform().GetPosition();
-        const glm::vec3 positionB = b.GetTransform().GetPosition();
-        const auto* sphereA = dynamic_cast<const SphereCollider*>(colliderA);
-        const auto* sphereB = dynamic_cast<const SphereCollider*>(colliderB);
-        const auto* boxA = dynamic_cast<const BoxCollider*>(colliderA);
-        const auto* boxB = dynamic_cast<const BoxCollider*>(colliderB);
-
-        // Sphere vs Sphere
-        if (sphereA && sphereB)
-        {
-            return sphereA->Intersects(positionA, *sphereB, positionB);
-        }
-
-        // Box vs Box
-        if (boxA && boxB)
-        {
-            return boxA->Intersects(positionA, *boxB, positionB);
-        }
-
-        // Sphere A vs Box B
-        if (sphereA && boxB)
-        {
-            return boxB->Intersects(positionB, *sphereA, positionA);
-        }
-
-        // Box A vs Sphere B
-        if (boxA && sphereB)
-        {
-            return boxA->Intersects(positionA, *sphereB, positionB);
-        }
-
-        return false;
+        return Intersects(*colliderA, a.GetTransform().GetPosition(), *colliderB, b.GetTransform().GetPosition());
     }
 
     bool Scene::IsColliding(const GameObject& object) const

@@ -10,12 +10,13 @@ namespace MiraGame
     {
     public:
         explicit Chest(const ItemData& itemData);
+
+        void Update(float deltaTime) override;
         bool CanInteract() const override;
-        void Update(float deltaTime);
         void Interact(Player& player) override;
 
     private:
+        ItemData m_contents;
         bool m_isOpen = false;
-        ItemData m_itemData;
     };
 }

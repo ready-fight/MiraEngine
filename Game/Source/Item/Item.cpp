@@ -1,6 +1,5 @@
-#include "Item.h"
+#include "Item/Item.h"
 #include "Player/Player.h"
-#include <iostream>
 
 namespace MiraGame
 {
@@ -18,24 +17,9 @@ namespace MiraGame
         }
     }
 
-    void Item::Pickup()
-    {
-        if (m_pickedUp)
-        {
-            return;
-        }
-
-        m_pickedUp = true;
-    }
-
     bool Item::IsPickedUp() const
     {
         return m_pickedUp;
-    }
-
-    const ItemData& Item::GetItemData() const
-    {
-        return m_itemData;
     }
 
     bool Item::CanInteract() const
@@ -51,6 +35,6 @@ namespace MiraGame
         }
 
         player.AddItem(m_itemData);
-        Pickup();
+        m_pickedUp = true;
     }
 }

@@ -12,15 +12,15 @@ namespace
 		using MiraEngine::Key;
 		switch (key)
 		{
-			case Key::W:  return GLFW_KEY_W;
-			case Key::A:  return GLFW_KEY_A;
-			case Key::S:  return GLFW_KEY_S;
-			case Key::D:  return GLFW_KEY_D;
-			case Key::Q:  return GLFW_KEY_Q;
-			case Key::E:  return GLFW_KEY_E;
-			case Key::F:  return GLFW_KEY_F;
-			case Key::F1: return GLFW_KEY_F1;
-			case Key::F2: return GLFW_KEY_F2;
+		case Key::W:  return GLFW_KEY_W;
+		case Key::A:  return GLFW_KEY_A;
+		case Key::S:  return GLFW_KEY_S;
+		case Key::D:  return GLFW_KEY_D;
+		case Key::Q:  return GLFW_KEY_Q;
+		case Key::E:  return GLFW_KEY_E;
+		case Key::F:  return GLFW_KEY_F;
+		case Key::F1: return GLFW_KEY_F1;
+		case Key::F2: return GLFW_KEY_F2;
 		}
 		return GLFW_KEY_UNKNOWN;
 	}
@@ -30,9 +30,9 @@ namespace
 		using MiraEngine::MouseButton;
 		switch (button)
 		{
-			case MouseButton::Left:   return GLFW_MOUSE_BUTTON_LEFT;
-			case MouseButton::Right:  return GLFW_MOUSE_BUTTON_RIGHT;
-			case MouseButton::Middle: return GLFW_MOUSE_BUTTON_MIDDLE;
+		case MouseButton::Left:   return GLFW_MOUSE_BUTTON_LEFT;
+		case MouseButton::Right:  return GLFW_MOUSE_BUTTON_RIGHT;
+		case MouseButton::Middle: return GLFW_MOUSE_BUTTON_MIDDLE;
 		}
 		return GLFW_MOUSE_BUTTON_LEFT;
 	}
@@ -55,7 +55,7 @@ namespace MiraEngine
 		if (!m_window)
 		{
 			glfwTerminate();
-			throw std::runtime_error("Failed to initialize GLFW");
+			throw std::runtime_error("Failed to create window");
 		}
 
 		glfwMakeContextCurrent(m_window);

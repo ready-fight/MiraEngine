@@ -45,6 +45,7 @@ namespace MiraEngine
         const std::unordered_map<std::string, BoneInfo>& GetBoneInfoMap() const;
         int GetBoneCount() const;
         const glm::mat4& GetGlobalInverseTransform() const;
+        static constexpr int MaxBones = 100;
 
     private:
         void Load(const std::string& filePath);

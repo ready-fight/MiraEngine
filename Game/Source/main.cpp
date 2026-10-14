@@ -2,20 +2,29 @@
 #include "Initialize.h"
 #include "Player/Player.h"
 
+#include <exception>
+#include <iostream>
+
 int main()
 {
-    MiraEngine::Application application;
-    MiraEngine::Camera& camera = application.GetCamera();
-    MiraEngine::Scene& scene = application.GetScene();
-    InitializeQuests();
-    InitializeModels_Animations();
-    MiraGame::Player* player = InitializePlayer(scene);
-    InitializeEnemy(scene, player);
-    InitializeInteractions(scene);
-    InitializeNPCs(scene);
-    //InitializeCollisionObjects(scene);
-    InitializeCamera(scene, camera, *player);
-    application.Run();
+	try {
+		MiraEngine::Application application;
+		MiraEngine::Camera& camera = application.GetCamera();
+		MiraEngine::Scene& scene = application.GetScene();
+		InitializeQuests();
+		InitializeModels_Animations();
+		MiraGame::Player& player = InitializePlayer(scene);
+		InitializeEnemy(scene, player);
+		InitializeInteractions(scene);
+		InitializeNPCs(scene);
+		//InitializeCollisionObjects(scene);
+		InitializeCamera(scene, camera, player);
+		application.Run();
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Fatal Error: " << e.what() << std::endl;
+		return 1;
+	}
 
-    return 0;
+	return 0;
 }

@@ -57,6 +57,7 @@ namespace MiraEngine
     Model::Model(const std::string& filePath)
     {
         Load(filePath);
+
     }
 
     void Model::Draw(const Shader& shader, const std::shared_ptr<Texture>& diffuseOverride) const
@@ -82,6 +83,11 @@ namespace MiraEngine
 
         m_directory = std::filesystem::path(filePath).parent_path().string();
         ProcessNode(scene->mRootNode, scene);
+        if (m_boneCounter > MaxBones)
+        {
+            throw std::runtime_error(filePath + " has " + std::to_string(m_boneCounter)
+                + " bones; the renderer supports at most " + std::to_string(MaxBones));
+        }
         ReadHierarchyData(m_rootNode, scene->mRootNode);
         m_globalInverseTransform = glm::inverse(ConvertMatrix(scene->mRootNode->mTransformation));
     }

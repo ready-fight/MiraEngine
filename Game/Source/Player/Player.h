@@ -9,17 +9,12 @@
 #include <cstddef>
 #include <string>
 
-namespace MiraEngine
-{
-    class Scene;
-}
-
 namespace MiraGame
 {
     class Player : public Character
     {
     public:
-        explicit Player(MiraEngine::Scene* scene);
+        explicit Player(MiraEngine::Scene& scene);
         void Update(float deltaTime) override;
         void DrawUI() override;
         void EquipItem(std::size_t index);
@@ -47,8 +42,7 @@ namespace MiraGame
         float m_attackDuration = 0.6f;
         float m_interactRange = 1.5f;
         bool m_wasInteractDown = false;
-        bool m_questStarted = false;
-        MiraEngine::Scene* m_scene = nullptr;
+        MiraEngine::Scene& m_scene;
         std::optional<ItemData> m_equippedWeapon;
         QuestSystem m_questSystem;
     };

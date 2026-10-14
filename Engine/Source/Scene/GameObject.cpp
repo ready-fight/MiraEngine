@@ -81,12 +81,12 @@ namespace MiraEngine
 
     Collider* GameObject::GetCollider()
     {
-        return m_collider.get();
+        return m_collider ? &*m_collider : nullptr;
     }
 
     const Collider* GameObject::GetCollider() const
     {
-        return m_collider.get();
+        return m_collider ? &*m_collider : nullptr;
     }
 
     void GameObject::SetModel(std::shared_ptr<Model> model)
@@ -151,5 +151,13 @@ namespace MiraEngine
     const Material& GameObject::GetMaterial() const
     {
         return m_material;
+    }
+
+    void GameObject::PlayAnimation(const std::string& name, bool looping)
+    {
+        if (m_animator)
+        {
+            m_animator->PlayAnimation(name, looping);
+        }
     }
 }

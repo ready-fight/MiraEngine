@@ -1,32 +1,24 @@
 #include "Interaction/NPC.h"
+#include "Collision/Collider.h"
 
 #include "Player/Player.h"
 #include "UI/UI.h"
 
 #include "Assets/AssetManager.h"
-#include "Animation/Animator.h"
 
 namespace MiraGame
 {
-    NPC::NPC(const std::string& name, const std::vector<std::string>& inactiveDialogue,
-             const std::vector<std::string>& activeDialogue, const std::vector<std::string>& completedDialogue,
-             const std::vector<std::string>& turnedInDialogue, const std::string& questToStart)
+    NPC::NPC(const std::string& name, const Dialogue& dialogue, const std::string& quest)
         : MiraEngine::GameObject(name)
-        , m_inactiveDialogue(inactiveDialogue)
-        , m_activeDialogue(activeDialogue)
-        , m_completedDialogue(completedDialogue)
-        , m_turnedInDialogue(turnedInDialogue)
-        , m_questToStart(questToStart)
+        , m_dialogue(dialogue)
+        , m_quest(quest)
     {
         auto model = MiraEngine::AssetManager::LoadModel("Assets/Models/Idle.fbx");
         SetModel(model);
-        SetCollider(std::make_unique<MiraEngine::SphereCollider>(0.3f));
+        SetCollider(MiraEngine::Collider::Sphere(0.3f));
         GetTransform().SetScale(glm::vec3(0.01f));
 
-        if (MiraEngine::Animator* animator = GetAnimator())
-        {
-            animator->PlayAnimation("NPC");
-        }
+        PlayAnimation("NPC");
     }
 
     bool NPC::CanInteract() const
@@ -36,84 +28,68 @@ namespace MiraGame
 
     void NPC::Interact(Player& player)
     {
-        m_interactingPlayer = &player;
-        m_dialogueIndex = 0;
-        const Quest* quest = nullptr;
+        const Quest* quest = m_quest.empty() ? nullptr : player.GetQuest(m_quest);
+        const QuestStatus status = quest ? quest->status : QuestStatus::Inactive;
 
-        if (!m_questToStart.empty())
+        switch (status)
         {
-            quest = player.GetQuest(m_questToStart);
+            case QuestStatus::Inactive:  m_lines = &m_dialogue.beforeQuest; break;
+            case QuestStatus::Active:    m_lines = &m_dialogue.questActive; break;
+            case QuestStatus::Completed: m_lines = &m_dialogue.questCompleted; break;
+            case QuestStatus::TurnedIn:  m_lines = &m_dialogue.questTurnedIn; break;
         }
 
-        if (!quest)
+        if (!m_lines->empty())
         {
-            m_dialogue = m_inactiveDialogue;
+            m_talkingTo = &player;
+            m_lineIndex = 0;
         }
-        else
-        {
-            switch (quest->status)
-            {
-                case QuestStatus::Active:
-                    m_dialogue = m_activeDialogue;
-                    break;
-
-                case QuestStatus::Completed:
-                    m_dialogue = m_completedDialogue;
-                    break;
-
-                case QuestStatus::TurnedIn:
-                    m_dialogue = m_turnedInDialogue;
-                    break;
-
-                default:
-                    m_dialogue = m_inactiveDialogue;
-                    break;
-            }
-        }
-
-        m_showDialogue = true;
     }
 
     void NPC::DrawUI()
     {
-        if (!m_showDialogue || m_dialogue.empty())
+        if (!m_talkingTo)
         {
             return;
         }
 
         MiraEngine::UI::BeginWindow(GetName());
-        MiraEngine::UI::DrawText(m_dialogue[m_dialogueIndex]);
+        MiraEngine::UI::DrawText((*m_lines)[m_lineIndex]);
 
-        if (m_dialogueIndex + 1 < m_dialogue.size())
+        const bool onLastLine = m_lineIndex + 1 == m_lines->size();
+
+        if (!onLastLine)
         {
             if (MiraEngine::UI::DrawButton("Next"))
             {
-                ++m_dialogueIndex;
+                ++m_lineIndex;
             }
         }
-        else
+        else if (MiraEngine::UI::DrawButton("Close"))
         {
-            if (MiraEngine::UI::DrawButton("Close"))
-            {
-                if (m_interactingPlayer && !m_questToStart.empty())
-                {
-                    const Quest* quest = m_interactingPlayer->GetQuest(m_questToStart);
-
-                    if (!quest)
-                    {
-                        m_interactingPlayer->StartQuest(m_questToStart);
-                    }
-                    else if (quest->status == QuestStatus::Completed)
-                    {
-                        m_interactingPlayer->TurnInQuest(m_questToStart);
-                    }
-                }
-
-                m_showDialogue = false;
-                m_interactingPlayer = nullptr;
-            }
+            FinishConversation();
         }
 
         MiraEngine::UI::EndWindow();
+    }
+
+    // Closing the conversation is what moves the quest along.
+    void NPC::FinishConversation()
+    {
+        if (!m_quest.empty())
+        {
+            const Quest* quest = m_talkingTo->GetQuest(m_quest);
+
+            if (!quest)
+            {
+                m_talkingTo->StartQuest(m_quest);
+            }
+            else if (quest->status == QuestStatus::Completed)
+            {
+                m_talkingTo->TurnInQuest(m_quest);
+            }
+        }
+
+        m_talkingTo = nullptr;
     }
 }

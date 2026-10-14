@@ -6,87 +6,50 @@
 
 namespace MiraEngine
 {
-    glm::vec3 InterpolatePosition(const BoneAnimation& animation, double time)
+    namespace
     {
-        if (animation.positions.size() == 1)
+        // Blends between the two keyframes either side of `time`. Before the first key or after the
+        // last, holds that key's value. A channel with no keys returns `fallback`.
+        template <typename T, typename Blend>
+        T Sample(const std::vector<Keyframe<T>>& keys, double time, const T& fallback, Blend blend)
         {
-            return animation.positions[0].position;
-        }
-
-        for (size_t i = 0; i < animation.positions.size() - 1; ++i)
-        {
-            const PositionKey& current = animation.positions[i];
-            const PositionKey& next = animation.positions[i + 1];
-
-            if (time < next.time)
+            if (keys.empty())
             {
-                const double length = next.time - current.time;
-                const float factor = static_cast<float>((time - current.time) / length);
-
-                return glm::mix(current.position, next.position, factor);
+                return fallback;
             }
-        }
 
-        return animation.positions.back().position;
-    }
-
-    glm::quat InterpolateRotation(const BoneAnimation& animation, double time)
-    {
-        if (animation.rotations.size() == 1)
-        {
-            return animation.rotations[0].rotation;
-        }
-
-        for (size_t i = 0; i < animation.rotations.size() - 1; ++i)
-        {
-            const RotationKey& current = animation.rotations[i];
-            const RotationKey& next = animation.rotations[i + 1];
-
-            if (time < next.time)
+            if (time <= keys.front().time)
             {
-                const double length = next.time - current.time;
-                const float factor = static_cast<float>((time - current.time) / length);
-
-                return glm::normalize(glm::slerp(current.rotation, next.rotation, factor));
+                return keys.front().value;
             }
-        }
 
-        return animation.rotations.back().rotation;
-    }
-
-    glm::vec3 InterpolateScale(const BoneAnimation& animation, double time)
-    {
-        if (animation.scales.size() == 1)
-        {
-            return animation.scales[0].scale;
-        }
-
-        for (size_t i = 0; i < animation.scales.size() - 1; ++i)
-        {
-            const ScaleKey& current = animation.scales[i];
-            const ScaleKey& next = animation.scales[i + 1];
-
-            if (time < next.time)
+            for (std::size_t i = 0; i + 1 < keys.size(); ++i)
             {
-                const double length = next.time - current.time;
-                const float factor = static_cast<float>((time - current.time) / length);
+                const Keyframe<T>& current = keys[i];
+                const Keyframe<T>& next = keys[i + 1];
 
-                return glm::mix(current.scale, next.scale, factor);
+                if (time < next.time)
+                {
+                    const float t = static_cast<float>((time - current.time) / (next.time - current.time));
+                    return blend(current.value, next.value, t);
+                }
             }
-        }
 
-        return animation.scales.back().scale;
+            return keys.back().value;
+        }
     }
 
     glm::mat4 CalculateBoneTransform(const BoneAnimation& animation, double time)
     {
-        const glm::vec3 position = InterpolatePosition(animation, time);
-        const glm::quat rotation = InterpolateRotation(animation, time);
-        const glm::vec3 scale = InterpolateScale(animation, time);
-        const glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), position);
-        const glm::mat4 rotationMatrix = glm::mat4_cast(rotation);
-        const glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scale);
+        const auto lerp = [](const glm::vec3& a, const glm::vec3& b, float t) { return glm::mix(a, b, t); };
+        const auto slerp = [](const glm::quat& a, const glm::quat& b, float t)
+            { return glm::normalize(glm::slerp(a, b, t)); };
 
-        return translationMatrix * rotationMatrix * scaleMatrix;
+        const glm::vec3 position = Sample(animation.positions, time, glm::vec3(0.0f), lerp);
+        const glm::quat rotation = Sample(animation.rotations, time, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), slerp);
+        const glm::vec3 scale = Sample(animation.scales, time, glm::vec3(1.0f), lerp);
+
+        return glm::translate(glm::mat4(1.0f), position) * glm::mat4_cast(rotation)
+            * glm::scale(glm::mat4(1.0f), scale);
     }
 }

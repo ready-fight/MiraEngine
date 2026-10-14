@@ -5,18 +5,13 @@
 #include <glm/common.hpp>
 
 #include <cmath>
-#include <cstdio>
 
 namespace MiraEngine
 {
     Camera::Camera(const glm::vec3& position, const glm::vec3& target)
         : m_position(position)
-        , m_target(target)
     {
-        const glm::vec3 direction = glm::normalize(m_target - m_position);
-        m_pitch = glm::degrees(std::asin(direction.y));
-        m_yaw = glm::degrees(std::atan2(direction.z, direction.x));
-        UpdateTarget();
+        LookAt(target);
     }
 
     glm::mat4 Camera::GetViewMatrix() const
@@ -33,7 +28,6 @@ namespace MiraEngine
     {
         m_position += offset;
         m_target += offset;
-        printf("Camera Position: (%.2f, %.2f, %.2f)\n", m_position.x, m_position.y, m_position.z);
     }
 
     void Camera::MoveRelative(float forward, float right, float vertical)
@@ -82,8 +76,7 @@ namespace MiraEngine
 
     void Camera::LookAt(const glm::vec3& target)
     {
-        m_target = target;
-        const glm::vec3 direction = glm::normalize(m_target - m_position);
+        const glm::vec3 direction = glm::normalize(target - m_position);
         m_pitch = glm::degrees(std::asin(direction.y));
         m_yaw = glm::degrees(std::atan2(direction.z, direction.x));
         UpdateTarget();
