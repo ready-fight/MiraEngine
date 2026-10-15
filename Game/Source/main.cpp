@@ -13,6 +13,7 @@ int main()
 		MiraEngine::Scene& scene = application.GetScene();
 		InitializeQuests();
 		InitializeModels_Animations();
+		InitializeEnvironment(scene);
 		MiraGame::Player& player = InitializePlayer(scene);
 		InitializeEnemy(scene, player);
 		InitializeInteractions(scene);

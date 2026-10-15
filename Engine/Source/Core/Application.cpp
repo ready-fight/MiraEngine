@@ -175,8 +175,10 @@ namespace MiraEngine
 
         if (ImGui::BeginCombo("##GameObjectSelector", objects[m_selectedObject]->GetName().c_str()))
         {
+
             for (int i = 0; i < count; ++i)
             {
+
                 const std::string& label = objects[i]->GetName();
 
                 if (label == "CameraController")

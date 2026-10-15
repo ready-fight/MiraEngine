@@ -1,0 +1,12 @@
+newmtl Yellow
+Kd 1 1 1
+map_Kd GrassYellow.png
+
+newmtl Mid
+Kd 1 1 1
+map_Kd GrassMid.png
+
+newmtl Green
+Kd 1 1 1
+map_Kd GrassGreen.png
+

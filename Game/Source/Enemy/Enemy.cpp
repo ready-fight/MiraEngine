@@ -60,6 +60,7 @@ namespace MiraGame
 
             case EnemyState::Dead:
                 PlayAnimation("Death", false);
+				SetCollider(MiraEngine::Collider::Sphere(0.0f));
                 break;
         }
     }

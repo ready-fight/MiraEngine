@@ -4,160 +4,170 @@
 #include "Graphics/Model.h"
 #include "Graphics/Material.h"
 #include "Animation/Animator.h"
+#include "Assets/AssetManager.h"
 
 namespace MiraEngine
 {
-    GameObject::GameObject(const std::string& name)
-        : m_name(name)
-    {
-    }
+	GameObject::GameObject(const std::string& name)
+		: m_name(name)
+	{
+	}
 
-    GameObject::~GameObject() = default;
+	GameObject::~GameObject() = default;
 
-    void GameObject::Update(float deltaTime) {}
+	void GameObject::Update(float deltaTime) {}
 
-    void GameObject::DrawUI() {}
+	void GameObject::DrawUI() {}
 
-    void GameObject::FadeIn(float deltaTime)
-    {
-        if (m_material.color.a == 1.0f)
-        {
-            return;
-        }
+	void GameObject::FadeIn(float deltaTime)
+	{
+		if (m_material.color.a == 1.0f)
+		{
+			return;
+		}
 
-        float alpha = m_material.color.a;
-        alpha += m_fadeSpeed * deltaTime;
-        alpha = std::min(alpha, 1.0f);
-        m_material.color.a = alpha;
-    }
+		float alpha = m_material.color.a;
+		alpha += m_fadeSpeed * deltaTime;
+		alpha = std::min(alpha, 1.0f);
+		m_material.color.a = alpha;
+	}
 
-    void GameObject::FadeOut(float deltaTime)
-    {
-        if (m_material.color.a == 0.0f)
-        {
-            return;
-        }
+	void GameObject::FadeOut(float deltaTime)
+	{
+		if (m_material.color.a == 0.0f)
+		{
+			return;
+		}
 
-        float alpha = m_material.color.a;
-        alpha -= m_fadeSpeed * deltaTime;
-        alpha = std::max(alpha, 0.0f);
-        m_material.color.a = alpha;
+		float alpha = m_material.color.a;
+		alpha -= m_fadeSpeed * deltaTime;
+		alpha = std::max(alpha, 0.0f);
+		m_material.color.a = alpha;
 
-        if (alpha == 0)
-        {
-            m_pendingDestroy = true;
-        }
-    }
+		if (alpha == 0)
+		{
+			m_pendingDestroy = true;
+		}
+	}
 
-    bool GameObject::IsPendingDestroy() const
-    {
-        return m_pendingDestroy;
-    }
+	bool GameObject::IsPendingDestroy() const
+	{
+		return m_pendingDestroy;
+	}
 
-    Transform& GameObject::GetTransform()
-    {
-        return m_transform;
-    }
+	Transform& GameObject::GetTransform()
+	{
+		return m_transform;
+	}
 
-    const Transform& GameObject::GetTransform() const
-    {
-        return m_transform;
-    }
+	const Transform& GameObject::GetTransform() const
+	{
+		return m_transform;
+	}
 
-    const std::string& GameObject::GetName() const
-    {
-        return m_name;
-    }
+	const std::string& GameObject::GetName() const
+	{
+		return m_name;
+	}
 
-    void GameObject::SetCollider(const Collider& collider)
-    {
-        m_collider = collider;
-    }
+	void GameObject::SetCollider(const Collider& collider)
+	{
+		m_collider = collider;
+	}
 
-    void GameObject::RemoveCollider()
-    {
-        m_collider.reset();
-    }
+	void GameObject::RemoveCollider()
+	{
+		m_collider.reset();
+	}
 
-    Collider* GameObject::GetCollider()
-    {
-        return m_collider ? &*m_collider : nullptr;
-    }
+	Collider* GameObject::GetCollider()
+	{
+		return m_collider ? &*m_collider : nullptr;
+	}
 
-    const Collider* GameObject::GetCollider() const
-    {
-        return m_collider ? &*m_collider : nullptr;
-    }
+	const Collider* GameObject::GetCollider() const
+	{
+		return m_collider ? &*m_collider : nullptr;
+	}
 
-    void GameObject::SetModel(std::shared_ptr<Model> model)
-    {
-        m_model = std::move(model);
+	void GameObject::SetName(const std::string& name)
+	{
+		m_name = name;
+	}
 
-        if (!m_model)
-        {
-            return;
-        }
+	void GameObject::SetModel(std::shared_ptr<Model> model)
+	{
+		m_model = std::move(model);
 
-        if (m_model->GetBoneCount() == 0)
-        {
-            return;
-        }
+		if (!m_model)
+		{
+			return;
+		}
 
-        if (!m_animator)
-        {
-            m_animator = std::make_unique<Animator>(*m_model);
-        }
-        else
-        {
-            m_animator->SetModel(*m_model);
-        }
-    }
+		if (m_model->GetBoneCount() == 0)
+		{
+			return;
+		}
 
-    void GameObject::SetDiffuseOverride(const std::string& path)
-    {
-        m_diffuseOverride = std::make_shared<Texture>(path);
-    }
+		if (!m_animator)
+		{
+			m_animator = std::make_unique<Animator>(*m_model);
+		}
+		else
+		{
+			m_animator->SetModel(*m_model);
+		}
+	}
 
-    const std::shared_ptr<Texture>& GameObject::GetDiffuseOverride() const
-    {
-        return m_diffuseOverride;
-    }
+	void GameObject::SetTexture(TextureSlot slot, const std::string& path)
+	{
+		std::shared_ptr<Texture> texture = AssetManager::LoadTexture(path);
+		TextureSet& textures = m_material.textures;
 
-    Model* GameObject::GetModel()
-    {
-        return m_model.get();
-    }
+		switch (slot)
+		{
+		case TextureSlot::Color:     textures.color = texture; break;
+		case TextureSlot::Normal:    textures.normal = texture; break;
+		case TextureSlot::Occlusion: textures.occlusion = texture; break;
+		case TextureSlot::Roughness: textures.roughness = texture; break;
+		}
+	}
 
-    const Model* GameObject::GetModel() const
-    {
-        return m_model.get();
-    }
+	Model* GameObject::GetModel()
+	{
+		return m_model.get();
+	}
 
-    Animator* GameObject::GetAnimator()
-    {
-        return m_animator.get();
-    }
+	const Model* GameObject::GetModel() const
+	{
+		return m_model.get();
+	}
 
-    const Animator* GameObject::GetAnimator() const
-    {
-        return m_animator.get();
-    }
+	Animator* GameObject::GetAnimator()
+	{
+		return m_animator.get();
+	}
 
-    Material& GameObject::GetMaterial()
-    {
-        return m_material;
-    }
+	const Animator* GameObject::GetAnimator() const
+	{
+		return m_animator.get();
+	}
 
-    const Material& GameObject::GetMaterial() const
-    {
-        return m_material;
-    }
+	Material& GameObject::GetMaterial()
+	{
+		return m_material;
+	}
 
-    void GameObject::PlayAnimation(const std::string& name, bool looping)
-    {
-        if (m_animator)
-        {
-            m_animator->PlayAnimation(name, looping);
-        }
-    }
+	const Material& GameObject::GetMaterial() const
+	{
+		return m_material;
+	}
+
+	void GameObject::PlayAnimation(const std::string& name, bool looping)
+	{
+		if (m_animator)
+		{
+			m_animator->PlayAnimation(name, looping);
+		}
+	}
 }

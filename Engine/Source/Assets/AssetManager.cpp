@@ -2,6 +2,7 @@
 
 #include "Graphics/Model.h"
 #include "Animation/Animation.h"
+#include "Graphics/Texture.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -18,6 +19,8 @@ namespace MiraEngine
 {
     std::unordered_map<std::string, std::shared_ptr<Model>> AssetManager::s_models;
     std::unordered_map<std::string, std::shared_ptr<AnimationClip>> AssetManager::s_animations;
+    std::unordered_map<std::string, std::shared_ptr<Texture>> AssetManager::s_textures;
+    
 
     std::shared_ptr<Model> AssetManager::LoadModel(const std::string& path)
     {
@@ -121,9 +124,30 @@ namespace MiraEngine
         return clip;
     }
 
+    std::shared_ptr<Texture> AssetManager::LoadTexture(const std::string& path)
+    {
+        if (!std::filesystem::is_regular_file(path))
+        {
+            throw std::runtime_error("Texture file does not exist: " + path);
+        }
+
+        const auto it = s_textures.find(path);
+
+        if (it != s_textures.end())
+        {
+            return it->second;
+        }
+
+        auto texture = std::make_shared<Texture>(path);
+        s_textures[path] = texture;
+
+        return texture;
+    }
+
     void AssetManager::Clear()
     {
         s_models.clear();
         s_animations.clear();
+		s_textures.clear();
     }
 }

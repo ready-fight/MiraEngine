@@ -2,6 +2,8 @@
 
 #include <memory>
 #include <vector>
+#include <unordered_map>
+#include <string>
 
 #include <glm/vec3.hpp>
 #include "Graphics/Camera.h"
@@ -24,5 +26,6 @@ namespace MiraEngine
 
     private:
         std::vector<std::unique_ptr<GameObject>> m_objects;
+        std::unordered_map<std::string, int> m_nameCounts;
     };
 }

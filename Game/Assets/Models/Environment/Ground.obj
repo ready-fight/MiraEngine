@@ -1,0 +1,12 @@
+# 40 x 40 ground plane. UVs repeat 20 times so a texture tiles later.
+v -20 0 -20
+v  20 0 -20
+v  20 0  20
+v -20 0  20
+vt 0 0
+vt 20 0
+vt 20 20
+vt 0 20
+vn 0 1 0
+f 1/1/1 4/4/1 3/3/1
+f 1/1/1 3/3/1 2/2/1

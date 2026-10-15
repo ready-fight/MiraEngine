@@ -10,6 +10,15 @@ namespace MiraEngine
 {
     void Scene::AddObject(std::unique_ptr<GameObject> object)
     {
+        const std::string name = object->GetName();
+        int& count = m_nameCounts[name];
+
+        if (count > 0)
+        {
+            object->SetName(name + " " + std::to_string(count));
+        }
+
+        ++count;
         m_objects.push_back(std::move(object));
     }
 

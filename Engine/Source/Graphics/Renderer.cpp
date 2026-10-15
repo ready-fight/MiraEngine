@@ -21,6 +21,7 @@ namespace
         layout(location = 2) in vec2 texCoord;
         layout(location = 3) in ivec4 boneIDs;
         layout(location = 4) in vec4 weights;
+        layout(location = 5) in vec4 tangent;
 
         const int MAX_BONES = 100;
 
@@ -31,11 +32,14 @@ namespace
 
         out vec3 worldNormal;
         out vec2 textureCoordinate;
+        out vec4 worldTangent;
 
         void main()
         {
             vec4 localPosition = vec4(position, 1.0);
             vec3 localNormal = normal;
+            vec3 localTangent = tangent.xyz;
+
             textureCoordinate = texCoord;
 
             float totalWeight = weights.x + weights.y + weights.z + weights.w;
@@ -48,9 +52,11 @@ namespace
 
                 localPosition = skinMatrix * localPosition;
                 localNormal = mat3(skinMatrix) * localNormal;
+                localTangent = mat3(skinMatrix) * localTangent;
             }
 
             worldNormal = mat3(transpose(inverse(model))) * localNormal;
+            worldTangent = vec4(mat3(model) * localTangent, tangent.w);
             gl_Position = projection * view * model * localPosition;
         }
     )";
@@ -62,10 +68,18 @@ namespace
         uniform vec3 ambientLight;
         uniform vec3 lightDirection;
         uniform vec3 lightColor;
-        uniform sampler2D diffuseTexture;
-        uniform int hasTexture;
+
+        uniform sampler2D colorTexture;
+        uniform int hasColorTexture;
+        uniform sampler2D normalTexture;
+        uniform int hasNormalTexture;
+        uniform sampler2D occlusionTexture;
+        uniform int hasOcclusionTexture;
+        uniform sampler2D roughnessTexture;
+        uniform int hasRoughnessTexture;
 
         in vec3 worldNormal;
+        in vec4 worldTangent;
         in vec2 textureCoordinate;
 
         out vec4 fragmentColor;
@@ -73,14 +87,36 @@ namespace
         void main()
         {
             vec3 normalizedNormal = normalize(worldNormal);
+
+            if (hasNormalTexture == 1)
+            {
+                vec3 T = normalize(worldTangent.xyz - normalizedNormal * dot(normalizedNormal, worldTangent.xyz));
+                vec3 B = cross(normalizedNormal, T) * worldTangent.w;
+
+                vec3 mapNormal = texture(normalTexture, textureCoordinate).rgb * 2.0 - 1.0;
+                normalizedNormal = normalize(mat3(T, B, normalizedNormal) * mapNormal);
+            }
+
             vec3 directionToLight = normalize(-lightDirection);
             float diffuseAmount = max(dot(normalizedNormal, directionToLight), 0.0);
-            vec3 lighting = ambientLight + lightColor * diffuseAmount;
+
+            float occlusion = 1.0;
+            if (hasOcclusionTexture == 1)
+            {
+                occlusion = texture(occlusionTexture, textureCoordinate).r;
+            }
+
+            vec3 lighting = ambientLight * occlusion + lightColor * diffuseAmount;
 
             vec4 surfaceColor = baseColor;
-            if (hasTexture == 1)
+            if (hasColorTexture == 1)
             {
-                surfaceColor.rgb *= texture(diffuseTexture, textureCoordinate).rgb;
+                vec4 texel = texture(colorTexture, textureCoordinate);
+                if (texel.a < 0.5)
+                {
+                    discard;
+                }
+                surfaceColor.rgb *= texel.rgb;
             }
 
             fragmentColor = vec4(surfaceColor.rgb * lighting, surfaceColor.a);
@@ -102,8 +138,7 @@ namespace MiraEngine
 
     void Renderer::Render(float aspectRatio, Camera& camera, Scene& scene)
     {
-        //glClearColor(0.392f, 0.431f, 0.471f, 1.0f);
-        glClearColor(0.1, 0.1, 0.1, 1.0f);
+        glClearColor(0.55f, 0.7f, 0.9f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         m_shader.Bind();
         const glm::mat4 view = camera.GetViewMatrix();
@@ -133,7 +168,7 @@ namespace MiraEngine
 
             const Material& material = object->GetMaterial();
             m_shader.SetVector4("baseColor", material.color);
-            model->Draw(m_shader, object->GetDiffuseOverride());
+            model->Draw(m_shader, object->GetMaterial().textures);
         }
 
         m_shader.Unbind();

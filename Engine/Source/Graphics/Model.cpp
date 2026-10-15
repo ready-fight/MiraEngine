@@ -11,6 +11,7 @@
 #include <vector>
 #include <iostream>
 #include <filesystem>
+#include <initializer_list>
 
 namespace
 {
@@ -49,6 +50,31 @@ namespace
 
         return result;
     }
+
+    std::shared_ptr<MiraEngine::Texture> LoadMaterialTexture(const aiMaterial* material,
+        std::initializer_list<aiTextureType> types,
+        const std::string& directory)
+    {
+        for (aiTextureType type : types)
+        {
+            aiString texturePath;
+
+            if (material->GetTexture(type, 0, &texturePath) != AI_SUCCESS)
+            {
+                continue;
+            }
+
+            const std::filesystem::path fullPath =
+                std::filesystem::path(directory) / std::filesystem::path(texturePath.C_Str()).filename();
+
+            if (std::filesystem::is_regular_file(fullPath))
+            {
+                return std::make_shared<MiraEngine::Texture>(fullPath.string());
+            }
+        }
+
+        return nullptr;
+    }
 }
 
 namespace MiraEngine
@@ -60,11 +86,11 @@ namespace MiraEngine
 
     }
 
-    void Model::Draw(const Shader& shader, const std::shared_ptr<Texture>& diffuseOverride) const
+    void Model::Draw(const Shader& shader, const TextureSet& textures) const
     {
         for (const auto& mesh : m_meshes)
         {
-            mesh->Draw(shader, diffuseOverride);
+            mesh->Draw(shader, textures);
         }
     }
 
@@ -73,7 +99,7 @@ namespace MiraEngine
         Assimp::Importer importer;
 
         const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenSmoothNormals |
-                                                               aiProcess_FlipUVs);
+                                                               aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
         if (scene == nullptr || scene->mRootNode == nullptr || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE))
         {
@@ -81,7 +107,6 @@ namespace MiraEngine
             throw std::runtime_error("Failed to load model: " + std::string(importer.GetErrorString()));
         }
 
-        m_directory = std::filesystem::path(filePath).parent_path().string();
         ProcessNode(scene->mRootNode, scene);
         if (m_boneCounter > MaxBones)
         {
@@ -90,40 +115,6 @@ namespace MiraEngine
         }
         ReadHierarchyData(m_rootNode, scene->mRootNode);
         m_globalInverseTransform = glm::inverse(ConvertMatrix(scene->mRootNode->mTransformation));
-    }
-
-    std::shared_ptr<Texture> Model::LoadMaterialTexture(aiMaterial* material)
-    {
-        aiString texturePath;
-        aiTextureType textureType;
-
-        if (material->GetTextureCount(aiTextureType_BASE_COLOR) > 0)
-        {
-            textureType = aiTextureType_BASE_COLOR;
-        }
-        else if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0)
-        {
-            textureType = aiTextureType_DIFFUSE;
-        }
-        else
-        {
-            return nullptr;
-        }
-
-        if (material->GetTexture(textureType, 0, &texturePath) != AI_SUCCESS)
-        {
-            return nullptr;
-        }
-
-        const std::filesystem::path textureFileName = std::filesystem::path(texturePath.C_Str()).filename();
-        const std::filesystem::path fullPath = std::filesystem::path(m_directory) / textureFileName;
-
-        if (!std::filesystem::is_regular_file(fullPath))
-        {
-            return nullptr;
-        }
-
-        return std::make_shared<Texture>(fullPath.string());
     }
 
     void Model::ProcessNode(aiNode* node, const aiScene* scene)
@@ -188,17 +179,25 @@ namespace MiraEngine
 
         for (unsigned int i = 0; i < mesh->mNumVertices; i++)
         {
-            const aiVector3D& position = mesh->mVertices[i];
-            const aiVector3D& normal = mesh->mNormals[i];
-            glm::vec2 texCoord(0.0f);
+            Vertex vertex;
+            vertex.position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+            vertex.normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
 
             if (mesh->HasTextureCoords(0))
             {
-                texCoord.x = mesh->mTextureCoords[0][i].x;
-                texCoord.y = mesh->mTextureCoords[0][i].y;
+                vertex.texCoord = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
             }
 
-            vertices.push_back({{position.x, position.y, position.z}, {normal.x, normal.y, normal.z}, texCoord});
+            if (mesh->HasTangentsAndBitangents())
+            {
+                const glm::vec3 tangent(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
+                const glm::vec3 bitangent(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z);
+
+                const float handedness = glm::dot(glm::cross(vertex.normal, tangent), bitangent) < 0.0f ? -1.0f : 1.0f;
+                vertex.tangent = glm::vec4(tangent, handedness);
+            }
+
+            vertices.push_back(vertex);
         }
 
         for (unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
@@ -240,15 +239,7 @@ namespace MiraEngine
             }
         }
 
-        std::shared_ptr<Texture> texture;
-
-        if (mesh->mMaterialIndex < scene->mNumMaterials)
-        {
-            aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-            texture = LoadMaterialTexture(material);
-        }
-
-        return std::make_unique<Mesh>(vertices, indices, texture);
+        return std::make_unique<Mesh>(vertices, indices);
     }
 
     const glm::mat4& Model::GetGlobalInverseTransform() const

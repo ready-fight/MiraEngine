@@ -8,10 +8,23 @@
 
 namespace MiraEngine
 {
-	Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<std::uint32_t>& indices,
-		std::shared_ptr<Texture> texture)
-		: m_texture(std::move(texture))
-		, m_indexCount(static_cast<int>(indices.size()))
+	namespace
+	{
+		void BindSlot(const Shader& shader, const std::shared_ptr<Texture>& texture, int unit, const char* sampler,
+			const char* flag)
+		{
+			shader.SetInt(flag, texture ? 1 : 0);
+
+			if (texture)
+			{
+				texture->Bind(unit);
+				shader.SetInt(sampler, unit);
+			}
+		}
+	}
+
+	Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<std::uint32_t>& indices) :
+		m_indexCount(static_cast<int>(indices.size()))
 	{
 		glGenVertexArrays(1, &m_vertexArray);
 		glGenBuffers(1, &m_vertexBuffer);
@@ -41,6 +54,10 @@ namespace MiraEngine
 		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
 			reinterpret_cast<void*>(offsetof(Vertex, weights)));
 		glEnableVertexAttribArray(4);
+
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+			reinterpret_cast<void*>(offsetof(Vertex, tangent)));
+		glEnableVertexAttribArray(5);
 		// End of vertex attributes
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -54,33 +71,15 @@ namespace MiraEngine
 		glDeleteVertexArrays(1, &m_vertexArray);
 	}
 
-	void Mesh::Draw(const Shader& shader, const std::shared_ptr<Texture>& diffuseOverride) const
+	void Mesh::Draw(const Shader& shader, const TextureSet& textures) const
 	{
-		auto diffuseTexture = diffuseOverride ? diffuseOverride : m_texture;
-
-		if (diffuseTexture)
-		{
-			diffuseTexture->Bind(0);
-			shader.SetInt("hasTexture", 1);
-			shader.SetInt("diffuseTexture", 0);
-		}
-		else
-		{
-			shader.SetInt("hasTexture", 0);
-		}
+		BindSlot(shader, textures.color, 0, "colorTexture", "hasColorTexture");
+		BindSlot(shader, textures.normal, 1, "normalTexture", "hasNormalTexture");
+		BindSlot(shader, textures.occlusion, 2, "occlusionTexture", "hasOcclusionTexture");
+		BindSlot(shader, textures.roughness, 3, "roughnessTexture", "hasRoughnessTexture");
 
 		glBindVertexArray(m_vertexArray);
 		glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
 		glBindVertexArray(0);
-	}
-
-	Texture* Mesh::GetTexture() const
-	{
-		return m_texture.get();
-	}
-
-	void Mesh::SetTexture(std::shared_ptr<Texture> texture)
-	{
-		m_texture = std::move(texture);
 	}
 }
