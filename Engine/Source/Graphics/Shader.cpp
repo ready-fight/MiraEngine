@@ -93,6 +93,11 @@ namespace MiraEngine
         glUniform1i(location, value);
     }
 
+    void Shader::SetFloat(const char* name, float value) const
+    {
+        glUniform1f(glGetUniformLocation(m_program, name), value);
+    }
+
     unsigned int Shader::Compile(unsigned int type, const char* source)
     {
         const unsigned int shader = glCreateShader(type);

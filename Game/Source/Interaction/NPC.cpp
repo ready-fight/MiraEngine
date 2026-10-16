@@ -1,5 +1,6 @@
 #include "Interaction/NPC.h"
 #include "Collision/Collider.h"
+#include "Graphics/Model.h"
 
 #include "Player/Player.h"
 #include "UI/UI.h"
@@ -13,8 +14,12 @@ namespace MiraGame
         , m_dialogue(dialogue)
         , m_quest(quest)
     {
-        auto model = MiraEngine::AssetManager::LoadModel("Assets/Models/Idle.fbx");
-        SetModel(model);
+        SetModel("Assets/Models/Idle.fbx");
+
+		auto model = GetModel();
+        auto npc = MiraEngine::AssetManager::LoadAnimation("Assets/Models/Interactable/NPC.fbx");
+        model->AddAnimation(npc);
+
         SetCollider(MiraEngine::Collider::Sphere(0.3f));
         GetTransform().SetScale(glm::vec3(0.01f));
 

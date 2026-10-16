@@ -30,30 +30,13 @@ void InitializeQuests()
     MiraGame::QuestDatabase::RegisterQuest(dungeonKeyQuest);
 }
 
-void InitializeModels_Animations()
-{
-    auto model = MiraEngine::AssetManager::LoadModel("Assets/Models/Idle.fbx");
-    auto idle = MiraEngine::AssetManager::LoadAnimation("Assets/Models/Idle.fbx");
-    auto walking = MiraEngine::AssetManager::LoadAnimation("Assets/Models/Walking.fbx");
-    auto running = MiraEngine::AssetManager::LoadAnimation("Assets/Models/Running.fbx");
-    auto attack = MiraEngine::AssetManager::LoadAnimation("Assets/Models/Attack.fbx");
-    auto death = MiraEngine::AssetManager::LoadAnimation("Assets/Models/Death.fbx");
-    auto npc = MiraEngine::AssetManager::LoadAnimation("Assets/Models/Interactable/NPC.fbx");
-    model->AddAnimation(idle);
-    model->AddAnimation(walking);
-    model->AddAnimation(running);
-    model->AddAnimation(attack);
-    model->AddAnimation(death);
-    model->AddAnimation(npc);
-}
-
 void InitializeEnvironment(MiraEngine::Scene& scene)
 {
     // Ground: a 40x40 plane with a tiling PBR material (ambientCG Ground037, CC0)
     const std::string groundTextures = "Assets/Textures/Ground/Ground037_1K-JPG_";
 
     auto ground = std::make_unique<MiraEngine::GameObject>("Ground");
-    ground->SetModel(MiraEngine::AssetManager::LoadModel("Assets/Models/Environment/Ground.obj"));
+    ground->SetModel("Assets/Models/Environment/Ground.obj");
     ground->SetTexture(MiraEngine::TextureSlot::Color, groundTextures + "Color.jpg");
     ground->SetTexture(MiraEngine::TextureSlot::Normal, groundTextures + "NormalGL.jpg");
     ground->SetTexture(MiraEngine::TextureSlot::Occlusion, groundTextures + "AmbientOcclusion.jpg");
@@ -118,7 +101,7 @@ void InitializeEnvironment(MiraEngine::Scene& scene)
         const std::string texture = variant.find("Mid") != std::string::npos ? "GrassMid.png" : "GrassGreen.png";
 
         auto grass = std::make_unique<MiraEngine::GameObject>("Grass");
-        grass->SetModel(MiraEngine::AssetManager::LoadModel(grassFolder + variant + ".obj"));
+        grass->SetModel(grassFolder + variant + ".obj");
         grass->SetTexture(MiraEngine::TextureSlot::Color, grassFolder + texture);
         grass->GetTransform().SetPosition(spot);
         grass->GetTransform().SetRotation(glm::vec3(0.0f, angle(rng), 0.0f));
@@ -153,7 +136,7 @@ void InitializeInteractions(MiraEngine::Scene& scene)
     swordData.type = MiraGame::ItemType::Weapon;
     swordData.damage = 20;
     auto sword = std::make_unique<MiraGame::Item>(swordData);
-    auto swordModel = MiraEngine::AssetManager::LoadModel("Assets/Models/Interactable/Sword/Sword.obj");
+    auto swordModel = ("Assets/Models/Interactable/Sword/Sword.obj");
     sword->SetModel(swordModel);
 
     const std::string swordFolder = "Assets/Models/Interactable/Sword/";
@@ -161,9 +144,9 @@ void InitializeInteractions(MiraEngine::Scene& scene)
     sword->SetTexture(MiraEngine::TextureSlot::Normal, swordFolder + "all.001_Normal_OpenGL.png");
     sword->SetTexture(MiraEngine::TextureSlot::Occlusion, swordFolder + "all.001_Mixed_AO.png");
 
-    sword->GetTransform().SetRotation(glm::vec3(-90.f, 0.f, 0.f));
+    sword->GetTransform().SetRotation(glm::vec3(-90.0f, 0.0f, 0.0f));
     sword->GetTransform().SetScale(glm::vec3(0.1f));
-    sword->GetTransform().SetPosition(glm::vec3(2.0f, 0.0f, 0.0f));
+    sword->GetTransform().SetPosition(glm::vec3(2.0f, 0.5f, 0.0f));
     scene.AddObject(std::move(sword));
 
     // Potion
@@ -173,14 +156,13 @@ void InitializeInteractions(MiraEngine::Scene& scene)
     potionData.healAmount = 30;
     auto potion = std::make_unique<MiraGame::Item>(potionData);
     potion->GetTransform().SetScale(glm::vec3(0.06f));
-    auto potionModel = MiraEngine::AssetManager::LoadModel("Assets/Models/Interactable/Potion/potion.obj");
-    potion->SetModel(potionModel);
+    potion->SetModel("Assets/Models/Interactable/Potion/potion.obj");
 
     const std::string potionFolder = "Assets/Models/Interactable/Potion/";
     potion->SetTexture(MiraEngine::TextureSlot::Color, potionFolder + "potion_lp2_DefaultMaterial_BaseColor.png");
     potion->SetTexture(MiraEngine::TextureSlot::Normal, potionFolder + "potion_lp2_DefaultMaterial_Normal.png");
 
-    potion->GetTransform().SetPosition(glm::vec3(-2.0f, 0.0f, 3.0f));
+    potion->GetTransform().SetPosition(glm::vec3(-2.0f, 0.5f, 3.0f));
     scene.AddObject(std::move(potion));
 
     // Dungeon Key
@@ -189,14 +171,13 @@ void InitializeInteractions(MiraEngine::Scene& scene)
     dungeonKeyData.type = MiraGame::ItemType::KeyItem;
     auto dungeonKey = std::make_unique<MiraGame::Item>(dungeonKeyData);
     dungeonKey->GetTransform().SetScale(glm::vec3(0.5f));
-    auto dungeonKeyModel = MiraEngine::AssetManager::LoadModel("Assets/Models/Interactable/Key/Key.fbx");
-    dungeonKey->SetModel(dungeonKeyModel);
+    dungeonKey->SetModel("Assets/Models/Interactable/Key/Key.fbx");
 
     const std::string keyFolder = "Assets/Models/Interactable/Key/";
     dungeonKey->SetTexture(MiraEngine::TextureSlot::Color, keyFolder + "Key2_albedo.jpeg");
     dungeonKey->SetTexture(MiraEngine::TextureSlot::Normal, keyFolder + "Key2_normal.png");
     dungeonKey->SetTexture(MiraEngine::TextureSlot::Occlusion, keyFolder + "Key2_AO.jpeg"); 
-    dungeonKey->GetTransform().SetPosition(glm::vec3(-1.68f, 0.0f, 1.0f));
+    dungeonKey->GetTransform().SetPosition(glm::vec3(-1.68f, 0.5f, 1.0f));
 
     scene.AddObject(std::move(dungeonKey));
 
@@ -206,21 +187,19 @@ void InitializeInteractions(MiraEngine::Scene& scene)
     chestPotion.type = MiraGame::ItemType::Consumable;
     chestPotion.healAmount = 50;
     auto chest = std::make_unique<MiraGame::Chest>(chestPotion);
-    auto chestModel = MiraEngine::AssetManager::LoadModel("Assets/Models/Interactable/Chest/Chest.obj");
-    chest->SetModel(chestModel);
+    chest->SetModel("Assets/Models/Interactable/Chest/Chest.obj");
 
     const std::string chestFolder = "Assets/Models/Interactable/Chest/";
     chest->SetTexture(MiraEngine::TextureSlot::Color, chestFolder + "BaseColor.png");
 
-    chest->GetTransform().SetPosition(glm::vec3(1.07f, 0.0f, 12.0f));
+    chest->GetTransform().SetPosition(glm::vec3(1.07f, 0.5f, 12.0f));
     chest->GetTransform().SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
     chest->GetTransform().SetScale(glm::vec3(2.0f, 2.0f, 2.0f));
     scene.AddObject(std::move(chest));
 
     // Door
     auto door = std::make_unique<MiraGame::Door>("Dungeon Key");
-    auto doorModel = MiraEngine::AssetManager::LoadModel("Assets/Models/Interactable/Door/Door.fbx");
-    door->SetModel(doorModel);
+    door->SetModel("Assets/Models/Interactable/Door/Door.fbx");
 	door->SetTexture(MiraEngine::TextureSlot::Color, "Assets/Models/Interactable/Door/Door.png");
     door->GetTransform().SetPosition(glm::vec3(1.5f, 0.0f, 3.0f));
     door->GetTransform().SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
@@ -247,25 +226,14 @@ void InitializeNPCs(MiraEngine::Scene& scene)
 
 void InitializeCollisionObjects(MiraEngine::Scene& scene)
 {
-    auto wallModel = MiraEngine::AssetManager::LoadModel("Assets/Models/Collision/Wall/Wall.obj");
-    auto wall1 = std::make_unique<MiraEngine::GameObject>("Wall 1");
-    wall1->SetModel(wallModel);
-    wall1->GetMaterial().textures.color = MiraEngine::AssetManager::LoadTexture("Assets/Textures/Wall/Wall.jpg");
-    wall1->SetCollider(MiraEngine::Collider::Box(glm::vec3(2.95f, 0.7f, 0.15f)));
-    wall1->GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 10.0f));
-    wall1->GetTransform().SetRotation(glm::vec3(0.0f, -90.0f, -5.0f));
-    scene.AddObject(std::move(wall1));
-    auto wall2 = std::make_unique<MiraEngine::GameObject>("Wall 2");
-    wall2->SetModel(wallModel);
-
-    /*wall2->SetDiffuseOverride(
-        "Assets/Models/Collision/Wall/tex_u1_v1_normal.jpg"
-    );*/
-
-    wall2->SetCollider(MiraEngine::Collider::Box(glm::vec3(2.95f, 0.7f, 0.15f)));
-    wall2->GetTransform().SetPosition(glm::vec3(-6.0f, 0.0f, 10.0f));
-    wall2->GetTransform().SetRotation(glm::vec3(0.0f, -90.0f, 0.0f));
-    scene.AddObject(std::move(wall2));
+    auto wall = std::make_unique<MiraEngine::GameObject>("Wall 1");
+    wall->SetModel("Assets/Models/Collision/Wall/Wall.obj");
+	wall->SetTexture(MiraEngine::TextureSlot::Color, "Assets/Models/Collision/Wall/tex_u1_v1_diffuse.jpg");
+	wall->SetTexture(MiraEngine::TextureSlot::Normal, "Assets/Models/Collision/Wall/tex_u1_v1_normal.jpg");
+    wall->SetCollider(MiraEngine::Collider::Box(glm::vec3(2.95f, 0.7f, 0.15f)));
+    wall->GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 10.0f));
+    wall->GetTransform().SetRotation(glm::vec3(0.0f, -90.0f, -5.0f));
+    scene.AddObject(std::move(wall));
 }
 
 void InitializeCamera(MiraEngine::Scene& scene, MiraEngine::Camera& camera, MiraGame::Player& player)

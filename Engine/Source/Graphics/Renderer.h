@@ -23,6 +23,7 @@ namespace MiraEngine
         void Render(float aspectRatio, Camera& camera, Scene& scene);
         void SetAmbientLight(const AmbientLight& light);
         void SetDirectionalLight(const DirectionalLight& light);
+        void SetFog(const Fog& fog);
         void SetDebugColliders(bool enabled);
         bool GetDebugColliders() const { return m_debugColliders; }
 
@@ -31,6 +32,7 @@ namespace MiraEngine
         AmbientLight m_ambientLight;
         DirectionalLight m_directionalLight;
         DebugRenderer m_debugRenderer;
+		Fog m_fog;
         bool m_debugColliders = false;
     };
 }

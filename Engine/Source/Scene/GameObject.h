@@ -33,7 +33,7 @@ namespace MiraEngine
         Collider* GetCollider();
         const Collider* GetCollider() const;
         void SetName(const std::string& name);
-        void SetModel(std::shared_ptr<Model> model);
+        void SetModel(const std::string& path);
         void SetTexture(TextureSlot slot, const std::string& path);
         Model* GetModel();
         const Model* GetModel() const;
@@ -48,8 +48,8 @@ namespace MiraEngine
         Transform m_transform;
         std::optional<Collider> m_collider;
         std::unique_ptr<Animator> m_animator;
-        std::shared_ptr<Model> m_model;
         std::shared_ptr<Texture> m_texture;
+        std::shared_ptr<Model> m_model;
         std::shared_ptr<Texture> m_diffuseOverride;
         Material m_material;
         const float m_fadeSpeed = 3.0f;

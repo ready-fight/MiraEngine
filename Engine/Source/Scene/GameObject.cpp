@@ -95,27 +95,22 @@ namespace MiraEngine
 		m_name = name;
 	}
 
-	void GameObject::SetModel(std::shared_ptr<Model> model)
+	void GameObject::SetModel(const std::string& path)
 	{
-		m_model = std::move(model);
+		std::shared_ptr<Model> model = AssetManager::LoadModel(path);
 
-		if (!m_model)
-		{
+		if (!model) {
 			return;
 		}
 
-		if (m_model->GetBoneCount() == 0)
-		{
-			return;
-		}
+		m_model = model;
 
-		if (!m_animator)
+		if (m_model->GetBoneCount() > 0)
 		{
-			m_animator = std::make_unique<Animator>(*m_model);
-		}
-		else
-		{
-			m_animator->SetModel(*m_model);
+			if (!m_animator)
+				m_animator = std::make_unique<Animator>(*m_model);
+			else
+				m_animator->SetModel(*m_model);
 		}
 	}
 

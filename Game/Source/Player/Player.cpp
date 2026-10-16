@@ -1,4 +1,5 @@
 #include "Player/Player.h"
+#include "Graphics/Model.h"
 
 #include "Collision/Collider.h"
 #include "Core/Input.h"
@@ -24,11 +25,17 @@ namespace MiraGame
 		: Character("Player", 100)
 		, m_scene(scene)
 	{
-		auto model = MiraEngine::AssetManager::LoadModel("Assets/Models/Idle.fbx");
-		SetModel(model);
+		SetModel("Assets/KayKit_Adventurers/Characters/fbx/Knight.fbx");
+		SetTexture(MiraEngine::TextureSlot::Color, "Assets/KayKit_Adventurers/Characters/fbx/knight_texture.png");
+
+		auto model = GetModel();
+		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_General.fbx"));
+		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_MovementBasic.fbx"));
+		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_CombatMelee.fbx"));
+
 		SetCollider(MiraEngine::Collider::Sphere(0.3f));
-		GetTransform().SetScale(glm::vec3(0.01f));
-		PlayAnimation("Idle");
+		GetTransform().SetScale(glm::vec3(0.5f));
+		PlayAnimation("Rig_Medium_General");
 	}
 
 	void Player::Update(float deltaTime)
@@ -40,7 +47,9 @@ namespace MiraGame
 				m_isAttacking = false;
 				m_attackHitApplied = false;
 
-				PlayAnimation("Death", false);
+				FadeOut(deltaTime);
+
+				/*PlayAnimation("Death", false);*/
 
 				m_hasDied = true;
 			}
@@ -72,7 +81,7 @@ namespace MiraGame
 			m_attackHitApplied = false;
 			m_attackTime = 0.0f;
 
-			PlayAnimation("Attack", false);
+			PlayAnimation("Rig_Medium_CombatMelee", false);
 		}
 
 		m_wasAttackDown = attackDown;
@@ -120,7 +129,7 @@ namespace MiraGame
 				m_isAttacking = false;
 				m_isMoving = isMoving;
 
-				PlayAnimation(isMoving ? "Running" : "Idle");
+				PlayAnimation(isMoving ? "Rig_Medium_MovementBasic" : "Rig_Medium_General");
 			}
 
 			return;
@@ -129,7 +138,7 @@ namespace MiraGame
 		// Idle / walking animation.
 		if (isMoving != m_isMoving)
 		{
-			PlayAnimation(isMoving ? "Running" : "Idle");
+			PlayAnimation(isMoving ? "Rig_Medium_MovementBasic" : "Rig_Medium_General");
 
 			m_isMoving = isMoving;
 		}

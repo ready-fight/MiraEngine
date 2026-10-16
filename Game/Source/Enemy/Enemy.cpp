@@ -22,8 +22,20 @@ namespace MiraGame
     {
         GetTransform().SetPosition(spawnPosition);
 
-        auto model = MiraEngine::AssetManager::LoadModel("Assets/Models/Idle.fbx");
-        SetModel(model);
+        SetModel("Assets/Models/Idle.fbx");
+        auto model = GetModel();
+
+        auto idle = MiraEngine::AssetManager::LoadAnimation("Assets/Models/Idle.fbx");
+        auto walking = MiraEngine::AssetManager::LoadAnimation("Assets/Models/Walking.fbx");
+        auto running = MiraEngine::AssetManager::LoadAnimation("Assets/Models/Running.fbx");
+        auto attack = MiraEngine::AssetManager::LoadAnimation("Assets/Models/Attack.fbx");
+        auto death = MiraEngine::AssetManager::LoadAnimation("Assets/Models/Death.fbx");
+        model->AddAnimation(idle);
+        model->AddAnimation(walking);
+        model->AddAnimation(running);
+        model->AddAnimation(attack);
+        model->AddAnimation(death);
+
         SetCollider(MiraEngine::Collider::Sphere(0.3f));
         GetTransform().SetScale(glm::vec3(0.01f));
 

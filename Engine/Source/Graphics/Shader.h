@@ -21,6 +21,7 @@ namespace MiraEngine
         void SetVector3(const char* name, const glm::vec3& vector) const;
         void SetVector4(const char* name, const glm::vec4& vector) const;
         void SetInt(const char* name, int value) const;
+        void SetFloat(const char* name, float value) const;
 
     private:
         unsigned int Compile(unsigned int type, const char* source);

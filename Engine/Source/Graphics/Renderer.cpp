@@ -33,6 +33,7 @@ namespace
         out vec3 worldNormal;
         out vec2 textureCoordinate;
         out vec4 worldTangent;
+        out vec3 worldPosition;
 
         void main()
         {
@@ -56,8 +57,10 @@ namespace
             }
 
             worldNormal = mat3(transpose(inverse(model))) * localNormal;
-            worldTangent = vec4(mat3(model) * localTangent, tangent.w);
-            gl_Position = projection * view * model * localPosition;
+            worldTangent = vec4(mat3(model) * localTangent, tangent.w);worldPosition = vec3(model * localPosition);
+            vec4 world = model * localPosition;
+            worldPosition = world.xyz;
+            gl_Position = projection * view * world;
         }
     )";
 
@@ -77,10 +80,15 @@ namespace
         uniform int hasOcclusionTexture;
         uniform sampler2D roughnessTexture;
         uniform int hasRoughnessTexture;
+        uniform vec3 cameraPosition;
+        uniform vec3 fogColor;
+        uniform float fogStart;
+        uniform float fogEnd;
 
         in vec3 worldNormal;
         in vec4 worldTangent;
         in vec2 textureCoordinate;
+        in vec3 worldPosition;
 
         out vec4 fragmentColor;
 
@@ -119,7 +127,12 @@ namespace
                 surfaceColor.rgb *= texel.rgb;
             }
 
-            fragmentColor = vec4(surfaceColor.rgb * lighting, surfaceColor.a);
+            vec3 litColor = surfaceColor.rgb * lighting;
+            // 0 = no fog (closer than fogStart), 1 = fully fogged (farther than fogEnd)
+            float distanceToCamera = length(worldPosition - cameraPosition);
+            float fogAmount = clamp((distanceToCamera - fogStart) / (fogEnd - fogStart), 0.0, 1.0);
+
+            fragmentColor = vec4(mix(litColor, fogColor, fogAmount), surfaceColor.a);
         }
     )";
 }
@@ -131,6 +144,8 @@ namespace MiraEngine
     {
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
+        glEnable(GL_MULTISAMPLE);
+        glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
@@ -138,7 +153,7 @@ namespace MiraEngine
 
     void Renderer::Render(float aspectRatio, Camera& camera, Scene& scene)
     {
-        glClearColor(0.55f, 0.7f, 0.9f, 1.0f);
+        glClearColor(m_fog.color.r, m_fog.color.g, m_fog.color.b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         m_shader.Bind();
         const glm::mat4 view = camera.GetViewMatrix();
@@ -148,6 +163,10 @@ namespace MiraEngine
         m_shader.SetVector3("ambientLight", m_ambientLight.color);
         m_shader.SetVector3("lightDirection", m_directionalLight.direction);
         m_shader.SetVector3("lightColor", m_directionalLight.color);
+        m_shader.SetVector3("cameraPosition", camera.GetPosition());
+        m_shader.SetVector3("fogColor", m_fog.color);
+        m_shader.SetFloat("fogStart", m_fog.start);
+        m_shader.SetFloat("fogEnd", m_fog.end);
 
         for (const auto& object : scene.GetObjects())
         {
@@ -187,6 +206,11 @@ namespace MiraEngine
     void Renderer::SetDirectionalLight(const DirectionalLight& light)
     {
         m_directionalLight = light;
+    }
+
+    void Renderer::SetFog(const Fog& fog)
+    {
+        m_fog = fog;
     }
 
     void Renderer::SetDebugColliders(bool enabled)

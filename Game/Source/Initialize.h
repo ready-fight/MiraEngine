@@ -12,7 +12,6 @@ namespace MiraGame
 }
 
 void InitializeQuests();
-void InitializeModels_Animations();
 void InitializeEnvironment(MiraEngine::Scene& scene);
 MiraGame::Player& InitializePlayer(MiraEngine::Scene& scene);
 void InitializeEnemy(MiraEngine::Scene& scene, MiraGame::Player& player);
