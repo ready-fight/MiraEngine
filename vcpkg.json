@@ -6,7 +6,10 @@
     "glfw3",
     "glew",
     "glm",
-    "imgui",
+    {
+      "name": "imgui",
+      "features": ["glfw-binding", "opengl3-binding"]
+    },
     "stb",
     "miniaudio"
   ]
