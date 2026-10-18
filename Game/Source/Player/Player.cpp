@@ -29,13 +29,14 @@ namespace MiraGame
 		SetTexture(MiraEngine::TextureSlot::Color, "Assets/KayKit_Adventurers/Characters/fbx/knight_texture.png");
 
 		auto model = GetModel();
-		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_General.fbx"));
-		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_MovementBasic.fbx"));
-		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_CombatMelee.fbx"));
+		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_General.fbx", "Idle_B"));
+		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_General.fbx", "Death_A"));
+		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_MovementBasic.fbx", "Running_A"));
+		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_CombatMelee.fbx", "Melee_Unarmed_Attack_Punch_A"));
 
 		SetCollider(MiraEngine::Collider::Sphere(0.3f));
 		GetTransform().SetScale(glm::vec3(0.5f));
-		PlayAnimation("Rig_Medium_General");
+		PlayAnimation("Idle_B");
 	}
 
 	void Player::Update(float deltaTime)
@@ -49,7 +50,7 @@ namespace MiraGame
 
 				FadeOut(deltaTime);
 
-				/*PlayAnimation("Death", false);*/
+				PlayAnimation("Death_A", false);
 
 				m_hasDied = true;
 			}
@@ -81,7 +82,7 @@ namespace MiraGame
 			m_attackHitApplied = false;
 			m_attackTime = 0.0f;
 
-			PlayAnimation("Rig_Medium_CombatMelee", false);
+			PlayAnimation("Melee_Unarmed_Attack_Punch_A", false);
 		}
 
 		m_wasAttackDown = attackDown;
@@ -129,7 +130,7 @@ namespace MiraGame
 				m_isAttacking = false;
 				m_isMoving = isMoving;
 
-				PlayAnimation(isMoving ? "Rig_Medium_MovementBasic" : "Rig_Medium_General");
+				PlayAnimation(isMoving ? "Running_A" : "Idle_B");
 			}
 
 			return;
@@ -138,7 +139,7 @@ namespace MiraGame
 		// Idle / walking animation.
 		if (isMoving != m_isMoving)
 		{
-			PlayAnimation(isMoving ? "Rig_Medium_MovementBasic" : "Rig_Medium_General");
+			PlayAnimation(isMoving ? "Running_A" : "Idle_B");
 
 			m_isMoving = isMoving;
 		}

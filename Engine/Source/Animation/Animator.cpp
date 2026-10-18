@@ -1,4 +1,5 @@
 #include "Animation/Animator.h"
+#include <cmath>
 
 namespace MiraEngine
 {
@@ -8,6 +9,8 @@ namespace MiraEngine
         m_currentAnimation = nullptr;
         m_currentTime = 0.0;
         m_finalBoneMatrices.assign(model.GetBoneCount(), glm::mat4(1.0f));
+        CalculateNodeTransforms(
+            m_model->GetRootNode(), glm::mat4(1.0f));
     }
 
     void Animator::PlayAnimation(const std::string& animationName, bool looping)
@@ -31,10 +34,11 @@ namespace MiraEngine
         m_currentAnimation = nullptr;
         m_currentTime = 0.0;
 
-        for (glm::mat4& matrix : m_finalBoneMatrices)
-        {
-            matrix = glm::mat4(1.0f);
-        }
+        m_finalBoneMatrices.assign(
+            m_model->GetBoneCount(), glm::mat4(1.0f));
+
+        CalculateNodeTransforms(
+            m_model->GetRootNode(), glm::mat4(1.0f));
     }
 
     void Animator::Update(float deltaTime)
@@ -64,7 +68,7 @@ namespace MiraEngine
     void Animator::SetModel(const Model& model)
     {
         m_model = &model;
-        m_finalBoneMatrices.resize(model.GetBoneCount(), glm::mat4(1.0f));
+        StopAnimation();
     }
 
     const std::vector<glm::mat4>& Animator::GetFinalBoneMatrices() const
@@ -76,13 +80,15 @@ namespace MiraEngine
     {
         glm::mat4 localTransform = node.transform;
 
-        for (const BoneAnimation& channel : m_currentAnimation->channels)
-        {
-            if (channel.boneName == node.name)
+        if (m_currentAnimation) {
+            for (const BoneAnimation& channel : m_currentAnimation->channels)
             {
-                localTransform = CalculateBoneTransform(channel, m_currentTime);
+                if (channel.boneName == node.name)
+                {
+                    localTransform = CalculateBoneTransform(channel, m_currentTime);
 
-                break;
+                    break;
+                }
             }
         }
 
@@ -93,7 +99,7 @@ namespace MiraEngine
         if (bone != boneMap.end())
         {
             const int boneID = bone->second.id;
-            m_finalBoneMatrices[boneID] = m_model->GetGlobalInverseTransform() * globalTransform * bone->second.offset;
+            m_finalBoneMatrices[boneID] = m_model->GetGlobalInverseTransform() * globalTransform;
         }
 
         for (const Model::NodeData& child : node.children)

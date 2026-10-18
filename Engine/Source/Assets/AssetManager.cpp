@@ -17,137 +17,166 @@
 
 namespace MiraEngine
 {
-    std::unordered_map<std::string, std::shared_ptr<Model>> AssetManager::s_models;
-    std::unordered_map<std::string, std::shared_ptr<AnimationClip>> AssetManager::s_animations;
-    std::unordered_map<std::string, std::shared_ptr<Texture>> AssetManager::s_textures;
-    
+	std::unordered_map<std::string, std::shared_ptr<Model>> AssetManager::s_models;
+	std::unordered_map<std::string, std::shared_ptr<AnimationClip>> AssetManager::s_animations;
+	std::unordered_map<std::string, std::shared_ptr<Texture>> AssetManager::s_textures;
 
-    std::shared_ptr<Model> AssetManager::LoadModel(const std::string& path)
-    {
-        if (!std::filesystem::is_regular_file(path))
-        {
-            throw std::runtime_error("Model file does not exist: " + path);
-        }
 
-        const auto it = s_models.find(path);
+	std::shared_ptr<Model> AssetManager::LoadModel(const std::string& path)
+	{
+		if (!std::filesystem::is_regular_file(path))
+		{
+			throw std::runtime_error("Model file does not exist: " + path);
+		}
 
-        if (it != s_models.end())
-        {
-            return it->second;
-        }
+		const auto it = s_models.find(path);
 
-        auto model = std::make_shared<Model>(path);
-        s_models[path] = model;
+		if (it != s_models.end())
+		{
+			return it->second;
+		}
 
-        return model;
-    }
+		auto model = std::make_shared<Model>(path);
+		s_models[path] = model;
 
-    std::shared_ptr<AnimationClip> AssetManager::LoadAnimation(const std::string& path)
-    {
-        const std::string name = std::filesystem::path(path).stem().string();
+		return model;
+	}
 
-        if (!std::filesystem::is_regular_file(path))
-        {
-            throw std::runtime_error("Animation file does not exist: " + path);
-        }
+	std::shared_ptr<AnimationClip> AssetManager::LoadAnimation(const std::string& path, const std::string& clipName)
+	{
+		const std::string name = clipName.empty()
+			? std::filesystem::path(path).stem().string()
+			: clipName;
 
-        const auto it = s_animations.find(path);
+		const std::string cacheKey = path + "\n" + clipName;
 
-        if (it != s_animations.end())
-        {
-            return it->second;
-        }
+		if (!std::filesystem::is_regular_file(path))
+		{
+			throw std::runtime_error("Animation file does not exist: " + path);
+		}
 
-        Assimp::Importer importer;
-        const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
+		const auto it = s_animations.find(cacheKey);
 
-        if (!scene)
-        {
-            throw std::runtime_error("Failed to load animation: " + path + "\n" + importer.GetErrorString());
-        }
+		if (it != s_animations.end())
+		{
+			return it->second;
+		}
 
-        if (scene->mNumAnimations == 0)
-        {
-            throw std::runtime_error("File contains no animations: " + path);
-        }
+		Assimp::Importer importer;
+		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
 
-        // Load the first animation from the file.
-        const aiAnimation* animation = scene->mAnimations[0];
-        auto clip = std::make_shared<AnimationClip>();
-        clip->name = name;
-        clip->duration = animation->mDuration;
-        clip->ticksPerSecond = animation->mTicksPerSecond;
-        clip->channels.reserve(animation->mNumChannels);
+		if (!scene)
+		{
+			throw std::runtime_error("Failed to load animation: " + path + "\n" + importer.GetErrorString());
+		}
 
-        for (unsigned int channelIndex = 0; channelIndex < animation->mNumChannels; ++channelIndex)
-        {
-            const aiNodeAnim* channel = animation->mChannels[channelIndex];
-            BoneAnimation boneAnimation;
-            boneAnimation.boneName = channel->mNodeName.C_Str();
+		if (scene->mNumAnimations == 0)
+		{
+			throw std::runtime_error("File contains no animations: " + path);
+		}
 
-            // Positions
-            boneAnimation.positions.reserve(channel->mNumPositionKeys);
+		// Load the first animation from the file.
+		const aiAnimation* animation = nullptr;
 
-            for (unsigned int i = 0; i < channel->mNumPositionKeys; ++i)
-            {
-                const aiVectorKey& key = channel->mPositionKeys[i];
+		if (clipName.empty())
+		{
+			animation = scene->mAnimations[0];
+		}
+		else
+		{
+			for (unsigned int i = 0; i < scene->mNumAnimations; ++i)
+			{
+				const aiAnimation* candidate = scene->mAnimations[i];
 
-                boneAnimation.positions.push_back({glm::vec3(key.mValue.x, key.mValue.y, key.mValue.z), key.mTime});
-            }
+				if (clipName == candidate->mName.C_Str())
+				{
+					animation = candidate;
+					break;
+				}
+			}
+		}
 
-            // Rotations
-            boneAnimation.rotations.reserve(channel->mNumRotationKeys);
+		if (!animation)
+		{
+			throw std::runtime_error(
+				"Animation clip not found: " + clipName + " in " + path);
+		}
+		auto clip = std::make_shared<AnimationClip>();
+		clip->name = name;
+		clip->duration = animation->mDuration;
+		clip->ticksPerSecond = animation->mTicksPerSecond;
+		clip->channels.reserve(animation->mNumChannels);
 
-            for (unsigned int i = 0; i < channel->mNumRotationKeys; ++i)
-            {
-                const aiQuatKey& key = channel->mRotationKeys[i];
+		for (unsigned int channelIndex = 0; channelIndex < animation->mNumChannels; ++channelIndex)
+		{
+			const aiNodeAnim* channel = animation->mChannels[channelIndex];
+			BoneAnimation boneAnimation;
+			boneAnimation.boneName = channel->mNodeName.C_Str();
 
-                boneAnimation.rotations.push_back(
-                    {glm::quat(key.mValue.w, key.mValue.x, key.mValue.y, key.mValue.z), key.mTime});
-            }
+			// Positions
+			boneAnimation.positions.reserve(channel->mNumPositionKeys);
 
-            // Scales
-            boneAnimation.scales.reserve(channel->mNumScalingKeys);
+			for (unsigned int i = 0; i < channel->mNumPositionKeys; ++i)
+			{
+				const aiVectorKey& key = channel->mPositionKeys[i];
 
-            for (unsigned int i = 0; i < channel->mNumScalingKeys; ++i)
-            {
-                const aiVectorKey& key = channel->mScalingKeys[i];
+				boneAnimation.positions.push_back({ glm::vec3(key.mValue.x, key.mValue.y, key.mValue.z), key.mTime });
+			}
 
-                boneAnimation.scales.push_back({glm::vec3(key.mValue.x, key.mValue.y, key.mValue.z), key.mTime});
-            }
+			// Rotations
+			boneAnimation.rotations.reserve(channel->mNumRotationKeys);
 
-            clip->channels.push_back(std::move(boneAnimation));
-        }
+			for (unsigned int i = 0; i < channel->mNumRotationKeys; ++i)
+			{
+				const aiQuatKey& key = channel->mRotationKeys[i];
 
-        s_animations[path] = clip;
+				boneAnimation.rotations.push_back(
+					{ glm::quat(key.mValue.w, key.mValue.x, key.mValue.y, key.mValue.z), key.mTime });
+			}
 
-        return clip;
-    }
+			// Scales
+			boneAnimation.scales.reserve(channel->mNumScalingKeys);
 
-    std::shared_ptr<Texture> AssetManager::LoadTexture(const std::string& path)
-    {
-        if (!std::filesystem::is_regular_file(path))
-        {
-            throw std::runtime_error("Texture file does not exist: " + path);
-        }
+			for (unsigned int i = 0; i < channel->mNumScalingKeys; ++i)
+			{
+				const aiVectorKey& key = channel->mScalingKeys[i];
 
-        const auto it = s_textures.find(path);
+				boneAnimation.scales.push_back({ glm::vec3(key.mValue.x, key.mValue.y, key.mValue.z), key.mTime });
+			}
 
-        if (it != s_textures.end())
-        {
-            return it->second;
-        }
+			clip->channels.push_back(std::move(boneAnimation));
+		}
 
-        auto texture = std::make_shared<Texture>(path);
-        s_textures[path] = texture;
+		s_animations[cacheKey] = clip;
 
-        return texture;
-    }
+		return clip;
+	}
 
-    void AssetManager::Clear()
-    {
-        s_models.clear();
-        s_animations.clear();
+	std::shared_ptr<Texture> AssetManager::LoadTexture(const std::string& path)
+	{
+
+		if (!std::filesystem::is_regular_file(path))
+		{
+			throw std::runtime_error("Texture file does not exist: " + path);
+		}
+
+		const auto it = s_textures.find(path);
+
+		if (it != s_textures.end())
+		{
+			return it->second;
+		}
+
+		auto texture = std::make_shared<Texture>(path);
+		s_textures[path] = texture;
+
+		return texture;
+	}
+
+	void AssetManager::Clear()
+	{
+		s_models.clear();
+		s_animations.clear();
 		s_textures.clear();
-    }
+	}
 }

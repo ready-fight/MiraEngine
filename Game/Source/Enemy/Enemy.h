@@ -32,7 +32,7 @@ namespace MiraGame
         Player& m_player;
         MiraEngine::Scene& m_scene;
         EnemyState m_state = EnemyState::Idle;
-        float m_speed = 1.0f;
+        float m_speed = 2.5f;
         float m_stopDistance = 1.5f;
         float m_detectionRange = 6.0f;
         glm::vec3 m_spawnPosition;

@@ -10,6 +10,7 @@
 #include <GL/glew.h>
 
 #include <cmath>
+#include <glm/trigonometric.hpp>
 
 namespace
 {
@@ -79,7 +80,7 @@ namespace MiraEngine
             switch (collider->shape)
             {
                 case Collider::Shape::Sphere: AddSphere(vertices, position, collider->radius); break;
-                case Collider::Shape::Box:    AddBox(vertices, position, collider->halfExtents); break;
+                case Collider::Shape::Box: AddBox(vertices, position, collider->halfExtents, object->GetTransform().GetRotation().y); break;
             }
         }
 
@@ -100,19 +101,27 @@ namespace MiraEngine
         m_shader.Unbind();
     }
 
-    void DebugRenderer::AddBox(std::vector<glm::vec3>& vertices, const glm::vec3& position,
-                               const glm::vec3& halfExtents)
+    void DebugRenderer::AddBox(std::vector<glm::vec3>& vertices, const glm::vec3& position, const glm::vec3& halfExtents, float yawDegrees)
     {
-        const glm::vec3 min = position - halfExtents;
-        const glm::vec3 max = position + halfExtents;
-        const glm::vec3 p000(min.x, min.y, min.z);
-        const glm::vec3 p001(min.x, min.y, max.z);
-        const glm::vec3 p010(min.x, max.y, min.z);
-        const glm::vec3 p011(min.x, max.y, max.z);
-        const glm::vec3 p100(max.x, min.y, min.z);
-        const glm::vec3 p101(max.x, min.y, max.z);
-        const glm::vec3 p110(max.x, max.y, min.z);
-        const glm::vec3 p111(max.x, max.y, max.z);
+        const float yaw = glm::radians(yawDegrees);
+        const float c = std::cos(yaw);
+        const float s = std::sin(yaw);
+
+        // Builds a corner in the box's own space, then rotates it by the box's yaw.
+        auto Corner = [&](float x, float y, float z)
+            {
+                const glm::vec3 local = glm::vec3(x, y, z) * halfExtents;
+                return position + glm::vec3(c * local.x + s * local.z, local.y, -s * local.x + c * local.z);
+            };
+
+        const glm::vec3 p000 = Corner(-1, -1, -1);
+        const glm::vec3 p001 = Corner(-1, -1, 1);
+        const glm::vec3 p010 = Corner(-1, 1, -1);
+        const glm::vec3 p011 = Corner(-1, 1, 1);
+        const glm::vec3 p100 = Corner(1, -1, -1);
+        const glm::vec3 p101 = Corner(1, -1, 1);
+        const glm::vec3 p110 = Corner(1, 1, -1);
+        const glm::vec3 p111 = Corner(1, 1, 1);
 
         auto AddLine = [&](const glm::vec3& a, const glm::vec3& b)
         {

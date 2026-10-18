@@ -5,6 +5,7 @@
 #include <GL/glew.h>
 
 #include <cstddef>
+#include <utility>
 
 namespace MiraEngine
 {
@@ -23,8 +24,8 @@ namespace MiraEngine
 		}
 	}
 
-	Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<std::uint32_t>& indices) :
-		m_indexCount(static_cast<int>(indices.size()))
+	Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<std::uint32_t>& indices, std::vector<BoneOffset> boneOffsets) :
+		m_indexCount(static_cast<int>(indices.size())), m_boneOffsets(boneOffsets)
 	{
 		glGenVertexArrays(1, &m_vertexArray);
 		glGenBuffers(1, &m_vertexBuffer);
@@ -71,15 +72,33 @@ namespace MiraEngine
 		glDeleteVertexArrays(1, &m_vertexArray);
 	}
 
-	void Mesh::Draw(const Shader& shader, const TextureSet& textures) const
+	void Mesh::Draw(const Shader& shader, const TextureSet& textures, const std::vector<glm::mat4>* boneTransforms) const
 	{
-		BindSlot(shader, textures.color, 0, "colorTexture", "hasColorTexture");
-		BindSlot(shader, textures.normal, 1, "normalTexture", "hasNormalTexture");
-		BindSlot(shader, textures.occlusion, 2, "occlusionTexture", "hasOcclusionTexture");
-		BindSlot(shader, textures.roughness, 3, "roughnessTexture", "hasRoughnessTexture");
+		if (boneTransforms && !m_boneOffsets.empty())
+		{
+			std::vector<glm::mat4> matrices(boneTransforms->size(), glm::mat4(1.0f));
+
+			for (const BoneOffset& bone : m_boneOffsets)
+			{
+				matrices[bone.id] =
+					(*boneTransforms)[bone.id] * bone.offset;
+			}
+
+			shader.SetMatrix4Array("boneMatrices[0]", matrices);
+		}
+
+		BindSlot(shader, textures.color, 0,
+			"colorTexture", "hasColorTexture");
+		BindSlot(shader, textures.normal, 1,
+			"normalTexture", "hasNormalTexture");
+		BindSlot(shader, textures.occlusion, 2,
+			"occlusionTexture", "hasOcclusionTexture");
+		/*BindSlot(shader, textures.roughness, 3,
+			"roughnessTexture", "hasRoughnessTexture")*/;
 
 		glBindVertexArray(m_vertexArray);
-		glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, m_indexCount,
+			GL_UNSIGNED_INT, nullptr);
 		glBindVertexArray(0);
 	}
 }

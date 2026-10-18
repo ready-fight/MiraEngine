@@ -34,11 +34,10 @@ namespace MiraEngine
         struct BoneInfo
         {
             int id;
-            glm::mat4 offset;
         };
 
         explicit Model(const std::string& filePath);
-        void Draw(const Shader& shader, const TextureSet& textures = {}) const;
+        void Draw(const Shader& shader, const TextureSet& textures = {}, const std::vector<glm::mat4>* boneTransforms = nullptr) const;
         void AddAnimation(std::shared_ptr<AnimationClip> clip);
         const NodeData& GetRootNode() const;
         const std::vector<std::shared_ptr<AnimationClip>>& GetAnimations() const;

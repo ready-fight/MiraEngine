@@ -180,14 +180,13 @@ namespace MiraEngine
             m_shader.SetMatrix4("model", object->GetTransform().GetMatrix());
             const Animator* animator = object->GetAnimator();
 
-            if (animator)
-            {
-                m_shader.SetMatrix4Array("boneMatrices[0]", animator->GetFinalBoneMatrices());
-            }
+            const std::vector<glm::mat4>* boneTransforms =
+                animator ? &animator->GetFinalBoneMatrices() : nullptr;
 
             const Material& material = object->GetMaterial();
             m_shader.SetVector4("baseColor", material.color);
-            model->Draw(m_shader, object->GetMaterial().textures);
+
+            model->Draw(m_shader, material.textures, boneTransforms);
         }
 
         m_shader.Unbind();

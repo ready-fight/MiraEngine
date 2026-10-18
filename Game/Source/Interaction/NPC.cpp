@@ -14,16 +14,16 @@ namespace MiraGame
         , m_dialogue(dialogue)
         , m_quest(quest)
     {
-        SetModel("Assets/Models/Idle.fbx");
+        SetModel("Assets/KayKit_Adventurers/Characters/fbx/Rogue_Hooded.fbx");
+        SetTexture(MiraEngine::TextureSlot::Color, "Assets/KayKit_Adventurers/Characters/fbx/rogue_texture.png");
 
-		auto model = GetModel();
-        auto npc = MiraEngine::AssetManager::LoadAnimation("Assets/Models/Interactable/NPC.fbx");
-        model->AddAnimation(npc);
+        auto model = GetModel();
+        model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_General.fbx", "Idle_B"));
 
         SetCollider(MiraEngine::Collider::Sphere(0.3f));
-        GetTransform().SetScale(glm::vec3(0.01f));
-
-        PlayAnimation("NPC");
+        GetTransform().SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
+        GetTransform().SetScale(glm::vec3(0.5f));
+        PlayAnimation("Idle_B");
     }
 
     bool NPC::CanInteract() const

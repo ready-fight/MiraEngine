@@ -57,7 +57,7 @@ namespace MiraGame
         if (rotation.y > m_targetYaw)
         {
             rotation.y = m_targetYaw;
-            RemoveCollider();
+            // RemoveCollider();
         }
 
         GetTransform().SetRotation(rotation);

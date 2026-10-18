@@ -50,7 +50,11 @@ namespace MiraEngine
             return false;
         }
 
-        return Intersects(*colliderA, a.GetTransform().GetPosition(), *colliderB, b.GetTransform().GetPosition());
+        const Transform& transformA = a.GetTransform();
+        const Transform& transformB = b.GetTransform();
+
+        return Intersects(*colliderA, transformA.GetPosition(), transformA.GetRotation().y,
+            *colliderB, transformB.GetPosition(), transformB.GetRotation().y);
     }
 
     bool Scene::IsColliding(const GameObject& object) const

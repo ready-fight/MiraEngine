@@ -33,15 +33,15 @@ void InitializeQuests()
 void InitializeEnvironment(MiraEngine::Scene& scene)
 {
     // Ground: a 40x40 plane with a tiling PBR material (ambientCG Ground037, CC0)
-    const std::string groundTextures = "Assets/Textures/Ground/Ground037_1K-JPG_";
+    const std::string grassTextures = "Assets/Textures/Grass/Grass001_1K-JPG_";
 
-    auto ground = std::make_unique<MiraEngine::GameObject>("Ground");
-    ground->SetModel("Assets/Models/Environment/Ground.obj");
-    ground->SetTexture(MiraEngine::TextureSlot::Color, groundTextures + "Color.jpg");
-    ground->SetTexture(MiraEngine::TextureSlot::Normal, groundTextures + "NormalGL.jpg");
-    ground->SetTexture(MiraEngine::TextureSlot::Occlusion, groundTextures + "AmbientOcclusion.jpg");
+    auto grass = std::make_unique<MiraEngine::GameObject>("Ground");
+    grass->SetModel("Assets/Models/Environment/Ground.obj");
+    grass->SetTexture(MiraEngine::TextureSlot::Color, grassTextures + "Color.jpg");
+    grass->SetTexture(MiraEngine::TextureSlot::Normal, grassTextures + "NormalGL.jpg");
+    grass->SetTexture(MiraEngine::TextureSlot::Occlusion, grassTextures + "AmbientOcclusion.jpg");
     //ground->SetTexture(MiraEngine::TextureSlot::Roughness, groundTextures + "Roughness.jpg");
-    scene.AddObject(std::move(ground));
+    scene.AddObject(std::move(grass));
 
     // Grass: scattered clumps, kept off the spots where gameplay happens
     const std::string grassFolder = "Assets/Models/Environment/Grass/";
@@ -124,7 +124,6 @@ MiraGame::Player& InitializePlayer(MiraEngine::Scene& scene)
 void InitializeEnemy(MiraEngine::Scene& scene, MiraGame::Player& player)
 {
     auto enemy = std::make_unique<MiraGame::Enemy>(player, scene, glm::vec3(5.0f, 0.0f, 5.0f));
-    enemy->GetMaterial().color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
     scene.AddObject(std::move(enemy));
 }
 
@@ -218,9 +217,7 @@ void InitializeNPCs(MiraEngine::Scene& scene)
 
     auto npc = std::make_unique<MiraGame::NPC>("Village Elder", elderDialogue, "Find the Dungeon Key");
 
-    npc->GetMaterial().color = glm::vec4(0, .5, 1, 1);
     npc->GetTransform().SetPosition(glm::vec3(-3.3f, 0.0f, 2.0f));
-    npc->GetTransform().SetRotation(glm::vec3(0.f, 120.f, 0.f));
     scene.AddObject(std::move(npc));
 }
 

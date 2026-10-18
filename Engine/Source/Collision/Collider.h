@@ -20,5 +20,6 @@ namespace MiraEngine
         static Collider Box(const glm::vec3& halfExtents);
     };
 
-    bool Intersects(const Collider& a, const glm::vec3& positionA, const Collider& b, const glm::vec3& positionB);
+    bool Intersects(const Collider& a, const glm::vec3& positionA, float yawA,
+                    const Collider& b, const glm::vec3& positionB, float yawB);
 }

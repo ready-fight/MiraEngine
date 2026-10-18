@@ -22,24 +22,18 @@ namespace MiraGame
     {
         GetTransform().SetPosition(spawnPosition);
 
-        SetModel("Assets/Models/Idle.fbx");
-        auto model = GetModel();
+        SetModel("Assets/KayKit_Adventurers/Characters/fbx/Barbarian.fbx");
+		SetTexture(MiraEngine::TextureSlot::Color, "Assets/KayKit_Adventurers/Characters/fbx/barbarian_texture.png");
 
-        auto idle = MiraEngine::AssetManager::LoadAnimation("Assets/Models/Idle.fbx");
-        auto walking = MiraEngine::AssetManager::LoadAnimation("Assets/Models/Walking.fbx");
-        auto running = MiraEngine::AssetManager::LoadAnimation("Assets/Models/Running.fbx");
-        auto attack = MiraEngine::AssetManager::LoadAnimation("Assets/Models/Attack.fbx");
-        auto death = MiraEngine::AssetManager::LoadAnimation("Assets/Models/Death.fbx");
-        model->AddAnimation(idle);
-        model->AddAnimation(walking);
-        model->AddAnimation(running);
-        model->AddAnimation(attack);
-        model->AddAnimation(death);
+		auto model = GetModel();
+		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_General.fbx", "Idle_A"));
+		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_General.fbx", "Death_B"));
+		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_MovementBasic.fbx", "Walking_A"));
+		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_CombatMelee.fbx", "Melee_1H_Attack_Stab"));
 
-        SetCollider(MiraEngine::Collider::Sphere(0.3f));
-        GetTransform().SetScale(glm::vec3(0.01f));
-
-        PlayAnimation("Idle");
+		SetCollider(MiraEngine::Collider::Sphere(0.3f));
+		GetTransform().SetScale(glm::vec3(0.5f));
+		PlayAnimation("Idle_A");
     }
 
     void Enemy::ChangeState(EnemyState newState)
@@ -55,23 +49,23 @@ namespace MiraGame
         switch (m_state)
         {
             case EnemyState::Idle:
-                PlayAnimation("Idle");
+                PlayAnimation("Idle_A");
                 break;
 
             case EnemyState::Chasing:
-                PlayAnimation("Walking");
+                PlayAnimation("Walking_A");
                 break;
 
             case EnemyState::Attacking:
-                PlayAnimation("Idle");
+                PlayAnimation("Melee_1H_Attack_Stab");
                 break;
 
             case EnemyState::Returning:
-                PlayAnimation("Walking");
+                PlayAnimation("Walking_A");
                 break;
 
             case EnemyState::Dead:
-                PlayAnimation("Death", false);
+                PlayAnimation("Death_B", false);
 				SetCollider(MiraEngine::Collider::Sphere(0.0f));
                 break;
         }

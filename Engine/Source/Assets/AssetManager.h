@@ -15,7 +15,7 @@ namespace MiraEngine
     {
     public:
         static std::shared_ptr<Model> LoadModel(const std::string& path);
-        static std::shared_ptr<AnimationClip> LoadAnimation(const std::string& path);
+        static std::shared_ptr<AnimationClip> LoadAnimation(const std::string& path, const std::string& clipName = "");
         static std::shared_ptr<Texture> LoadTexture(const std::string& path);
         static void Clear();
 

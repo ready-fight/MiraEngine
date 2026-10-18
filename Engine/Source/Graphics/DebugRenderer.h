@@ -21,7 +21,7 @@ namespace MiraEngine
         void Render(float aspectRatio, const Camera& camera, const Scene& scene);
 
     private:
-        void AddBox(std::vector<glm::vec3>& vertices, const glm::vec3& position, const glm::vec3& halfExtents);
+        void AddBox(std::vector<glm::vec3>& vertices, const glm::vec3& position, const glm::vec3& halfExtents, float yawDegrees);
         void AddSphere(std::vector<glm::vec3>& vertices, const glm::vec3& position, float radius);
         Shader m_shader;
         unsigned int m_vao = 0;
