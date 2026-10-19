@@ -54,9 +54,7 @@ namespace MiraEngine
         std::optional<Collider> m_collider;
         std::unique_ptr<Animator> m_animator;
         std::unique_ptr<ParticleEmitter> m_particleEmitter;
-        std::shared_ptr<Texture> m_texture;
         std::shared_ptr<Model> m_model;
-        std::shared_ptr<Texture> m_diffuseOverride;
         Material m_material;
         const float m_fadeSpeed = 3.0f;
         bool m_pendingDestroy = false;

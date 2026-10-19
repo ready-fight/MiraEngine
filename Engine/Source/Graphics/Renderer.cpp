@@ -5,7 +5,6 @@
 #include "Graphics/Model.h"
 #include "Scene/Transform.h"
 #include "Animation/Animator.h"
-#include "Graphics/ParticleRenderer.h"
 
 #include <GL/glew.h>
 
@@ -192,15 +191,7 @@ namespace MiraEngine
 
         m_shader.Unbind();
 
-        for (const auto& object : scene.GetObjects())
-        {
-            const ParticleEmitter* emitter = object->GetParticleEmitter();
-
-            if (emitter)
-            {
-                m_particleRenderer.Render(view, projection, *emitter);
-            }
-        }
+        m_particleRenderer.Render(aspectRatio, camera, scene, m_fog);
 
         if (m_debugColliders)
         {

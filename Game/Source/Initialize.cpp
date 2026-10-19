@@ -33,15 +33,47 @@ void InitializeQuests()
 
 void InitializeEnvironment(MiraEngine::Scene& scene)
 {
+#if 0
+    // Campfire: rising grey smoke with additive fire on top.
+    const glm::vec3 campfirePosition(3.0f, 0.0f, 3.0f);
 
-    // Test fountain: an invisible object that only emits particles.
-    MiraEngine::ParticleSettings fountainSettings;
-    fountainSettings.color = { 1.0f, 0.6f, 0.1f, 1.0f };
+    MiraEngine::ParticleSettings smoke;
+    smoke.spawnRate = 8.0f;
+    smoke.minLifetime = 2.0f;
+    smoke.maxLifetime = 3.5f;
+    smoke.minVelocity = { -0.2f, 0.6f, -0.2f };
+    smoke.maxVelocity = { 0.2f, 1.0f, 0.2f };
+    smoke.gravity = { 0.0f, 0.2f, 0.0f };
+    smoke.drag = 0.5f;
+    smoke.startSize = 0.3f;
+    smoke.endSize = 1.2f;
+    smoke.startColor = { 0.3f, 0.3f, 0.3f, 0.5f };
+    smoke.endColor = { 0.5f, 0.5f, 0.5f, 0.0f };
 
-    auto fountain = std::make_unique<MiraEngine::GameObject>("Fountain");
-    fountain->GetTransform().SetPosition(glm::vec3(3.0f, 0.0f, 3.0f));
-    fountain->SetParticleEmitter(fountainSettings);
-    scene.AddObject(std::move(fountain));
+    MiraEngine::ParticleSettings fire;
+    fire.spawnRate = 60.0f;
+    fire.minLifetime = 0.5f;
+    fire.maxLifetime = 1.0f;
+    fire.minVelocity = { -0.2f, 1.0f, -0.2f };
+    fire.maxVelocity = { 0.2f, 2.0f, 0.2f };
+    fire.gravity = { 0.0f, 0.5f, 0.0f };  // hot air rises
+    fire.startSize = 0.4f;
+    fire.endSize = 0.1f;
+    fire.startColor = { 1.0f, 0.7f, 0.2f, 1.0f };
+    fire.endColor = { 1.0f, 0.1f, 0.0f, 0.0f };
+    fire.blend = MiraEngine::ParticleBlend::Additive;
+
+    // Smoke is added first so the fire draws over it.
+    auto campfireSmoke = std::make_unique<MiraEngine::GameObject>("CampfireSmoke");
+    campfireSmoke->GetTransform().SetPosition(campfirePosition);
+    campfireSmoke->SetParticleEmitter(smoke);
+    scene.AddObject(std::move(campfireSmoke));
+
+    auto campfireFire = std::make_unique<MiraEngine::GameObject>("CampfireFire");
+    campfireFire->GetTransform().SetPosition(campfirePosition);
+    campfireFire->SetParticleEmitter(fire);
+    scene.AddObject(std::move(campfireFire));
+#endif
 
     // Ground: a 40x40 plane with a tiling PBR material (ambientCG Ground037, CC0)
     const std::string grassTextures = "Assets/Textures/Grass/Grass001_1K-JPG_";
