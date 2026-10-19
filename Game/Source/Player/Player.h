@@ -3,6 +3,7 @@
 #include "Character/Character.h"
 #include "Inventory/Inventory.h"
 #include "Quest/QuestSystem.h"
+#include "Inventory/InventoryUI.h"
 
 #include <optional>
 #include <cmath>
@@ -20,12 +21,14 @@ namespace MiraGame
         void EquipItem(std::size_t index);
         void UnequipWeapon();
         void UseItem(std::size_t index);
-        void AddItem(const ItemData& item);
+        bool AddItem(const ItemData& item);
         bool HasItem(const std::string& itemName) const;
         bool RemoveItem(const std::string& itemName);
         bool StartQuest(const std::string& questName);
         const Quest* GetQuest(const std::string& questName) const;
         bool TurnInQuest(const std::string& questName);
+        const Inventory& GetInventory() const { return m_inventory; }
+        const std::optional<ItemData>& GetEquippedWeapon() const { return m_equippedWeapon; }
 
     private:
         float m_speed = 4.0f;
@@ -45,5 +48,6 @@ namespace MiraGame
         MiraEngine::Scene& m_scene;
         std::optional<ItemData> m_equippedWeapon;
         QuestSystem m_questSystem;
+        InventoryUI m_inventoryUI;
     };
 }

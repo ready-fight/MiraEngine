@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Shader.h"
+#include "Graphics/ParticleRenderer.h"
 #include "Graphics/DebugRenderer.h"
 #include "Graphics/Light.h"
 
@@ -31,6 +32,7 @@ namespace MiraEngine
         Shader m_shader;
         AmbientLight m_ambientLight;
         DirectionalLight m_directionalLight;
+        ParticleRenderer m_particleRenderer;
         DebugRenderer m_debugRenderer;
 		Fog m_fog;
         bool m_debugColliders = false;

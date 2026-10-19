@@ -11,6 +11,8 @@
 
 #include <cmath>
 #include <iostream>
+#include <algorithm>
+#include <limits>
 
 namespace MiraGame
 {
@@ -21,19 +23,161 @@ namespace MiraGame
         , m_spawnPosition(spawnPosition)
     {
         GetTransform().SetPosition(spawnPosition);
+        GetTransform().SetRotation(glm::vec3(0.0f, m_spawnYaw, 0.0f));
+		GetTransform().SetScale(glm::vec3(0.5f));
 
         SetModel("Assets/KayKit_Adventurers/Characters/fbx/Barbarian.fbx");
 		SetTexture(MiraEngine::TextureSlot::Color, "Assets/KayKit_Adventurers/Characters/fbx/barbarian_texture.png");
-
-		auto model = GetModel();
-		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_General.fbx", "Idle_A"));
-		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_General.fbx", "Death_B"));
-		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_MovementBasic.fbx", "Walking_A"));
-		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_CombatMelee.fbx", "Melee_1H_Attack_Stab"));
-
 		SetCollider(MiraEngine::Collider::Sphere(0.3f));
-		GetTransform().SetScale(glm::vec3(0.5f));
+
+        auto model = GetModel();
+        const std::string animations = "Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/";
+        model->AddAnimations(MiraEngine::AssetManager::LoadAnimations(animations + "Rig_Medium_General.fbx"));
+        model->AddAnimations(MiraEngine::AssetManager::LoadAnimations(animations + "Rig_Medium_MovementBasic.fbx"));
+        model->AddAnimations(MiraEngine::AssetManager::LoadAnimations(animations + "Rig_Medium_CombatMelee.fbx"));
+
 		PlayAnimation("Idle_A");
+    }
+
+    void Enemy::Update(float deltaTime)
+    {
+        MiraEngine::Transform& transform = GetTransform();
+
+        if (IsDead())
+        {
+            ChangeState(EnemyState::Dead);
+
+            return;
+        }
+
+        const glm::vec3 enemyPosition = transform.GetPosition();
+        const glm::vec3 playerPosition = m_player.GetTransform().GetPosition();
+        glm::vec3 toPlayer = playerPosition - enemyPosition;
+        toPlayer.y = 0.0f;
+        const float playerDistance = m_player.IsDead() ? std::numeric_limits<float>::max() : glm::length(toPlayer);
+
+        switch (m_state)
+        {
+        case EnemyState::Idle:
+        {
+            if (playerDistance <= m_stopDistance)
+            {
+                ChangeState(EnemyState::Attacking);
+            }
+            else if (playerDistance <= m_detectionRange)
+            {
+                ChangeState(EnemyState::Chasing);
+            }
+            else
+            {
+                RotateTowardsYaw(m_spawnYaw, deltaTime);
+            }
+
+            break;
+        }
+
+        case EnemyState::Chasing:
+        {
+            if (playerDistance > m_detectionRange)
+            {
+                ChangeState(EnemyState::Waiting);
+                break;
+            }
+
+            if (playerDistance <= m_stopDistance)
+            {
+                ChangeState(EnemyState::Attacking);
+
+                break;
+            }
+
+            MoveTowards(playerPosition, deltaTime);
+
+            break;
+        }
+
+        case EnemyState::Attacking:
+        {
+            if (playerDistance > m_detectionRange)
+            {
+                ChangeState(EnemyState::Waiting);
+                break;
+            }
+
+            if (playerDistance > m_stopDistance)
+            {
+                ChangeState(EnemyState::Chasing);
+                break;
+            }
+
+            FaceDirection(toPlayer);
+            UpdateAttack(deltaTime);
+            break;
+        }
+
+        case EnemyState::Waiting:
+        {
+            // Re-engage if the player comes back while we're still here.
+            if (playerDistance <= m_detectionRange)
+            {
+                ChangeState(playerDistance <= m_stopDistance ? EnemyState::Attacking : EnemyState::Chasing);
+                break;
+            }
+
+            m_waitTimer += deltaTime;
+
+            if (m_waitTimer >= m_waitTime)
+            {
+                ChangeState(EnemyState::Returning);
+            }
+
+            break;
+        }
+
+        case EnemyState::Returning:
+        {
+            if (playerDistance <= m_detectionRange)
+            {
+                if (playerDistance <= m_stopDistance)
+                {
+                    ChangeState(EnemyState::Attacking);
+                }
+                else
+                {
+                    ChangeState(EnemyState::Chasing);
+                }
+
+                break;
+            }
+
+            glm::vec3 toSpawn = m_spawnPosition - enemyPosition;
+            toSpawn.y = 0.0f;
+            const float spawnDistance = glm::length(toSpawn);
+
+            if (spawnDistance <= m_returnStopDistance)
+            {
+                ChangeState(EnemyState::Idle);
+
+                break;
+            }
+
+            MoveTowards(m_spawnPosition, deltaTime);
+
+            float blend = 1.0f - std::clamp(spawnDistance / m_turnBlendDistance, 0.0f, 1.0f);
+            blend = blend * blend;
+
+            glm::vec3 rotation = transform.GetRotation();
+            float moveYaw = rotation.y; // already set by FaceDirection in MoveTowards
+            float delta = std::fmod(m_spawnYaw - moveYaw + 540.0f, 360.0f) - 180.0f;
+            rotation.y = moveYaw + delta * blend;
+            transform.SetRotation(rotation);
+
+            break;
+        }
+
+        case EnemyState::Dead:
+            break;
+        }
     }
 
     void Enemy::ChangeState(EnemyState newState)
@@ -45,6 +189,7 @@ namespace MiraGame
 
         m_state = newState;
         ResetAttack();
+        m_waitTimer = 0.0f;
 
         switch (m_state)
         {
@@ -57,7 +202,11 @@ namespace MiraGame
                 break;
 
             case EnemyState::Attacking:
-                PlayAnimation("Melee_1H_Attack_Stab");
+                PlayAnimation("Idle_A");
+                break;
+
+            case EnemyState::Waiting:
+                PlayAnimation("Idle_A");
                 break;
 
             case EnemyState::Returning:
@@ -99,7 +248,7 @@ namespace MiraGame
             {
                 m_attackTimer = 0.0f;
                 m_attackInProgress = true;
-                PlayAnimation("Attack", false);
+                PlayAnimation("Melee_1H_Attack_Stab", false);
             }
             return;
         }
@@ -114,7 +263,7 @@ namespace MiraGame
         if (m_attackTimer >= m_attackDuration)
         {
             ResetAttack();
-            PlayAnimation("Idle");
+            PlayAnimation("Idle_A");
         }
     }
 
@@ -125,120 +274,17 @@ namespace MiraGame
         m_attackTimer = 0.0f;
     }
 
-    void Enemy::Update(float deltaTime)
+    void Enemy::RotateTowardsYaw(float targetYaw, float deltaTime)
     {
         MiraEngine::Transform& transform = GetTransform();
+        glm::vec3 rotation = transform.GetRotation();
 
-        if (IsDead())
-        {
-            ChangeState(EnemyState::Dead);
+        // Shortest signed angle difference, in the range -180..180
+        float delta = std::fmod(targetYaw - rotation.y + 540.0f, 360.0f) - 180.0f;
 
-            return;
-        }
+        float t = 1.0f - std::exp(-m_turnSharpness * deltaTime);
+        rotation.y += delta * t;
 
-        if (m_player.IsDead())
-        {
-            ChangeState(EnemyState::Idle);
-
-            return;
-        }
-
-        const glm::vec3 enemyPosition = transform.GetPosition();
-        const glm::vec3 playerPosition = m_player.GetTransform().GetPosition();
-        glm::vec3 toPlayer = playerPosition - enemyPosition;
-        toPlayer.y = 0.0f;
-        const float playerDistance = glm::length(toPlayer);
-
-        switch (m_state)
-        {
-            case EnemyState::Idle:
-            {
-                if (playerDistance <= m_stopDistance)
-                {
-                    ChangeState(EnemyState::Attacking);
-                }
-                else if (playerDistance <= m_detectionRange)
-                {
-                    ChangeState(EnemyState::Chasing);
-                }
-
-                break;
-            }
-
-            case EnemyState::Chasing:
-            {
-                if (playerDistance > m_detectionRange)
-                {
-                    ChangeState(EnemyState::Returning);
-
-                    break;
-                }
-
-                if (playerDistance <= m_stopDistance)
-                {
-                    ChangeState(EnemyState::Attacking);
-
-                    break;
-                }
-
-                MoveTowards(playerPosition, deltaTime);
-
-                break;
-            }
-
-            case EnemyState::Attacking:
-            {
-                if (playerDistance > m_detectionRange)
-                {
-                    ChangeState(EnemyState::Returning);
-                    break;
-                }
-
-                if (playerDistance > m_stopDistance)
-                {
-                    ChangeState(EnemyState::Chasing);
-                    break;
-                }
-
-                FaceDirection(toPlayer);
-                UpdateAttack(deltaTime);
-                break;
-            }
-
-            case EnemyState::Returning:
-            {
-                if (playerDistance <= m_detectionRange)
-                {
-                    if (playerDistance <= m_stopDistance)
-                    {
-                        ChangeState(EnemyState::Attacking);
-                    }
-                    else
-                    {
-                        ChangeState(EnemyState::Chasing);
-                    }
-
-                    break;
-                }
-
-                glm::vec3 toSpawn = m_spawnPosition - enemyPosition;
-                toSpawn.y = 0.0f;
-                const float spawnDistance = glm::length(toSpawn);
-
-                if (spawnDistance <= m_returnStopDistance)
-                {
-                    ChangeState(EnemyState::Idle);
-
-                    break;
-                }
-
-                MoveTowards(m_spawnPosition, deltaTime);
-
-                break;
-            }
-
-            case EnemyState::Dead:
-                break;
-        }
+        transform.SetRotation(rotation);
     }
 }

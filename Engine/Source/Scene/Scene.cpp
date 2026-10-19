@@ -1,7 +1,7 @@
 #include "Scene/Scene.h"
 #include "Scene/GameObject.h"
 #include "Animation/Animator.h"
-
+#include "Particles/ParticleEmitter.h"
 #include "Collision/Collider.h"
 
 #include <algorithm>
@@ -92,6 +92,8 @@ namespace MiraEngine
 
     void Scene::Update(float deltaTime)
     {
+
+
         for (const auto& object : m_objects)
         {
             object->Update(deltaTime);
@@ -100,6 +102,15 @@ namespace MiraEngine
             if (animator)
             {
                 animator->Update(deltaTime);
+            }
+
+            ParticleEmitter* emitter = object->GetParticleEmitter();
+
+            if (emitter)
+            {
+                // After object->Update, so new particles spawn where the object is this frame.
+                emitter->SetPosition(object->GetTransform().GetPosition());
+                emitter->Update(deltaTime);
             }
         }
 

@@ -156,11 +156,6 @@ namespace MiraEngine
 		return m_animations;
 	}
 
-	void Model::AddAnimation(std::shared_ptr<AnimationClip> clip)
-	{
-		m_animations.push_back(clip);
-	}
-
 	const std::unordered_map<std::string, Model::BoneInfo>& Model::GetBoneInfoMap() const
 	{
 		return m_boneInfoMap;

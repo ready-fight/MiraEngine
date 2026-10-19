@@ -1,5 +1,6 @@
 #include "Animation/Animator.h"
 #include <cmath>
+#include <iostream>
 
 namespace MiraEngine
 {
@@ -27,6 +28,8 @@ namespace MiraEngine
                 return;
             }
         }
+
+        std::cerr << "Animation not found: " << animationName << "\n";
     }
 
     void Animator::StopAnimation()

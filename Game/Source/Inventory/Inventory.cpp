@@ -2,9 +2,15 @@
 
 namespace MiraGame
 {
-    void Inventory::AddItem(const ItemData& item)
+    bool Inventory::AddItem(const ItemData& item)
     {
+        if (m_items.size() >= m_capacity)
+        {
+            return false;
+        }
+
         m_items.push_back(item);
+        return true;
     }
 
     void Inventory::RemoveItem(std::size_t index)

@@ -41,9 +41,29 @@ namespace MiraEngine {
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
-    bool UI::BeginWindow(const std::string& title) {
-        return ImGui::Begin(title.c_str());
+    bool UI::BeginWindow(const std::string& title, bool* open, bool autoResize) {
+        const ImGuiWindowFlags flags = autoResize ? ImGuiWindowFlags_AlwaysAutoResize : ImGuiWindowFlags_None;
+        return ImGui::Begin(title.c_str(), open, flags);
     }
+
+    // A square button; highlighted slots use the "pressed" button color.
+    bool UI::DrawSlot(const std::string& label, float size, bool highlighted) {
+        if (highlighted) {
+            ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+        }
+
+        const bool clicked = ImGui::Button(label.c_str(), ImVec2(size, size));
+
+        if (highlighted) {
+            ImGui::PopStyleColor();
+        }
+
+        return clicked;
+    }
+
+    void UI::DrawSeparator() { ImGui::Separator(); }
+
+    void UI::SameLine() { ImGui::SameLine(); }
 
     void UI::EndWindow() { ImGui::End(); }
 

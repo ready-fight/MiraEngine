@@ -32,7 +32,12 @@ namespace MiraGame
             return;
         }
 
-        player.AddItem(m_contents);
+        // Inventory full: keep the chest closed so the player can come back for it.
+        if (!player.AddItem(m_contents))
+        {
+            return;
+        }
+
         m_isOpen = true;
         std::cout << "Chest opened: received " << m_contents.name << "\n";
     }

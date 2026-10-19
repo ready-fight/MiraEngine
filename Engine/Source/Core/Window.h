@@ -7,13 +7,13 @@ namespace MiraEngine
 
     struct MouseMovement
     {
-        double x = 0.0f;
-        double y = 0.0f;
+        float x = 0.0f;
+        float y = 0.0f;
     };
 
     enum class Key
     {
-        W, A, S, D, Q, E, F,
+        W, A, S, D, Q, E, F, I,
         F1, F2
     };
 

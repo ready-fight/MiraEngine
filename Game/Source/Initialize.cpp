@@ -13,6 +13,7 @@
 #include "Assets/AssetManager.h"
 #include "Graphics/Model.h"
 #include "Scene/Scene.h"
+#include "Particles/ParticleEmitter.h"
 
 #include <glm/vec3.hpp>
 #include <glm/geometric.hpp>
@@ -32,16 +33,25 @@ void InitializeQuests()
 
 void InitializeEnvironment(MiraEngine::Scene& scene)
 {
+
+    // Test fountain: an invisible object that only emits particles.
+    MiraEngine::ParticleSettings fountainSettings;
+    fountainSettings.color = { 1.0f, 0.6f, 0.1f, 1.0f };
+
+    auto fountain = std::make_unique<MiraEngine::GameObject>("Fountain");
+    fountain->GetTransform().SetPosition(glm::vec3(3.0f, 0.0f, 3.0f));
+    fountain->SetParticleEmitter(fountainSettings);
+    scene.AddObject(std::move(fountain));
+
     // Ground: a 40x40 plane with a tiling PBR material (ambientCG Ground037, CC0)
     const std::string grassTextures = "Assets/Textures/Grass/Grass001_1K-JPG_";
 
-    auto grass = std::make_unique<MiraEngine::GameObject>("Ground");
-    grass->SetModel("Assets/Models/Environment/Ground.obj");
-    grass->SetTexture(MiraEngine::TextureSlot::Color, grassTextures + "Color.jpg");
-    grass->SetTexture(MiraEngine::TextureSlot::Normal, grassTextures + "NormalGL.jpg");
-    grass->SetTexture(MiraEngine::TextureSlot::Occlusion, grassTextures + "AmbientOcclusion.jpg");
-    //ground->SetTexture(MiraEngine::TextureSlot::Roughness, groundTextures + "Roughness.jpg");
-    scene.AddObject(std::move(grass));
+    auto ground = std::make_unique<MiraEngine::GameObject>("Ground");
+    ground->SetModel("Assets/Models/Environment/Ground.obj");
+    ground->SetTexture(MiraEngine::TextureSlot::Color, grassTextures + "Color.jpg");
+    ground->SetTexture(MiraEngine::TextureSlot::Normal, grassTextures + "NormalGL.jpg");
+    ground->SetTexture(MiraEngine::TextureSlot::Occlusion, grassTextures + "AmbientOcclusion.jpg");
+    scene.AddObject(std::move(ground));
 
     // Grass: scattered clumps, kept off the spots where gameplay happens
     const std::string grassFolder = "Assets/Models/Environment/Grass/";

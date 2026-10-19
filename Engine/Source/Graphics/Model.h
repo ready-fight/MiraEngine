@@ -38,7 +38,7 @@ namespace MiraEngine
 
         explicit Model(const std::string& filePath);
         void Draw(const Shader& shader, const TextureSet& textures = {}, const std::vector<glm::mat4>* boneTransforms = nullptr) const;
-        void AddAnimation(std::shared_ptr<AnimationClip> clip);
+        void AddAnimations(const std::vector<std::shared_ptr<AnimationClip>>& clips) { m_animations.insert(m_animations.end(), clips.begin(), clips.end()); }
         const NodeData& GetRootNode() const;
         const std::vector<std::shared_ptr<AnimationClip>>& GetAnimations() const;
         const std::unordered_map<std::string, BoneInfo>& GetBoneInfoMap() const;

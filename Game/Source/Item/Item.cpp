@@ -34,7 +34,12 @@ namespace MiraGame
             return;
         }
 
-        player.AddItem(m_itemData);
+        // Inventory full: leave the item on the ground.
+        if (!player.AddItem(m_itemData))
+        {
+            return;
+        }
+
         m_pickedUp = true;
     }
 }

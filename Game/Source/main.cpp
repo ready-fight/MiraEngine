@@ -1,6 +1,7 @@
 #include "Core/Application.h"
 #include "Initialize.h"
 #include "Player/Player.h"
+#include "Particles/ParticleEmitter.h"
 
 #include <exception>
 #include <iostream>

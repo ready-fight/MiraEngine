@@ -27,31 +27,29 @@ namespace MiraGame
 	{
 		SetModel("Assets/KayKit_Adventurers/Characters/fbx/Knight.fbx");
 		SetTexture(MiraEngine::TextureSlot::Color, "Assets/KayKit_Adventurers/Characters/fbx/knight_texture.png");
-
-		auto model = GetModel();
-		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_General.fbx", "Idle_B"));
-		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_General.fbx", "Death_A"));
-		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_MovementBasic.fbx", "Running_A"));
-		model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_CombatMelee.fbx", "Melee_Unarmed_Attack_Punch_A"));
-
 		SetCollider(MiraEngine::Collider::Sphere(0.3f));
 		GetTransform().SetScale(glm::vec3(0.5f));
+
+		auto model = GetModel();
+		const std::string animations = "Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/";
+		model->AddAnimations(MiraEngine::AssetManager::LoadAnimations(animations + "Rig_Medium_General.fbx"));
+		model->AddAnimations(MiraEngine::AssetManager::LoadAnimations(animations + "Rig_Medium_MovementBasic.fbx"));
+		model->AddAnimations(MiraEngine::AssetManager::LoadAnimations(animations + "Rig_Medium_CombatMelee.fbx"));
+
 		PlayAnimation("Idle_B");
 	}
 
 	void Player::Update(float deltaTime)
 	{
+		m_inventoryUI.Update();
+
 		if (IsDead())
 		{
 			if (!m_hasDied)
 			{
 				m_isAttacking = false;
 				m_attackHitApplied = false;
-
-				FadeOut(deltaTime);
-
 				PlayAnimation("Death_A", false);
-
 				m_hasDied = true;
 			}
 
@@ -195,50 +193,6 @@ namespace MiraGame
 		const std::string healthText = std::to_string(GetHealth()) + " / " + std::to_string(GetMaxHealth());
 		MiraEngine::UI::DrawText("HP:");
 		MiraEngine::UI::DrawProgressBar(healthPercent, healthText);
-		MiraEngine::UI::DrawText("Equipped:");
-
-		if (m_equippedWeapon.has_value())
-		{
-			MiraEngine::UI::DrawText(m_equippedWeapon->name + " (Damage: " + std::to_string(m_equippedWeapon->damage) +
-				")");
-		}
-		else
-		{
-			MiraEngine::UI::DrawText("None");
-		}
-
-		if (MiraEngine::UI::DrawButton("Unequip"))
-		{
-			UnequipWeapon();
-		}
-
-		MiraEngine::UI::DrawText("Inventory:");
-
-		std::optional<std::size_t> itemToUse;
-		const auto& items = m_inventory.GetItems();
-
-		for (std::size_t i = 0; i < items.size(); ++i)
-		{
-			const ItemData& item = items[i];
-			MiraEngine::UI::PushID(static_cast<int>(i));
-			MiraEngine::UI::DrawText("- " + item.name);
-
-			if (item.type == ItemType::Weapon && MiraEngine::UI::DrawButton("Equip"))
-			{
-				EquipItem(i);
-			}
-			if (item.type == ItemType::Consumable && MiraEngine::UI::DrawButton("Use"))
-			{
-				itemToUse = i;
-			}
-
-			MiraEngine::UI::PopID();
-		}
-
-		if (itemToUse)
-		{
-			UseItem(*itemToUse);
-		}
 
 		MiraEngine::UI::DrawText("Quests:");
 
@@ -270,6 +224,8 @@ namespace MiraGame
 		}
 
 		MiraEngine::UI::EndWindow();
+
+		m_inventoryUI.Draw(*this);
 	}
 
 	void Player::EquipItem(std::size_t index)
@@ -324,11 +280,17 @@ namespace MiraGame
 		std::cout << "Used: " << item.name << "\n";
 	}
 
-	void Player::AddItem(const ItemData& item)
+	bool Player::AddItem(const ItemData& item)
 	{
-		m_inventory.AddItem(item);
+		if (!m_inventory.AddItem(item))
+		{
+			std::cout << "Inventory full, can't pick up: " << item.name << "\n";
+			return false;
+		}
+
 		std::cout << "Picked up: " << item.name << "\n";
 		m_questSystem.OnItemAdded(item.name);
+		return true;
 	}
 
 	bool Player::HasItem(const std::string& itemName) const

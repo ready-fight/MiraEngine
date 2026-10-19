@@ -16,13 +16,15 @@ namespace MiraGame
     {
         SetModel("Assets/KayKit_Adventurers/Characters/fbx/Rogue_Hooded.fbx");
         SetTexture(MiraEngine::TextureSlot::Color, "Assets/KayKit_Adventurers/Characters/fbx/rogue_texture.png");
-
-        auto model = GetModel();
-        model->AddAnimation(MiraEngine::AssetManager::LoadAnimation("Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/Rig_Medium_General.fbx", "Idle_B"));
-
         SetCollider(MiraEngine::Collider::Sphere(0.3f));
+
         GetTransform().SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
         GetTransform().SetScale(glm::vec3(0.5f));
+
+        auto model = GetModel();
+        const std::string animations = "Assets/KayKit_Adventurers/Animations/fbx/Rig_Medium/";
+        model->AddAnimations(MiraEngine::AssetManager::LoadAnimations(animations + "Rig_Medium_General.fbx"));
+
         PlayAnimation("Idle_B");
     }
 
