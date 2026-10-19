@@ -33,7 +33,6 @@ void InitializeQuests()
 
 void InitializeEnvironment(MiraEngine::Scene& scene)
 {
-#if 0
     // Campfire: rising grey smoke with additive fire on top.
     const glm::vec3 campfirePosition(3.0f, 0.0f, 3.0f);
 
@@ -73,7 +72,6 @@ void InitializeEnvironment(MiraEngine::Scene& scene)
     campfireFire->GetTransform().SetPosition(campfirePosition);
     campfireFire->SetParticleEmitter(fire);
     scene.AddObject(std::move(campfireFire));
-#endif
 
     // Ground: a 40x40 plane with a tiling PBR material (ambientCG Ground037, CC0)
     const std::string grassTextures = "Assets/Textures/Grass/Grass001_1K-JPG_";

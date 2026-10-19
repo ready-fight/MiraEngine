@@ -43,7 +43,7 @@ namespace MiraGame
         float m_turnSharpness = 7.0f;
         float m_turnBlendDistance = 0.75f;
         float m_returnStopDistance = 0.1f;
-        int m_attackDamage = 40;
+        int m_attackDamage = 5;
         float m_attackCooldown = 1.0f;
         float m_attackTimer = 0.0f;
         bool m_attackInProgress = false;

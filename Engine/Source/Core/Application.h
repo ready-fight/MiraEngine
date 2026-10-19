@@ -9,6 +9,7 @@ namespace MiraEngine
 {
 
     class GameObject;
+    class ParticleEmitter;
 
     class Application
     {
@@ -29,6 +30,7 @@ namespace MiraEngine
         void DrawInspector();
         void DrawInspectorContents();
         void UpdateFlyCamera(float deltaTime);
+        void DrawEmitterInspector(ParticleEmitter& emitter);
 
         Window m_window;
         Camera m_camera;

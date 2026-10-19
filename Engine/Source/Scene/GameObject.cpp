@@ -181,4 +181,9 @@ namespace MiraEngine
 	{
 		return m_particleEmitter.get();
 	}
+
+	void GameObject::Destroy()
+	{
+		m_pendingDestroy = true;
+	}
 }

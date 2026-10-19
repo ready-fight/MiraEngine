@@ -9,6 +9,7 @@
 #include "Item/Item.h"
 #include "Scene/Scene.h"
 #include "UI/UI.h"
+#include "Effects/Effects.h"
 
 #include "Assets/AssetManager.h"
 #include "Interaction/Interactable.h"
@@ -116,6 +117,7 @@ namespace MiraGame
 						}
 
 						enemy->TakeDamage(attackDamage);
+						SpawnHitSparks(m_scene, enemy->GetTransform().GetPosition() + glm::vec3(0.0f, 0.6f, 0.0f));
 						std::cout << "Enemy HP: " << enemy->GetHealth() << "/" << enemy->GetMaxHealth() << "\n";
 					}
 				}

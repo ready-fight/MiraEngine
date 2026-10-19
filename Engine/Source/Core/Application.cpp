@@ -5,6 +5,7 @@
 #include "Scene/GameObject.h"
 #include "Scene/Transform.h"
 #include "Animation/Animator.h"
+#include "Particles/ParticleEmitter.h"
 
 #include <glm/vec3.hpp>
 #include <glm/geometric.hpp>
@@ -13,7 +14,9 @@
 #include <imgui.h>
 #include "UI/UI.h"
 
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <algorithm>
 #include <string>
 
@@ -24,6 +27,34 @@ namespace MiraEngine
 
     namespace
     {
+        // Prints particle settings as C++ so values tuned in the inspector can be pasted back into code.
+        void PrintParticleSettings(const ParticleSettings& settings)
+        {
+            const auto f = [](float value)
+                {
+                    std::ostringstream stream;
+                    stream << std::fixed << std::setprecision(3) << value << 'f';
+                    return stream.str();
+                };
+            const auto v3 = [&f](const glm::vec3& v) { return "{" + f(v.x) + ", " + f(v.y) + ", " + f(v.z) + "}"; };
+            const auto v4 = [&f](const glm::vec4& v)
+                { return "{" + f(v.r) + ", " + f(v.g) + ", " + f(v.b) + ", " + f(v.a) + "}"; };
+
+            std::cout << "settings.spawnRate = " << f(settings.spawnRate) << ";\n"
+                << "settings.minLifetime = " << f(settings.minLifetime) << ";\n"
+                << "settings.maxLifetime = " << f(settings.maxLifetime) << ";\n"
+                << "settings.minVelocity = " << v3(settings.minVelocity) << ";\n"
+                << "settings.maxVelocity = " << v3(settings.maxVelocity) << ";\n"
+                << "settings.gravity = " << v3(settings.gravity) << ";\n"
+                << "settings.drag = " << f(settings.drag) << ";\n"
+                << "settings.startSize = " << f(settings.startSize) << ";\n"
+                << "settings.endSize = " << f(settings.endSize) << ";\n"
+                << "settings.startColor = " << v4(settings.startColor) << ";\n"
+                << "settings.endColor = " << v4(settings.endColor) << ";\n"
+                << "settings.blend = MiraEngine::ParticleBlend::"
+                << (settings.blend == ParticleBlend::Additive ? "Additive" : "Alpha") << ";\n";
+        }
+
         constexpr float FlyCameraSpeed = 10.0f;
         constexpr float FlyCameraSensitivity = 0.1f;
 
@@ -237,6 +268,11 @@ namespace MiraEngine
                 ImGui::DragFloat3("Half Extents", glm::value_ptr(collider->halfExtents), 0.1f);
             }
         }
+
+        if (ParticleEmitter* emitter = selected.GetParticleEmitter())
+        {
+            DrawEmitterInspector(*emitter);
+        }
     }
 
     void Application::UpdateFlyCamera(float deltaTime)
@@ -290,6 +326,48 @@ namespace MiraEngine
         {
             movement = glm::normalize(movement) * FlyCameraSpeed * deltaTime;
             m_camera.MoveRelative(movement.z, movement.x, movement.y);
+        }
+    }
+
+    void Application::DrawEmitterInspector(ParticleEmitter& emitter)
+    {
+        ParticleSettings& settings = emitter.GetSettings();
+
+        ImGui::Separator();
+        ImGui::TextUnformatted("Particle Emitter");
+        ImGui::Separator();
+
+        ImGui::Text("Alive: %zu / %zu", emitter.GetAliveCount(), settings.maxParticles);
+
+        ImGui::DragFloat("Spawn Rate", &settings.spawnRate, 0.5f, 0.0f, 1000.0f);
+        ImGui::DragFloatRange2("Lifetime", &settings.minLifetime, &settings.maxLifetime, 0.01f, 0.01f, 30.0f);
+        ImGui::DragFloat3("Min Velocity", glm::value_ptr(settings.minVelocity), 0.05f);
+        ImGui::DragFloat3("Max Velocity", glm::value_ptr(settings.maxVelocity), 0.05f);
+        ImGui::DragFloat3("Gravity", glm::value_ptr(settings.gravity), 0.05f);
+        ImGui::DragFloat("Drag", &settings.drag, 0.01f, 0.0f, 20.0f);
+        ImGui::DragFloat("Start Size", &settings.startSize, 0.01f, 0.0f, 20.0f);
+        ImGui::DragFloat("End Size", &settings.endSize, 0.01f, 0.0f, 20.0f);
+        ImGui::ColorEdit4("Start Color", glm::value_ptr(settings.startColor));
+        ImGui::ColorEdit4("End Color", glm::value_ptr(settings.endColor));
+
+        bool additive = settings.blend == ParticleBlend::Additive;
+
+        if (ImGui::Checkbox("Additive", &additive))
+        {
+            settings.blend = additive ? ParticleBlend::Additive : ParticleBlend::Alpha;
+        }
+
+        // Handy for tuning burst effects, which have a spawn rate of 0.
+        if (ImGui::Button("Emit 20"))
+        {
+            emitter.Emit(20);
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::Button("Print Settings"))
+        {
+            PrintParticleSettings(settings);
         }
     }
 }

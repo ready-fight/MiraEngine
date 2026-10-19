@@ -47,6 +47,7 @@ namespace MiraEngine
         void SetParticleEmitter(const ParticleSettings& settings);
         ParticleEmitter* GetParticleEmitter();
         const ParticleEmitter* GetParticleEmitter() const;
+        void Destroy();
 
     private:
         std::string m_name;

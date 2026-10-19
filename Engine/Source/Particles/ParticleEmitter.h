@@ -50,6 +50,7 @@ namespace MiraEngine
         void Emit(std::size_t count);
         void SetPosition(const glm::vec3& position) { m_position = position; }
 
+        ParticleSettings& GetSettings() { return m_settings; }
         const ParticleSettings& GetSettings() const { return m_settings; }
         // Only the first GetAliveCount() particles are alive; the rest of the pool is unused.
         const std::vector<Particle>& GetParticles() const { return m_particles; }

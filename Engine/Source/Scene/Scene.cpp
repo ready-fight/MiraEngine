@@ -19,7 +19,16 @@ namespace MiraEngine
         }
 
         ++count;
-        m_objects.push_back(std::move(object));
+        // Adding to m_objects in the middle of Update would invalidate the loop over it,
+        // so objects created during Update join the scene once the loop is done.
+        if (m_isUpdating)
+        {
+            m_pendingObjects.push_back(std::move(object));
+        }
+        else
+        {
+            m_objects.push_back(std::move(object));
+        }
     }
 
     void Scene::DrawUI()
@@ -92,6 +101,8 @@ namespace MiraEngine
 
     void Scene::Update(float deltaTime)
     {
+        m_isUpdating = true;
+
         for (const auto& object : m_objects)
         {
             object->Update(deltaTime);
@@ -111,6 +122,15 @@ namespace MiraEngine
                 emitter->Update(deltaTime);
             }
         }
+
+        m_isUpdating = false;
+
+        for (auto& object : m_pendingObjects)
+        {
+            m_objects.push_back(std::move(object));
+        }
+
+        m_pendingObjects.clear();
 
         m_objects.erase(std::remove_if(m_objects.begin(), m_objects.end(), [](const std::unique_ptr<GameObject>& object)
                                        { return object->IsPendingDestroy(); }),

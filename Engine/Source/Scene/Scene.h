@@ -27,5 +27,7 @@ namespace MiraEngine
     private:
         std::vector<std::unique_ptr<GameObject>> m_objects;
         std::unordered_map<std::string, int> m_nameCounts;
+        std::vector<std::unique_ptr<GameObject>> m_pendingObjects;
+        bool m_isUpdating = false;
     };
 }
