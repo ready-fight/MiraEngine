@@ -19,6 +19,7 @@ namespace MiraEngine
         void DrawUI();
         std::vector<std::unique_ptr<GameObject>>& GetObjects();
         const std::vector<std::unique_ptr<GameObject>>& GetObjects() const;
+        bool Overlaps(const GameObject& a, const GameObject& b) const;
         bool IsColliding(const GameObject& a, const GameObject& b) const;
         bool IsColliding(const GameObject& object) const;
         bool TryMove(GameObject& object, const glm::vec3& movement);

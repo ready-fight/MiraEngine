@@ -15,6 +15,7 @@ namespace MiraEngine
         Shape shape = Shape::Sphere;
         float radius = 0.5f;           // Sphere only
         glm::vec3 halfExtents{ 0.5f };   // Box only
+        bool isTrigger = false;
 
         static Collider Sphere(float radius);
         static Collider Box(const glm::vec3& halfExtents);

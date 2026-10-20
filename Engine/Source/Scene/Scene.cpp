@@ -49,7 +49,7 @@ namespace MiraEngine
         return m_objects;
     }
 
-    bool Scene::IsColliding(const GameObject& a, const GameObject& b) const
+    bool Scene::Overlaps(const GameObject& a, const GameObject& b) const
     {
         const Collider* colliderA = a.GetCollider();
         const Collider* colliderB = b.GetCollider();
@@ -64,6 +64,19 @@ namespace MiraEngine
 
         return Intersects(*colliderA, transformA.GetPosition(), transformA.GetRotation().y,
             *colliderB, transformB.GetPosition(), transformB.GetRotation().y);
+    }
+
+    bool Scene::IsColliding(const GameObject& a, const GameObject& b) const
+    {
+        const Collider* colliderA = a.GetCollider();
+        const Collider* colliderB = b.GetCollider();
+
+        if (!colliderA || !colliderB || colliderA->isTrigger || colliderB->isTrigger)
+        {
+            return false;
+        }
+
+        return Overlaps(a, b);
     }
 
     bool Scene::IsColliding(const GameObject& object) const
