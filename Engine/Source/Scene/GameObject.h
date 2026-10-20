@@ -14,8 +14,6 @@ namespace MiraEngine
 {
     class Model;
     class Animator;
-    class ParticleEmitter;
-    struct ParticleSettings;
 
     class GameObject
     {
@@ -44,9 +42,6 @@ namespace MiraEngine
         Material& GetMaterial();
         const Material& GetMaterial() const;
         void PlayAnimation(const std::string& name, bool looping = true);
-        void SetParticleEmitter(const ParticleSettings& settings);
-        ParticleEmitter* GetParticleEmitter();
-        const ParticleEmitter* GetParticleEmitter() const;
         void Destroy();
 
     private:
@@ -54,7 +49,6 @@ namespace MiraEngine
         Transform m_transform;
         std::optional<Collider> m_collider;
         std::unique_ptr<Animator> m_animator;
-        std::unique_ptr<ParticleEmitter> m_particleEmitter;
         std::shared_ptr<Model> m_model;
         Material m_material;
         const float m_fadeSpeed = 3.0f;

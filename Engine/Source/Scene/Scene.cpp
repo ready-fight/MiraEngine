@@ -1,7 +1,6 @@
 #include "Scene/Scene.h"
 #include "Scene/GameObject.h"
 #include "Animation/Animator.h"
-#include "Particles/ParticleEmitter.h"
 #include "Collision/Collider.h"
 
 #include <algorithm>
@@ -19,6 +18,7 @@ namespace MiraEngine
         }
 
         ++count;
+
         // Adding to m_objects in the middle of Update would invalidate the loop over it,
         // so objects created during Update join the scene once the loop is done.
         if (m_isUpdating)
@@ -112,15 +112,6 @@ namespace MiraEngine
             {
                 animator->Update(deltaTime);
             }
-
-            ParticleEmitter* emitter = object->GetParticleEmitter();
-
-            if (emitter)
-            {
-                // After object->Update, so new particles spawn where the object is this frame.
-                emitter->SetPosition(object->GetTransform().GetPosition());
-                emitter->Update(deltaTime);
-            }
         }
 
         m_isUpdating = false;
@@ -135,5 +126,12 @@ namespace MiraEngine
         m_objects.erase(std::remove_if(m_objects.begin(), m_objects.end(), [](const std::unique_ptr<GameObject>& object)
                                        { return object->IsPendingDestroy(); }),
                         m_objects.end());
+    }
+
+    void Scene::Clear()
+    {
+        m_objects.clear();
+        m_pendingObjects.clear();
+        m_nameCounts.clear();
     }
 }

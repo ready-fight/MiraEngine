@@ -22,6 +22,7 @@ namespace
 		case Key::I:  return GLFW_KEY_I;
 		case Key::F1: return GLFW_KEY_F1;
 		case Key::F2: return GLFW_KEY_F2;
+		case Key::F5: return GLFW_KEY_F5;
 		}
 		return GLFW_KEY_UNKNOWN;
 	}

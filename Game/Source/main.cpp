@@ -1,30 +1,30 @@
 #include "Core/Application.h"
+#include "Scene/SceneManager.h"
 #include "Initialize.h"
-#include "Player/Player.h"
 
 #include <exception>
 #include <iostream>
 
 int main()
 {
-	try {
-		MiraEngine::Application application;
-		MiraEngine::Camera& camera = application.GetCamera();
-		MiraEngine::Scene& scene = application.GetScene();
-		InitializeQuests();
-		InitializeEnvironment(scene);
-		MiraGame::Player& player = InitializePlayer(scene);
-		InitializeEnemy(scene, player);
-		InitializeInteractions(scene);
-		InitializeNPCs(scene);
-		//InitializeCollisionObjects(scene);
-		InitializeCamera(scene, camera, player);
-		application.Run();
-	}
-	catch (const std::exception& e) {
-		std::cerr << "Fatal Error: " << e.what() << std::endl;
-		return 1;
-	}
+    try
+    {
+        MiraEngine::Application application;
+        MiraEngine::Camera& camera = application.GetCamera();
 
-	return 0;
+        InitializeQuests();
+
+        MiraEngine::SceneManager::Register("Overworld",
+            [&camera](MiraEngine::Scene& scene) { BuildOverworld(scene, camera); });
+        MiraEngine::SceneManager::RequestChange("Overworld");
+
+        application.Run();
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "Fatal Error: " << e.what() << std::endl;
+        return 1;
+    }
+
+    return 0;
 }

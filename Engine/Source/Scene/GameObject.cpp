@@ -5,7 +5,6 @@
 #include "Graphics/Material.h"
 #include "Animation/Animator.h"
 #include "Assets/AssetManager.h"
-#include "Particles/ParticleEmitter.h"
 
 namespace MiraEngine
 {
@@ -165,21 +164,6 @@ namespace MiraEngine
 		{
 			m_animator->PlayAnimation(name, looping);
 		}
-	}
-
-	void GameObject::SetParticleEmitter(const ParticleSettings& settings)
-	{
-		m_particleEmitter = std::make_unique<ParticleEmitter>(settings);
-	}
-
-	ParticleEmitter* GameObject::GetParticleEmitter()
-	{
-		return m_particleEmitter.get();
-	}
-
-	const ParticleEmitter* GameObject::GetParticleEmitter() const
-	{
-		return m_particleEmitter.get();
 	}
 
 	void GameObject::Destroy()

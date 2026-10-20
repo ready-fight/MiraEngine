@@ -191,8 +191,6 @@ namespace MiraEngine
 
         m_shader.Unbind();
 
-        m_particleRenderer.Render(aspectRatio, camera, scene, m_fog);
-
         if (m_debugColliders)
         {
             m_debugRenderer.Render(aspectRatio, camera, scene);

@@ -23,6 +23,7 @@ namespace MiraEngine
         bool IsColliding(const GameObject& object) const;
         bool TryMove(GameObject& object, const glm::vec3& movement);
         void Update(float deltaTime);
+        void Clear();
 
     private:
         std::vector<std::unique_ptr<GameObject>> m_objects;

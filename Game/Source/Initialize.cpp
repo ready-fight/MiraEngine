@@ -13,7 +13,6 @@
 #include "Assets/AssetManager.h"
 #include "Graphics/Model.h"
 #include "Scene/Scene.h"
-#include "Particles/ParticleEmitter.h"
 
 #include <glm/vec3.hpp>
 #include <glm/geometric.hpp>
@@ -31,48 +30,10 @@ void InitializeQuests()
     MiraGame::QuestDatabase::RegisterQuest(dungeonKeyQuest);
 }
 
+
+
 void InitializeEnvironment(MiraEngine::Scene& scene)
 {
-    // Campfire: rising grey smoke with additive fire on top.
-    const glm::vec3 campfirePosition(3.0f, 0.0f, 3.0f);
-
-    MiraEngine::ParticleSettings smoke;
-    smoke.spawnRate = 8.0f;
-    smoke.minLifetime = 2.0f;
-    smoke.maxLifetime = 3.5f;
-    smoke.minVelocity = { -0.2f, 0.6f, -0.2f };
-    smoke.maxVelocity = { 0.2f, 1.0f, 0.2f };
-    smoke.gravity = { 0.0f, 0.2f, 0.0f };
-    smoke.drag = 0.5f;
-    smoke.startSize = 0.3f;
-    smoke.endSize = 1.2f;
-    smoke.startColor = { 0.3f, 0.3f, 0.3f, 0.5f };
-    smoke.endColor = { 0.5f, 0.5f, 0.5f, 0.0f };
-
-    MiraEngine::ParticleSettings fire;
-    fire.spawnRate = 60.0f;
-    fire.minLifetime = 0.5f;
-    fire.maxLifetime = 1.0f;
-    fire.minVelocity = { -0.2f, 1.0f, -0.2f };
-    fire.maxVelocity = { 0.2f, 2.0f, 0.2f };
-    fire.gravity = { 0.0f, 0.5f, 0.0f };  // hot air rises
-    fire.startSize = 0.4f;
-    fire.endSize = 0.1f;
-    fire.startColor = { 1.0f, 0.7f, 0.2f, 1.0f };
-    fire.endColor = { 1.0f, 0.1f, 0.0f, 0.0f };
-    fire.blend = MiraEngine::ParticleBlend::Additive;
-
-    // Smoke is added first so the fire draws over it.
-    auto campfireSmoke = std::make_unique<MiraEngine::GameObject>("CampfireSmoke");
-    campfireSmoke->GetTransform().SetPosition(campfirePosition);
-    campfireSmoke->SetParticleEmitter(smoke);
-    scene.AddObject(std::move(campfireSmoke));
-
-    auto campfireFire = std::make_unique<MiraEngine::GameObject>("CampfireFire");
-    campfireFire->GetTransform().SetPosition(campfirePosition);
-    campfireFire->SetParticleEmitter(fire);
-    scene.AddObject(std::move(campfireFire));
-
     // Ground: a 40x40 plane with a tiling PBR material (ambientCG Ground037, CC0)
     const std::string grassTextures = "Assets/Textures/Grass/Grass001_1K-JPG_";
 
@@ -215,7 +176,7 @@ void InitializeInteractions(MiraEngine::Scene& scene)
     const std::string keyFolder = "Assets/Models/Interactable/Key/";
     dungeonKey->SetTexture(MiraEngine::TextureSlot::Color, keyFolder + "Key2_albedo.jpeg");
     dungeonKey->SetTexture(MiraEngine::TextureSlot::Normal, keyFolder + "Key2_normal.png");
-    dungeonKey->SetTexture(MiraEngine::TextureSlot::Occlusion, keyFolder + "Key2_AO.jpeg"); 
+    dungeonKey->SetTexture(MiraEngine::TextureSlot::Occlusion, keyFolder + "Key2_AO.jpeg");
     dungeonKey->GetTransform().SetPosition(glm::vec3(-1.68f, 0.5f, 1.0f));
 
     scene.AddObject(std::move(dungeonKey));
@@ -239,7 +200,7 @@ void InitializeInteractions(MiraEngine::Scene& scene)
     // Door
     auto door = std::make_unique<MiraGame::Door>("Dungeon Key");
     door->SetModel("Assets/Models/Interactable/Door/Door.fbx");
-	door->SetTexture(MiraEngine::TextureSlot::Color, "Assets/Models/Interactable/Door/Door.png");
+    door->SetTexture(MiraEngine::TextureSlot::Color, "Assets/Models/Interactable/Door/Door.png");
     door->GetTransform().SetPosition(glm::vec3(1.5f, 0.0f, 3.0f));
     door->GetTransform().SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
     door->GetTransform().SetScale(glm::vec3(0.005f, 0.005f, 0.005f));
@@ -265,8 +226,8 @@ void InitializeCollisionObjects(MiraEngine::Scene& scene)
 {
     auto wall = std::make_unique<MiraEngine::GameObject>("Wall 1");
     wall->SetModel("Assets/Models/Collision/Wall/Wall.obj");
-	wall->SetTexture(MiraEngine::TextureSlot::Color, "Assets/Models/Collision/Wall/tex_u1_v1_diffuse.jpg");
-	wall->SetTexture(MiraEngine::TextureSlot::Normal, "Assets/Models/Collision/Wall/tex_u1_v1_normal.jpg");
+    wall->SetTexture(MiraEngine::TextureSlot::Color, "Assets/Models/Collision/Wall/tex_u1_v1_diffuse.jpg");
+    wall->SetTexture(MiraEngine::TextureSlot::Normal, "Assets/Models/Collision/Wall/tex_u1_v1_normal.jpg");
     wall->SetCollider(MiraEngine::Collider::Box(glm::vec3(2.95f, 0.7f, 0.15f)));
     wall->GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 10.0f));
     wall->GetTransform().SetRotation(glm::vec3(0.0f, -90.0f, -5.0f));
@@ -277,4 +238,15 @@ void InitializeCamera(MiraEngine::Scene& scene, MiraEngine::Camera& camera, Mira
 {
     auto cameraController = std::make_unique<MiraGame::CameraController>(camera, player);
     scene.AddObject(std::move(cameraController));
+}
+
+void BuildOverworld(MiraEngine::Scene& scene, MiraEngine::Camera& camera)
+{
+    InitializeEnvironment(scene);
+    MiraGame::Player& player = InitializePlayer(scene);
+    InitializeEnemy(scene, player);
+    InitializeInteractions(scene);
+    InitializeNPCs(scene);
+    //InitializeCollisionObjects(scene);
+    InitializeCamera(scene, camera, player);
 }

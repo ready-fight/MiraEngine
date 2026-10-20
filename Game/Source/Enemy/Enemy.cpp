@@ -5,7 +5,6 @@
 #include "Collision/Collider.h"
 #include "Graphics/Model.h"
 #include "Scene/Transform.h"
-#include "Effects/Effects.h"
 
 #include <glm/geometric.hpp>
 #include <glm/vec3.hpp>
@@ -257,7 +256,6 @@ namespace MiraGame
         if (!m_attackHitApplied && m_attackTimer >= m_attackHitTime)
         {
             m_player.TakeDamage(m_attackDamage);
-            SpawnHitSparks(m_scene, m_player.GetTransform().GetPosition() + glm::vec3(0.0f, 0.6f, 0.0f));
             std::cout << "Player HP: " << m_player.GetHealth() << "/" << m_player.GetMaxHealth() << "\n";
             m_attackHitApplied = true;
         }

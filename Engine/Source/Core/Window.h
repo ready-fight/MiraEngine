@@ -14,7 +14,7 @@ namespace MiraEngine
     enum class Key
     {
         W, A, S, D, Q, E, F, I,
-        F1, F2
+        F1, F2, F5
     };
 
     enum class MouseButton
