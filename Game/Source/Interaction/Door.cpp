@@ -10,7 +10,6 @@ namespace MiraGame
         : MiraEngine::GameObject("Door")
         , m_requiredKey(requiredKey)
     {
-        SetCollider(MiraEngine::Collider::Box(glm::vec3(0.8f, 1.5f, 0.2f)));
     }
 
     bool Door::CanInteract() const
@@ -39,7 +38,7 @@ namespace MiraGame
         }
 
         const float currentYaw = GetTransform().GetRotation().y;
-        m_targetYaw = currentYaw + 90.0f;
+        m_targetYaw = currentYaw - 90.0f;
         m_isOpen = true;
         std::cout << "Door opened\n";
     }
@@ -52,12 +51,12 @@ namespace MiraGame
         }
 
         glm::vec3 rotation = GetTransform().GetRotation();
-        rotation.y += m_openSpeed * deltaTime;
+        rotation.y -= m_openSpeed * deltaTime;
 
-        if (rotation.y > m_targetYaw)
+        if (rotation.y < m_targetYaw)
         {
             rotation.y = m_targetYaw;
-            // RemoveCollider();
+             RemoveCollider();
         }
 
         GetTransform().SetRotation(rotation);

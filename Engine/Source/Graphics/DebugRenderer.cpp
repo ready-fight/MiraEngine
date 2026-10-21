@@ -62,9 +62,10 @@ namespace MiraEngine
         glDeleteVertexArrays(1, &m_vao);
     }
 
-    void DebugRenderer::Render(float aspectRatio, const Camera& camera, const Scene& scene)
+    void DebugRenderer::Render(float aspectRatio, const Camera& camera, const Scene& scene, const GameObject* selectedObject)
     {
         std::vector<glm::vec3> vertices;
+        std::vector<glm::vec3> selectedVertices;
 
         for (const auto& object : scene.GetObjects())
         {
@@ -75,16 +76,19 @@ namespace MiraEngine
                 continue;
             }
 
-            const glm::vec3 position = object->GetTransform().GetPosition();
+            std::vector<glm::vec3>& target = object.get() == selectedObject ? selectedVertices : vertices;
+            const Transform& transform = object->GetTransform();
+            const float yaw = transform.GetRotation().y;
+            const glm::vec3 center = collider->GetCenter(transform.GetPosition(), yaw);
 
             switch (collider->shape)
             {
-                case Collider::Shape::Sphere: AddSphere(vertices, position, collider->radius); break;
-                case Collider::Shape::Box: AddBox(vertices, position, collider->halfExtents, object->GetTransform().GetRotation().y); break;
+            case Collider::Shape::Sphere: AddSphere(target, center, collider->radius); break;
+            case Collider::Shape::Box: AddBox(target, center, collider->halfExtents, yaw); break;
             }
         }
 
-        if (vertices.empty())
+        if (vertices.empty() && selectedVertices.empty())
         {
             return;
         }
@@ -92,11 +96,24 @@ namespace MiraEngine
         m_shader.Bind();
         m_shader.SetMatrix4("view", camera.GetViewMatrix());
         m_shader.SetMatrix4("projection", camera.GetProjectionMatrix(aspectRatio));
-        m_shader.SetVector3("color", glm::vec3(0.0f, 1.0f, 0.0f));
+
         glBindVertexArray(m_vao);
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), vertices.data(), GL_DYNAMIC_DRAW);
-        glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(vertices.size()));
+
+        if (!vertices.empty())
+        {
+            m_shader.SetVector3("color", glm::vec3(0.0f, 1.0f, 0.0f));
+            glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), vertices.data(), GL_DYNAMIC_DRAW);
+            glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(vertices.size()));
+        }
+
+        if (!selectedVertices.empty())
+        {
+            m_shader.SetVector3("color", glm::vec3(0.0f, 0.0f, 1.0f));
+            glBufferData(GL_ARRAY_BUFFER, selectedVertices.size() * sizeof(glm::vec3), selectedVertices.data(), GL_DYNAMIC_DRAW);
+            glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(selectedVertices.size()));
+        }
+
         glBindVertexArray(0);
         m_shader.Unbind();
     }

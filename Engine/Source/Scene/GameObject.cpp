@@ -166,6 +166,22 @@ namespace MiraEngine
 		}
 	}
 
+	void GameObject::FitBoxCollider()
+	{
+		if (!m_model)
+		{
+			return;
+		}
+
+		const glm::vec3& boundsMin = m_model->GetBoundsMin();
+		const glm::vec3& boundsMax = m_model->GetBoundsMax();
+		const glm::vec3& scale = m_transform.GetScale();
+
+		Collider collider = Collider::Box((boundsMax - boundsMin) * 0.5f * scale);
+		collider.offset = (boundsMax + boundsMin) * 0.5f * scale;
+		SetCollider(collider);
+	}
+
 	void GameObject::Destroy()
 	{
 		m_pendingDestroy = true;

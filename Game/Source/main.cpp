@@ -16,6 +16,10 @@ int main()
 
         MiraEngine::SceneManager::Register("Overworld",
             [&camera](MiraEngine::Scene& scene) { BuildOverworld(scene, camera); });
+        MiraEngine::SceneManager::Register("Dungeon",
+            [&camera](MiraEngine::Scene& scene) { BuildDungeon(scene, camera); });
+
+		// Start in the overworld scene.
         MiraEngine::SceneManager::RequestChange("Overworld");
 
         application.Run();

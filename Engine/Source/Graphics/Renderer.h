@@ -12,6 +12,7 @@ namespace MiraEngine
     class Model;
     class Transform;
     class Animator;
+	class GameObject;
 
     class Renderer
     {
@@ -20,7 +21,7 @@ namespace MiraEngine
         ~Renderer();
         Renderer(const Renderer&) = delete;
         Renderer& operator=(const Renderer&) = delete;
-        void Render(float aspectRatio, Camera& camera, Scene& scene);
+        void Render(float aspectRatio, Camera& camera, Scene& scene, const GameObject* selectedObject);
         void SetAmbientLight(const AmbientLight& light);
         void SetDirectionalLight(const DirectionalLight& light);
         void SetFog(const Fog& fog);

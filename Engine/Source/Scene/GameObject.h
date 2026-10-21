@@ -42,6 +42,7 @@ namespace MiraEngine
         Material& GetMaterial();
         const Material& GetMaterial() const;
         void PlayAnimation(const std::string& name, bool looping = true);
+        void FitBoxCollider();
         void Destroy();
 
     private:

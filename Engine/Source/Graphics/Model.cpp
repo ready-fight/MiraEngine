@@ -1,5 +1,6 @@
 #include "Model.h"
 #include "Graphics/Texture.h"
+#include "Graphics/Shader.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
@@ -86,11 +87,12 @@ namespace MiraEngine
 
 	}
 
-	void Model::Draw(const Shader& shader, const TextureSet& textures, const std::vector<glm::mat4>* boneTransforms) const
+	void Model::Draw(const Shader& shader, const glm::mat4& modelMatrix, const TextureSet& textures, const std::vector<glm::mat4>* boneTransforms) const
 	{
-		for (const auto& mesh : m_meshes)
+		for (const auto& entry : m_meshes)
 		{
-			mesh->Draw(shader, textures, boneTransforms);
+			shader.SetMatrix4("model", modelMatrix * entry.transform);
+			entry.mesh->Draw(shader, textures, boneTransforms);
 		}
 	}
 
@@ -107,7 +109,7 @@ namespace MiraEngine
 			throw std::runtime_error("Failed to load model: " + std::string(importer.GetErrorString()));
 		}
 
-		ProcessNode(scene->mRootNode, scene);
+		ProcessNode(scene->mRootNode, scene, glm::mat4(1.0f));
 		if (m_boneCounter > MaxBones)
 		{
 			throw std::runtime_error(filePath + " has " + std::to_string(m_boneCounter)
@@ -117,19 +119,25 @@ namespace MiraEngine
 		m_globalInverseTransform = glm::inverse(ConvertMatrix(scene->mRootNode->mTransformation));
 	}
 
-	void Model::ProcessNode(aiNode* node, const aiScene* scene)
-	{
-		for (unsigned int i = 0; i < node->mNumMeshes; i++)
-		{
-			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-			m_meshes.push_back(ProcessMesh(mesh, scene));
-		}
+	void Model::ProcessNode(aiNode* node, const aiScene* scene, const glm::mat4& parentTransform)
+{
+    const glm::mat4 transform = parentTransform * ConvertMatrix(node->mTransformation);
 
-		for (unsigned int i = 0; i < node->mNumChildren; i++)
-		{
-			ProcessNode(node->mChildren[i], scene);
-		}
-	}
+    for (unsigned int i = 0; i < node->mNumMeshes; i++)
+    {
+        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+
+        // Skinned meshes are positioned by their bones, so they skip the node transform.
+        const glm::mat4 meshTransform = mesh->HasBones() ? glm::mat4(1.0f) : transform;
+		m_meshes.push_back({ ProcessMesh(mesh, scene), meshTransform });
+		ExpandBounds(mesh, meshTransform);
+    }
+
+    for (unsigned int i = 0; i < node->mNumChildren; i++)
+    {
+        ProcessNode(node->mChildren[i], scene, transform);
+    }
+}
 
 	void Model::ReadHierarchyData(NodeData& destination, const aiNode* source)
 	{
@@ -143,6 +151,18 @@ namespace MiraEngine
 			NodeData child;
 			ReadHierarchyData(child, source->mChildren[i]);
 			destination.children.push_back(std::move(child));
+		}
+	}
+
+	void Model::ExpandBounds(const aiMesh* mesh, const glm::mat4& transform)
+	{
+		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+		{
+			const aiVector3D& vertex = mesh->mVertices[i];
+			const glm::vec3 position = glm::vec3(transform * glm::vec4(vertex.x, vertex.y, vertex.z, 1.0f));
+
+			m_boundsMin = glm::min(m_boundsMin, position);
+			m_boundsMax = glm::max(m_boundsMax, position);
 		}
 	}
 

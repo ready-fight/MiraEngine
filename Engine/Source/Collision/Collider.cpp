@@ -68,24 +68,36 @@ namespace MiraEngine
         return collider;
     }
 
+    glm::vec3 Collider::GetCenter(const glm::vec3& position, float yawDegrees) const
+    {
+        const float yaw = glm::radians(yawDegrees);
+        const float c = std::cos(yaw);
+        const float s = std::sin(yaw);
+
+        return position + glm::vec3(c * offset.x + s * offset.z, offset.y, -s * offset.x + c * offset.z);
+    }
+
     bool Intersects(const Collider& a, const glm::vec3& positionA, float yawA,
         const Collider& b, const glm::vec3& positionB, float yawB)
     {
         using Shape = Collider::Shape;
 
+        const glm::vec3 centerA = a.GetCenter(positionA, yawA);
+        const glm::vec3 centerB = b.GetCenter(positionB, yawB);
+
         if (a.shape == Shape::Sphere && b.shape == Shape::Sphere)
         {
-            return SphereVsSphere(positionA, a.radius, positionB, b.radius);
+            return SphereVsSphere(centerA, a.radius, centerB, b.radius);
         }
         if (a.shape == Shape::Box && b.shape == Shape::Box)
         {
             // Approximate: compares the axis-aligned boxes that contain each rotated box.
-            return BoxVsBox(positionA, RotatedExtents(a.halfExtents, yawA), positionB, RotatedExtents(b.halfExtents, yawB));
+            return BoxVsBox(centerA, RotatedExtents(a.halfExtents, yawA), centerB, RotatedExtents(b.halfExtents, yawB));
         }
         if (a.shape == Shape::Box)
         {
-            return BoxVsSphere(positionA, a.halfExtents, yawA, positionB, b.radius);
+            return BoxVsSphere(centerA, a.halfExtents, yawA, centerB, b.radius);
         }
-        return BoxVsSphere(positionB, b.halfExtents, yawB, positionA, a.radius);
+        return BoxVsSphere(centerB, b.halfExtents, yawB, centerA, a.radius);
     }
 }

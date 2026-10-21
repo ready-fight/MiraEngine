@@ -10,6 +10,7 @@ namespace MiraEngine
 {
     class Camera;
     class Scene;
+	class GameObject;
 
     class DebugRenderer
     {
@@ -18,7 +19,7 @@ namespace MiraEngine
         ~DebugRenderer();
         DebugRenderer(const DebugRenderer&) = delete;
         DebugRenderer& operator=(const DebugRenderer&) = delete;
-        void Render(float aspectRatio, const Camera& camera, const Scene& scene);
+        void Render(float aspectRatio, const Camera& camera, const Scene& scene, const GameObject* selectedObject);
 
     private:
         void AddBox(std::vector<glm::vec3>& vertices, const glm::vec3& position, const glm::vec3& halfExtents, float yawDegrees);

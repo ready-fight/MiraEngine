@@ -82,7 +82,7 @@ namespace MiraEngine
             DrawInspector();
             UpdateFlyCamera(deltaTime);
 
-            m_renderer.Render(m_window.GetAspectRatio(), m_camera, m_scene);
+            m_renderer.Render(m_window.GetAspectRatio(), m_camera, m_scene, m_selectedObject ? m_scene.GetObjects()[m_selectedObject].get() : nullptr);
             UI::EndFrame();
             m_window.SwapBuffers();
         }

@@ -10,6 +10,7 @@
 #include "Interaction/Chest.h"
 #include "Interaction/Door.h"
 #include "Interaction/NPC.h"
+#include "Interaction/SceneExit.h"
 #include "Assets/AssetManager.h"
 #include "Graphics/Model.h"
 #include "Scene/Scene.h"
@@ -113,11 +114,11 @@ void InitializeEnvironment(MiraEngine::Scene& scene)
     }
 }
 
-MiraGame::Player& InitializePlayer(MiraEngine::Scene& scene)
+MiraGame::Player& InitializePlayer(MiraEngine::Scene& scene, const glm::vec3& position)
 {
     auto player = std::make_unique<MiraGame::Player>(scene);
     MiraGame::Player& result = *player;
-    player->GetTransform().SetPosition(glm::vec3(0.886f, 0.0f, -3.98f));
+    player->GetTransform().SetPosition(position);
     scene.AddObject(std::move(player));
     return result;
 }
@@ -170,7 +171,7 @@ void InitializeInteractions(MiraEngine::Scene& scene)
     dungeonKeyData.name = "Dungeon Key";
     dungeonKeyData.type = MiraGame::ItemType::KeyItem;
     auto dungeonKey = std::make_unique<MiraGame::Item>(dungeonKeyData);
-    dungeonKey->GetTransform().SetScale(glm::vec3(0.5f));
+    dungeonKey->GetTransform().SetScale(glm::vec3(0.005f));
     dungeonKey->SetModel("Assets/Models/Interactable/Key/Key.fbx");
 
     const std::string keyFolder = "Assets/Models/Interactable/Key/";
@@ -196,15 +197,48 @@ void InitializeInteractions(MiraEngine::Scene& scene)
     chest->GetTransform().SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
     chest->GetTransform().SetScale(glm::vec3(2.0f, 2.0f, 2.0f));
     scene.AddObject(std::move(chest));
+}
 
-    // Door
+MiraGame::Door& InitializeDungeonDoor(MiraEngine::Scene& scene)
+{
+    const std::string doorFolder = "Assets/Models/Interactable/Door/";
+    const glm::vec3 position(2.0f, 0.0f, 4.0f);
+    const glm::vec3 rotation(0.0f, 0.0f, 0.0f);
+    const glm::vec3 scale(0.002f);
+
+    auto frame = std::make_unique<MiraEngine::GameObject>("DoorFrame");
+    frame->SetModel(doorFolder + "DoorFrame.fbx");
+    frame->SetTexture(MiraEngine::TextureSlot::Color, doorFolder + "door001_BaseColor.png");
+    frame->SetTexture(MiraEngine::TextureSlot::Normal, doorFolder + "door001_Normal.png");
+    frame->GetTransform().SetPosition(position);
+    frame->GetTransform().SetRotation(rotation);
+    frame->GetTransform().SetScale(scale);
+    scene.AddObject(std::move(frame));
+
     auto door = std::make_unique<MiraGame::Door>("Dungeon Key");
-    door->SetModel("Assets/Models/Interactable/Door/Door.fbx");
-    door->SetTexture(MiraEngine::TextureSlot::Color, "Assets/Models/Interactable/Door/Door.png");
-    door->GetTransform().SetPosition(glm::vec3(1.5f, 0.0f, 3.0f));
-    door->GetTransform().SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
-    door->GetTransform().SetScale(glm::vec3(0.005f, 0.005f, 0.005f));
+    MiraGame::Door& result = *door;
+    door->SetModel(doorFolder + "DoorLeaf.fbx");
+    door->SetTexture(MiraEngine::TextureSlot::Color, doorFolder + "door001_BaseColor.png");
+    door->SetTexture(MiraEngine::TextureSlot::Normal, doorFolder + "door001_Normal.png");
+    door->GetTransform().SetPosition(position);
+    door->GetTransform().SetRotation(rotation);
+    door->GetTransform().SetScale(scale);
+    door->FitBoxCollider();
+
     scene.AddObject(std::move(door));
+    return result;
+}
+
+void InitializeDungeonEntrance(MiraEngine::Scene& scene, MiraGame::Player& player, const MiraGame::Door& door)
+{
+    auto entrance = std::make_unique<MiraGame::SceneExit>(scene, player, "Dungeon", glm::vec3(0.8f, 1.0f, 0.3f));
+    glm::vec3 entrancePosition = door.GetTransform().GetPosition();
+    entrancePosition.x += 0.85f;
+    entrancePosition.z += 0.5f;
+    entrance->GetTransform().SetPosition(entrancePosition);
+    entrance->GetTransform().SetRotation(door.GetTransform().GetRotation());
+    entrance->SetCondition([&door] { return door.IsOpen(); });
+    scene.AddObject(std::move(entrance));
 }
 
 void InitializeNPCs(MiraEngine::Scene& scene)
@@ -243,10 +277,49 @@ void InitializeCamera(MiraEngine::Scene& scene, MiraEngine::Camera& camera, Mira
 void BuildOverworld(MiraEngine::Scene& scene, MiraEngine::Camera& camera)
 {
     InitializeEnvironment(scene);
-    MiraGame::Player& player = InitializePlayer(scene);
+    MiraGame::Player& player = InitializePlayer(scene, glm::vec3(0.886f, 0.0f, -3.98f));
+	assert(&player != nullptr, "Player initialization failed");
     InitializeEnemy(scene, player);
     InitializeInteractions(scene);
+    const MiraGame::Door& dungeonDoor = InitializeDungeonDoor(scene);
+    InitializeDungeonEntrance(scene, player, dungeonDoor);
     InitializeNPCs(scene);
     //InitializeCollisionObjects(scene);
+    InitializeCamera(scene, camera, player);
+}
+
+void BuildDungeon(MiraEngine::Scene& scene, MiraEngine::Camera& camera)
+{
+    // Placeholder: an untextured, dark floor so it's obviously a different place.
+    auto floor = std::make_unique<MiraEngine::GameObject>("Floor");
+    floor->SetModel("Assets/Models/Environment/Ground.obj");
+    floor->GetMaterial().color = glm::vec4(0.35f, 0.3f, 0.28f, 1.0f);
+    scene.AddObject(std::move(floor));
+
+    MiraGame::Player& player = InitializePlayer(scene, glm::vec3(0.0f, 0.0f, 0.0f));
+
+    // The way back out: a door model as a marker, with the exit trigger in front of it.
+    const glm::vec3 exitPosition(0.0f, 0.0f, -5.0f);
+    const std::string doorFolder = "Assets/Models/Interactable/Door/";
+
+    // The door models pivot on the hinge, so shift them left to centre the doorway on the exit.
+    const glm::vec3 doorPosition = exitPosition - glm::vec3(2.2f, 0.0f, 0.0f);
+
+    auto exitFrame = std::make_unique<MiraEngine::GameObject>("ExitDoorFrame");
+    exitFrame->SetModel(doorFolder + "DoorFrame.fbx");
+    exitFrame->SetTexture(MiraEngine::TextureSlot::Color, doorFolder + "door001_BaseColor.png");
+    exitFrame->SetTexture(MiraEngine::TextureSlot::Normal, doorFolder + "door001_Normal.png");
+    exitFrame->GetTransform().SetPosition(doorPosition);
+    exitFrame->GetTransform().SetScale(glm::vec3(0.005f));
+    scene.AddObject(std::move(exitFrame));
+
+    auto exitDoor = std::make_unique<MiraEngine::GameObject>("ExitDoor");
+    exitDoor->SetModel(doorFolder + "DoorLeaf.fbx");
+    exitDoor->SetTexture(MiraEngine::TextureSlot::Color, doorFolder + "door001_BaseColor.png");
+    exitDoor->SetTexture(MiraEngine::TextureSlot::Normal, doorFolder + "door001_Normal.png");
+    exitDoor->GetTransform().SetPosition(doorPosition);
+    exitDoor->GetTransform().SetScale(glm::vec3(0.005f));
+    scene.AddObject(std::move(exitDoor));
+
     InitializeCamera(scene, camera, player);
 }

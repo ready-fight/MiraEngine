@@ -50,6 +50,7 @@ namespace MiraGame
 				m_isAttacking = false;
 				m_attackHitApplied = false;
 				PlayAnimation("Death_A", false);
+				RemoveCollider();
 				m_hasDied = true;
 			}
 

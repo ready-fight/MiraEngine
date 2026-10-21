@@ -32,7 +32,7 @@ namespace MiraEngine
         glm::vec3 m_up = glm::vec3(0.0f, 1.0f, 0.0f);
         glm::vec3 m_forward;
         glm::vec3 m_right;
-        float m_fov = 45.0f;
+        float m_fov = 55.0f;
         float m_nearPlane = 0.1f;
         float m_farPlane = 100.0f;
         float m_yaw = 0.0f;

@@ -151,7 +151,7 @@ namespace MiraEngine
 
     Renderer::~Renderer() {}
 
-    void Renderer::Render(float aspectRatio, Camera& camera, Scene& scene)
+    void Renderer::Render(float aspectRatio, Camera& camera, Scene& scene, const GameObject* selectedObject)
     {
         glClearColor(m_fog.color.r, m_fog.color.g, m_fog.color.b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -177,7 +177,6 @@ namespace MiraEngine
                 continue;
             }
 
-            m_shader.SetMatrix4("model", object->GetTransform().GetMatrix());
             const Animator* animator = object->GetAnimator();
 
             const std::vector<glm::mat4>* boneTransforms =
@@ -186,14 +185,14 @@ namespace MiraEngine
             const Material& material = object->GetMaterial();
             m_shader.SetVector4("baseColor", material.color);
 
-            model->Draw(m_shader, material.textures, boneTransforms);
+            model->Draw(m_shader, object->GetTransform().GetMatrix(), material.textures, boneTransforms);
         }
 
         m_shader.Unbind();
 
         if (m_debugColliders)
         {
-            m_debugRenderer.Render(aspectRatio, camera, scene);
+            m_debugRenderer.Render(aspectRatio, camera, scene, selectedObject);
         }
     }
 
